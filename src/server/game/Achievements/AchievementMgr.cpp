@@ -19,6 +19,7 @@
 #include "AchievementPackets.h"
 #include "DB2HotfixGenerator.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "CellImpl.h"
 #include "ChatTextBuilder.h"
 #include "Containers.h"
@@ -1129,14 +1130,15 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
         ++count;
     }
 
-    DB2HotfixGenerator<AchievementEntry> hotfixes(sAchievementStore);
-
-    // Once Bitten, Twice Shy (10 player) - Icecrown Citadel
-    // Correct map requirement (currently has Ulduar); 6.0.3 note - it STILL has ulduar requirement
-    hotfixes.ApplyHotfix(4539, [](AchievementEntry* achievement)
-    {
-        achievement->InstanceID = 631;
-    });
+    // TODO: DATA need to apply hotfix to DBC
+//    DB2HotfixGenerator<AchievementEntry> hotfixes(sAchievementStore);
+//
+//    // Once Bitten, Twice Shy (10 player) - Icecrown Citadel
+//    // Correct map requirement (currently has Ulduar); 6.0.3 note - it STILL has ulduar requirement
+//    hotfixes.ApplyHotfix(4539, [](AchievementEntry* achievement)
+//    {
+//        achievement->InstanceID = 631;
+//    });
 
     TC_LOG_INFO("server.loading", ">> Loaded {} achievement references in {} ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }

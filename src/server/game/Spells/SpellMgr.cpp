@@ -21,7 +21,7 @@
 #include "BattlePetMgr.h"
 #include "Chat.h"
 #include "Containers.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "LanguageMgr.h"
 #include "Log.h"
@@ -2598,11 +2598,12 @@ void SpellMgr::LoadSpellInfoStore()
     for (SpellReagentsCurrencyEntry const* reagentsCurrency : sSpellReagentsCurrencyStore)
         loadData[{ reagentsCurrency->SpellID, DIFFICULTY_NONE }].ReagentsCurrency.push_back(reagentsCurrency);
 
-    for (SpellScalingEntry const* scaling : sSpellScalingStore)
-        loadData[{ scaling->SpellID, DIFFICULTY_NONE }].Scaling = scaling;
-
-    for (SpellShapeshiftEntry const* shapeshift : sSpellShapeshiftStore)
-        loadData[{ shapeshift->SpellID, DIFFICULTY_NONE }].Shapeshift = shapeshift;
+    // TODO: DATA MOP doesn't have SpellID on SpellScaling or SpellShapeshift
+//    for (SpellScalingEntry const* scaling : sSpellScalingStore)
+//        loadData[{ scaling->SpellID, DIFFICULTY_NONE }].Scaling = scaling;
+//
+//    for (SpellShapeshiftEntry const* shapeshift : sSpellShapeshiftStore)
+//        loadData[{ shapeshift->SpellID, DIFFICULTY_NONE }].Shapeshift = shapeshift;
 
     for (SpellTargetRestrictionsEntry const* targetRestrictions : sSpellTargetRestrictionsStore)
         loadData[{ targetRestrictions->SpellID, Difficulty(targetRestrictions->DifficultyID) }].TargetRestrictions = targetRestrictions;

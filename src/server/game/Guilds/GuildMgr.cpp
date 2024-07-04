@@ -17,7 +17,7 @@
 
 #include "GuildMgr.h"
 #include "AchievementMgr.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "Guild.h"
 #include "Log.h"

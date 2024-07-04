@@ -26,6 +26,7 @@
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GameTables.h"
 #include "GameTime.h"
 #include "ItemBonusMgr.h"

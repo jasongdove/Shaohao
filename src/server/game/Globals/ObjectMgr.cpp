@@ -27,6 +27,7 @@
 #include "CriteriaHandler.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DisableMgr.h"
 #include "GameObject.h"
 #include "GameObjectAIFactory.h"

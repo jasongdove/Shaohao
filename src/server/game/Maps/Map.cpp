@@ -23,7 +23,7 @@
 #include "CharacterPackets.h"
 #include "Containers.h"
 #include "Conversation.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "DynamicTree.h"
 #include "GameObjectModel.h"

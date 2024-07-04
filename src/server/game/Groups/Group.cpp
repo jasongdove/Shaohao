@@ -20,7 +20,7 @@
 #include "BattlegroundMgr.h"
 #include "CharacterCache.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Formulas.h"
 #include "GameObject.h"
 #include "GameTime.h"

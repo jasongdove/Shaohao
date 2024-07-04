@@ -19,7 +19,7 @@
 #include "Battleground.h"
 #include "Containers.h"
 #include "Corpse.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "FlatSet.h"
 #include "GameTables.h"
 #include "InstanceScript.h"
@@ -1225,7 +1225,8 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
     // SpellAuraOptionsEntry
     if (SpellAuraOptionsEntry const* _options = data.AuraOptions)
     {
-        ProcFlags = _options->ProcTypeMask;
+        // TODO: DATA MOP doesn't have ProcTypeMask array
+        //ProcFlags = _options->ProcTypeMask;
         ProcChance = _options->ProcChance;
         ProcCharges = _options->ProcCharges;
         ProcCooldown = _options->ProcCategoryRecovery;

@@ -24,7 +24,7 @@
 #include "CharmInfo.h"
 #include "Common.h"
 #include "Containers.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GridNotifiersImpl.h"
 #include "Item.h"
 #include "Log.h"

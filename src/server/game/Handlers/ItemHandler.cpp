@@ -20,7 +20,7 @@
 #include "Common.h"
 #include "Creature.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GossipDef.h"
 #include "Item.h"
 #include "ItemPackets.h"

@@ -18,6 +18,7 @@
 #include "LFGMgr.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
 #include "GameTime.h"

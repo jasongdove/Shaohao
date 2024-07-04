@@ -18,6 +18,7 @@
 #include "KillRewarder.h"
 #include "Creature.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "FlatSet.h"
 #include "Formulas.h"
 #include "Group.h"

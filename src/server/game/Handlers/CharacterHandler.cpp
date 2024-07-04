@@ -32,7 +32,7 @@
 #include "Common.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "EquipmentSetPackets.h"
 #include "GameObject.h"
 #include "GameTime.h"

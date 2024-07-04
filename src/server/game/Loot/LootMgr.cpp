@@ -18,7 +18,7 @@
 #include "LootMgr.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "ItemBonusMgr.h"
 #include "ItemTemplate.h"
 #include "Log.h"

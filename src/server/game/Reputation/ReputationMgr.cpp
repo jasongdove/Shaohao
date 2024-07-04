@@ -18,7 +18,7 @@
 #include "ReputationMgr.h"
 #include "CharacterPackets.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectMgr.h"

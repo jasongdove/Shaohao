@@ -17,6 +17,7 @@
 
 #include "Hyperlinks.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Item.h"
 #include "ItemBonusMgr.h"
 #include "ObjectMgr.h"

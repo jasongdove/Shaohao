@@ -38,7 +38,7 @@
 #include "CreatureAIImpl.h"
 #include "CreatureAIFactory.h"
 #include "CreatureGroups.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Formulas.h"
 #include "GameObjectAI.h"
 #include "GameTime.h"
@@ -12133,9 +12133,10 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
         }
     }
 
+    // TODO: DATA fix this? only one CreatureDisplayID on master, 4 on MOP
     SpellShapeshiftFormEntry const* formEntry = sSpellShapeshiftFormStore.LookupEntry(form);
-    if (formEntry && formEntry->CreatureDisplayID)
-        return formEntry->CreatureDisplayID;
+    if (formEntry && formEntry->CreatureDisplayID[0])
+        return formEntry->CreatureDisplayID[0];
 
     return 0;
 }

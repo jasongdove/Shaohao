@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "CreatureAI.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "EventProcessor.h"
 #include "Log.h"
 #include "MotionMaster.h"

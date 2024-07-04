@@ -26,6 +26,7 @@
 #include "CreatureAISelector.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "G3DPosition.hpp"
 #include "GameEventSender.h"
 #include "GameObjectAI.h"

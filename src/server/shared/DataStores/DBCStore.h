@@ -86,6 +86,8 @@ class DBCStorage
 
         ~DBCStorage() { Clear(); }
 
+        bool HasRecord(uint32 id) const { return id < nCount && indexTable.asT[id] != nullptr; }
+
         T const* LookupEntry(uint32 id) const
         {
             return (id >= nCount) ? NULL : indexTable.asT[id];

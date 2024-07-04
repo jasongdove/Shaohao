@@ -21,6 +21,7 @@
 #include "ConversationDataStore.h"
 #include "CreatureTextMgr.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "GameEventMgr.h"
 #include "InstanceScript.h"

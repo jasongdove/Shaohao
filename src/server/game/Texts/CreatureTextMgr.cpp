@@ -23,7 +23,7 @@
 #include "Common.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GridNotifiersImpl.h"
 #include "LanguageMgr.h"
 #include "Log.h"

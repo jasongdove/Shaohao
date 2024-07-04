@@ -16,7 +16,7 @@
  */
 
 #include "GridMap.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GridDefines.h"
 #include "Log.h"
 #include <G3D/Plane.h>

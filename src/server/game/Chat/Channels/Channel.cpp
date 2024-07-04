@@ -22,6 +22,7 @@
 #include "Chat.h"
 #include "ChatPackets.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"

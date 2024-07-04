@@ -16,7 +16,7 @@
  */
 
 #include "CharacterCache.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "WorldSession.h"
 #include "GameTime.h"
 #include "Group.h"

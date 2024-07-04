@@ -25,6 +25,7 @@
 #include "Creature.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
 #include "GameTime.h"
@@ -3093,6 +3094,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             if (referencePlayer->GetReputationMgr().GetParagonLevel(faction->ParagonFactionID) < int32(reqValue))
                 return false;
             break;
+            return false;
         }
         case ModifierTreeType::PlayerHasItemWithBonusListFromTreeAndQuality: // 222
         {
@@ -4677,7 +4679,7 @@ void CriteriaMgr::LoadCriteriaList()
         if (CriteriaTree* parent = Trinity::Containers::MapGetValuePtr(_criteriaTrees, criteriaTree.second->Entry->Parent))
             parent->Children.push_back(criteriaTree.second);
 
-        if (sCriteriaStore.HasRecord(criteriaTree.second->Entry->CriteriaID))
+        if (sCriteriaStore.LookupEntry(criteriaTree.second->Entry->CriteriaID))
             _criteriaTreeByCriteria[criteriaTree.second->Entry->CriteriaID].push_back(criteriaTree.second);
     }
 

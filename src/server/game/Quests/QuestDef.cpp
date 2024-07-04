@@ -17,7 +17,7 @@
 
 #include "QuestDef.h"
 #include "ConditionMgr.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Field.h"
 #include "GameTables.h"
 #include "Log.h"

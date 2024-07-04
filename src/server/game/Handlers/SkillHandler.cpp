@@ -17,7 +17,7 @@
 
 #include "WorldSession.h"
 #include "Common.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GossipDef.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -105,7 +105,7 @@ void WorldSession::HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRe
 
 void WorldSession::HandleUnlearnSkillOpcode(WorldPackets::Spells::UnlearnSkill& packet)
 {
-    SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(packet.SkillLine, GetPlayer()->GetRace(), GetPlayer()->GetClass());
+    SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(packet.SkillLine, GetPlayer()->GetRace(), GetPlayer()->GetClass());
     if (!rcEntry || !(rcEntry->Flags & SKILL_FLAG_UNLEARNABLE))
         return;
 

@@ -20,6 +20,7 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Group.h"
 #include "InstanceScript.h"
 #include "Log.h"

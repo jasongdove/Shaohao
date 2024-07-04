@@ -28,7 +28,7 @@
 #include "ClubService.h"
 #include "ClubUtils.h"
 #include "Config.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "GuildMgr.h"

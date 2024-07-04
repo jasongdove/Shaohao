@@ -46,7 +46,7 @@
 #include "CreatureAIRegistry.h"
 #include "CreatureGroups.h"
 #include "CreatureTextMgr.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "DetourMemoryFunctions.h"
 #include "DisableMgr.h"

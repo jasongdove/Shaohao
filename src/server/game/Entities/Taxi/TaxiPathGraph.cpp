@@ -16,7 +16,7 @@
  */
 
 #include "TaxiPathGraph.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "Player.h"

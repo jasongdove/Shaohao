@@ -19,6 +19,7 @@
 #include "Creature.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GameObject.h"
 #include "GameTime.h"
 #include "GarrisonMgr.h"

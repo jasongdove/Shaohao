@@ -51,6 +51,7 @@
 #include "Containers.h"
 #include "CreatureAI.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "DuelPackets.h"
@@ -3082,7 +3083,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
 
             if (new_skill_max_value == 0)
             {
-                if (SkillRaceClassInfoEntry const* rcInfo = sDB2Manager.GetSkillRaceClassInfo(spellLearnSkill->skill, GetRace(), GetClass()))
+                if (SkillRaceClassInfoEntry const* rcInfo = GetSkillRaceClassInfo(spellLearnSkill->skill, GetRace(), GetClass()))
                 {
                     switch (GetSkillRangeType(rcInfo))
                     {
@@ -3131,7 +3132,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
 
             // Runeforging special case
             if ((_spell_idx->second->AcquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(_spell_idx->second->SkillLine)) || ((_spell_idx->second->SkillLine == SKILL_RUNEFORGING) && _spell_idx->second->TrivialSkillLineRankHigh == 0))
-                if (SkillRaceClassInfoEntry const* rcInfo = sDB2Manager.GetSkillRaceClassInfo(_spell_idx->second->SkillLine, GetRace(), GetClass()))
+                if (SkillRaceClassInfoEntry const* rcInfo = GetSkillRaceClassInfo(_spell_idx->second->SkillLine, GetRace(), GetClass()))
                     LearnDefaultSkill(rcInfo);
         }
     }
@@ -3357,7 +3358,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_
 
                 if (new_skill_max_value == 0)
                 {
-                    if (SkillRaceClassInfoEntry const* rcInfo = sDB2Manager.GetSkillRaceClassInfo(prevSkill->skill, GetRace(), GetClass()))
+                    if (SkillRaceClassInfoEntry const* rcInfo = GetSkillRaceClassInfo(prevSkill->skill, GetRace(), GetClass()))
                     {
                         switch (GetSkillRangeType(rcInfo))
                         {
@@ -5554,25 +5555,26 @@ bool Player::UpdateCraftSkill(SpellInfo const* spellInfo)
 
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
     {
-        if (_spell_idx->second->SkillupSkillLineID)
-        {
-            uint32 SkillValue = GetPureSkillValue(_spell_idx->second->SkillupSkillLineID);
-
-            // Alchemy Discoveries here
-            if (spellInfo->Mechanic == MECHANIC_DISCOVERY)
-            {
-                if (uint32 discoveredSpell = GetSkillDiscoverySpell(_spell_idx->second->SkillupSkillLineID, spellInfo->Id, this))
-                    LearnSpell(discoveredSpell, false);
-            }
-
-            uint32 craft_skill_gain = _spell_idx->second->NumSkillUps * sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
-
-            return UpdateSkillPro(_spell_idx->second->SkillupSkillLineID, SkillGainChance(SkillValue,
-                _spell_idx->second->TrivialSkillLineRankHigh,
-                (_spell_idx->second->TrivialSkillLineRankHigh + _spell_idx->second->TrivialSkillLineRankLow)/2,
-                _spell_idx->second->TrivialSkillLineRankLow),
-                craft_skill_gain);
-        }
+        // TODO: Shaohao: SkillLineEntry doesn't have SkillupSkillLineID
+//        if (_spell_idx->second->SkillupSkillLineID)
+//        {
+//            uint32 SkillValue = GetPureSkillValue(_spell_idx->second->SkillupSkillLineID);
+//
+//            // Alchemy Discoveries here
+//            if (spellInfo->Mechanic == MECHANIC_DISCOVERY)
+//            {
+//                if (uint32 discoveredSpell = GetSkillDiscoverySpell(_spell_idx->second->SkillupSkillLineID, spellInfo->Id, this))
+//                    LearnSpell(discoveredSpell, false);
+//            }
+//
+//            uint32 craft_skill_gain = _spell_idx->second->NumSkillUps * sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
+//
+//            return UpdateSkillPro(_spell_idx->second->SkillupSkillLineID, SkillGainChance(SkillValue,
+//                _spell_idx->second->TrivialSkillLineRankHigh,
+//                (_spell_idx->second->TrivialSkillLineRankHigh + _spell_idx->second->TrivialSkillLineRankLow)/2,
+//                _spell_idx->second->TrivialSkillLineRankLow),
+//                craft_skill_gain);
+//        }
     }
     return false;
 }
@@ -5750,7 +5752,7 @@ void Player::UpdateSkillsForLevel()
             continue;
 
         uint32 pskill = itr->first;
-        SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(pskill, GetRace(), GetClass());
+        SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(pskill, GetRace(), GetClass());
         if (!rcEntry)
             continue;
 
@@ -5774,7 +5776,7 @@ void Player::InitializeSkillFields()
     uint32 i = 0;
     for (SkillLineEntry const* skillLine : sSkillLineStore)
     {
-        if (sDB2Manager.GetSkillRaceClassInfo(skillLine->ID, GetRace(), GetClass()))
+        if (GetSkillRaceClassInfo(skillLine->ID, GetRace(), GetClass()))
         {
             SetSkillLineId(i, skillLine->ID);
             SetSkillStartingRank(i, 1);
@@ -5827,7 +5829,7 @@ void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
         {
             // enable parent skill line if missing
             if (skillEntry->ParentSkillLineID && skillEntry->ParentTierIndex > 0 && GetSkillStep(skillEntry->ParentSkillLineID) < skillEntry->ParentTierIndex)
-                if (SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(skillEntry->ParentSkillLineID, GetRace(), GetClass()))
+                if (SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skillEntry->ParentSkillLineID, GetRace(), GetClass()))
                     if (SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcEntry->SkillTierID))
                         SetSkill(skillEntry->ParentSkillLineID, skillEntry->ParentTierIndex, std::max<uint16>(GetPureSkillValue(skillEntry->ParentSkillLineID), 1), tier->GetValueForTierIndex(skillEntry->ParentTierIndex - 1));
 
@@ -5955,7 +5957,7 @@ void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
         {
             if (skillEntry->ParentTierIndex > 0)
             {
-                if (SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(skillEntry->ParentSkillLineID, GetRace(), GetClass()))
+                if (SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skillEntry->ParentSkillLineID, GetRace(), GetClass()))
                 {
                     if (SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcEntry->SkillTierID))
                     {
@@ -25278,7 +25280,7 @@ bool Player::IsSpellFitByClassAndRace(uint32 spell_id) const
             continue;
 
         // skip wrong class and race skill saved in SkillRaceClassInfo.dbc
-        if (!sDB2Manager.GetSkillRaceClassInfo(_spell_idx->second->SkillLine, GetRace(), GetClass()))
+        if (!GetSkillRaceClassInfo(_spell_idx->second->SkillLine, GetRace(), GetClass()))
             continue;
 
         return true;
@@ -26608,7 +26610,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             uint16 max      = fields[2].GetUInt16();
             int8 professionSlot = fields[3].GetInt8();
 
-            SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(skill, race, GetClass());
+            SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skill, race, GetClass());
             if (!rcEntry)
             {
                 TC_LOG_ERROR("entities.player", "Player::_LoadSkills: Player '{}' ({}, Race: {}, Class: {}) has forbidden skill {} for his race/class combination",
@@ -26680,7 +26682,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
         // enable parent skill line if missing
         SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(skillId);
         if (skillEntry->ParentSkillLineID && skillEntry->ParentTierIndex > 0 && GetSkillStep(skillEntry->ParentSkillLineID) < skillEntry->ParentTierIndex)
-            if (SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(skillEntry->ParentSkillLineID, GetRace(), GetClass()))
+            if (SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skillEntry->ParentSkillLineID, GetRace(), GetClass()))
                 if (SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcEntry->SkillTierID))
                     SetSkill(skillEntry->ParentSkillLineID, skillEntry->ParentTierIndex, std::max<uint16>(GetPureSkillValue(skillEntry->ParentSkillLineID), 1), tier->GetValueForTierIndex(skillEntry->ParentTierIndex - 1));
 

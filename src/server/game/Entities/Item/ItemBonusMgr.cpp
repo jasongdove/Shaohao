@@ -18,6 +18,7 @@
 #include "ItemBonusMgr.h"
 #include "ConditionMgr.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -76,56 +77,59 @@ ItemContext GetContextForPlayer(MapDifficultyEntry const* mapDifficulty, Player 
     if (!mapDifficulty)
         return ItemContext::NONE;
 
-    auto evalContext = [](ItemContext currentContext, ItemContext newContext)
-    {
-        if (newContext == ItemContext::NONE)
-            newContext = currentContext;
-        else if (newContext == ItemContext::Force_to_NONE)
-            newContext = ItemContext::NONE;
-        return newContext;
-    };
+    // Shaohao: MOP doesn't have DifficultyEntry.ItemContext
+    return ItemContext::NONE;
 
-    ItemContext context = ItemContext::NONE;
-    if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(mapDifficulty->DifficultyID))
-        context = evalContext(context, ItemContext(difficulty->ItemContext));
-
-    context = evalContext(context, ItemContext(mapDifficulty->ItemContext));
-
-    if (mapDifficulty->ItemContextPickerID)
-    {
-        uint32 contentTuningId = sDB2Manager.GetRedirectedContentTuningId(mapDifficulty->ContentTuningID, player->m_playerData->CtrOptions->ContentTuningConditionMask);
-
-        ItemContextPickerEntryEntry const* selectedPickerEntry = nullptr;
-        for (ItemContextPickerEntryEntry const* itemContextPickerEntry : sItemContextPickerEntryStore)
-        {
-            if (itemContextPickerEntry->ItemContextPickerID != uint32(mapDifficulty->ItemContextPickerID))
-                continue;
-
-            if (itemContextPickerEntry->PVal <= 0)
-                continue;
-
-            bool meetsPlayerCondition = false;
-            if (player)
-                meetsPlayerCondition = ConditionMgr::IsPlayerMeetingCondition(player, itemContextPickerEntry->PlayerConditionID);
-
-            if (itemContextPickerEntry->Flags & 0x1)
-                meetsPlayerCondition = !meetsPlayerCondition;
-
-            if (!meetsPlayerCondition)
-                continue;
-
-            if (itemContextPickerEntry->LabelID && !sDB2Manager.HasContentTuningLabel(contentTuningId, itemContextPickerEntry->LabelID))
-                continue;
-
-            if (!selectedPickerEntry || selectedPickerEntry->OrderIndex < itemContextPickerEntry->OrderIndex)
-                selectedPickerEntry = itemContextPickerEntry;
-        }
-
-        if (selectedPickerEntry)
-            context = evalContext(context, ItemContext(selectedPickerEntry->ItemCreationContext));
-    }
-
-    return context;
+//    auto evalContext = [](ItemContext currentContext, ItemContext newContext)
+//    {
+//        if (newContext == ItemContext::NONE)
+//            newContext = currentContext;
+//        else if (newContext == ItemContext::Force_to_NONE)
+//            newContext = ItemContext::NONE;
+//        return newContext;
+//    };
+//
+//    ItemContext context = ItemContext::NONE;
+//    if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(mapDifficulty->DifficultyID))
+//        context = evalContext(context, ItemContext(difficulty->ItemContext));
+//
+//    context = evalContext(context, ItemContext(mapDifficulty->ItemContext));
+//
+//    if (mapDifficulty->ItemContextPickerID)
+//    {
+//        uint32 contentTuningId = sDB2Manager.GetRedirectedContentTuningId(mapDifficulty->ContentTuningID, player->m_playerData->CtrOptions->ContentTuningConditionMask);
+//
+//        ItemContextPickerEntryEntry const* selectedPickerEntry = nullptr;
+//        for (ItemContextPickerEntryEntry const* itemContextPickerEntry : sItemContextPickerEntryStore)
+//        {
+//            if (itemContextPickerEntry->ItemContextPickerID != uint32(mapDifficulty->ItemContextPickerID))
+//                continue;
+//
+//            if (itemContextPickerEntry->PVal <= 0)
+//                continue;
+//
+//            bool meetsPlayerCondition = false;
+//            if (player)
+//                meetsPlayerCondition = ConditionMgr::IsPlayerMeetingCondition(player, itemContextPickerEntry->PlayerConditionID);
+//
+//            if (itemContextPickerEntry->Flags & 0x1)
+//                meetsPlayerCondition = !meetsPlayerCondition;
+//
+//            if (!meetsPlayerCondition)
+//                continue;
+//
+//            if (itemContextPickerEntry->LabelID && !sDB2Manager.HasContentTuningLabel(contentTuningId, itemContextPickerEntry->LabelID))
+//                continue;
+//
+//            if (!selectedPickerEntry || selectedPickerEntry->OrderIndex < itemContextPickerEntry->OrderIndex)
+//                selectedPickerEntry = itemContextPickerEntry;
+//        }
+//
+//        if (selectedPickerEntry)
+//            context = evalContext(context, ItemContext(selectedPickerEntry->ItemCreationContext));
+//    }
+//
+//    return context;
 }
 
 std::span<ItemBonusEntry const*> GetItemBonuses(uint32 bonusListId)

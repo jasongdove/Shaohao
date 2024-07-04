@@ -29,7 +29,7 @@
 #include "Conversation.h"
 #include "Corpse.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GameTime.h"
 #include "GossipDef.h"
 #include "Group.h"

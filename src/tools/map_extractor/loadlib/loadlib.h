@@ -18,10 +18,9 @@
 #ifndef LOAD_LIB_H
 #define LOAD_LIB_H
 
+#include "StormLib.h"
 #include "Define.h"
-#include "CascHandles.h"
 #include <map>
-#include <memory>
 #include <string>
 
 #define FILE_FORMAT_VERSION    18
@@ -76,14 +75,13 @@ public:
     uint8  *data;
     uint32  data_size;
 
-    uint8 *GetData()     { return data; }
-    uint32 GetDataSize() { return data_size; }
+    uint8 *GetData()     {return data;}
+    uint32 GetDataSize() {return data_size;}
 
     ChunkedFile();
     virtual ~ChunkedFile();
     bool prepareLoadedData();
-    bool loadFile(std::shared_ptr<CASC::Storage const> mpq, std::string const& fileName, bool log = true);
-    bool loadFile(std::shared_ptr<CASC::Storage const> mpq, uint32 fileDataId, std::string const& description, bool log = true);
+    bool loadFile(HANDLE mpq, std::string const& fileName, bool log = true);
     void free();
 
     void parseChunks();

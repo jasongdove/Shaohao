@@ -76,3 +76,7 @@ protobuf (Protocol Buffers - Google's data interchange format https://developers
 short_alloc (Stack based allocator) https://howardhinnant.github.io/stack_alloc.html
   https://howardhinnant.github.io/short_alloc.h
   Version: N/A
+
+StormLib (a pack of modules, written in C++, which are able to read and also to write files from/to the MPQ archives)
+  http://www.zezula.net/en/mpq/stormlib.html
+  Version: 8.04

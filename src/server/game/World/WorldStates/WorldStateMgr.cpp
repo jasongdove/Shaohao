@@ -18,7 +18,7 @@
 #include "WorldStateMgr.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Log.h"
 #include "Map.h"
 #include "ObjectMgr.h"

@@ -16,7 +16,7 @@
  */
 
 #include "TerrainMgr.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DisableMgr.h"
 #include "DynamicTree.h"
 #include "GridMap.h"

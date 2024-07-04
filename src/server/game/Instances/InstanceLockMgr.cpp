@@ -18,6 +18,7 @@
 #include "InstanceLockMgr.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Errors.h"
 #include "GameTime.h"
 #include "Log.h"

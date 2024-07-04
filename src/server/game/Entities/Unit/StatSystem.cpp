@@ -17,6 +17,7 @@
 
 #include "Unit.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Item.h"
 #include "Player.h"
 #include "Pet.h"
@@ -290,19 +291,21 @@ float Player::GetHealthBonusFromStamina() const
 
 Stats Player::GetPrimaryStat() const
 {
-    uint8 primaryStatPriority = [&]() -> uint8
-    {
-        if (ChrSpecializationEntry const* specialization = GetPrimarySpecializationEntry())
-            return specialization->PrimaryStatPriority;
-
-        return sChrClassesStore.AssertEntry(GetClass())->PrimaryStatPriority;
-    }();
-
-    if (primaryStatPriority >= 4)
-        return STAT_STRENGTH;
-
-    if (primaryStatPriority >= 2)
-        return STAT_AGILITY;
+    // Shaohao: MOP doesn't have PrimaryStatPriority
+    // TODO: DATA ? what does this break? can we manually build a priority table?
+//    uint8 primaryStatPriority = [&]() -> uint8
+//    {
+//        if (ChrSpecializationEntry const* specialization = GetPrimarySpecializationEntry())
+//            return specialization->PrimaryStatPriority;
+//
+//        return sChrClassesStore.AssertEntry(GetClass())->PrimaryStatPriority;
+//    }();
+//
+//    if (primaryStatPriority >= 4)
+//        return STAT_STRENGTH;
+//
+//    if (primaryStatPriority >= 2)
+//        return STAT_AGILITY;
 
     return STAT_INTELLECT;
 }

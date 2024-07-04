@@ -22,6 +22,7 @@
 #include "Creature.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "FlightPathMovementGenerator.h"
 #include "Log.h"
 #include "MotionMaster.h"

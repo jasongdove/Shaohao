@@ -19,6 +19,7 @@
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Garrison.h"
 #include "Log.h"
 #include "ObjectMgr.h"

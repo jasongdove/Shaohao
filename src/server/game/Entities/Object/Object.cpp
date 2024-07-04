@@ -24,7 +24,7 @@
 #include "CombatLogPackets.h"
 #include "Common.h"
 #include "Creature.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "G3DPosition.hpp"

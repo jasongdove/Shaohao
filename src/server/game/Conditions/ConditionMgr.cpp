@@ -24,6 +24,7 @@
 #include "Containers.h"
 #include "ConversationDataStore.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"

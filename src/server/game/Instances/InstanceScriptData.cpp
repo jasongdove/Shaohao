@@ -16,7 +16,7 @@
  */
 
 #include "InstanceScriptData.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"

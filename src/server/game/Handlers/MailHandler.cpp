@@ -20,7 +20,7 @@
 #include "BattlenetAccountMgr.h"
 #include "CharacterCache.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GossipDef.h"
 #include "GameTime.h"
 #include "Guild.h"

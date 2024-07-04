@@ -19,7 +19,7 @@
 #include "Chat.h"
 #include "ConditionMgr.h"
 #include "Creature.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DisableMgr.h"
 #include "Language.h"
 #include "Map.h"

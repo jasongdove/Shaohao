@@ -16,7 +16,7 @@
  */
 
 #include "TraitMgr.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "IteratorPair.h"
 #include "MapUtils.h"
 #include "TraitPacketsCommon.h"

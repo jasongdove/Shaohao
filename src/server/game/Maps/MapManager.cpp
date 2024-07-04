@@ -21,7 +21,7 @@
 #include "CharacterCache.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GarrisonMap.h"
 #include "Group.h"
 #include "InstanceLockMgr.h"

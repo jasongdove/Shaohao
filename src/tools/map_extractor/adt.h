@@ -18,7 +18,7 @@
 #ifndef ADT_H
 #define ADT_H
 
-#include "Define.h"
+#include "loadlib.h"
 
 #define TILESIZE (533.33333f)
 #define CHUNKSIZE ((TILESIZE) / 16.0f)
@@ -46,12 +46,12 @@ enum LiquidType
 //
 struct adt_MCVT
 {
-    union{
+    union {
         uint32 fcc;
         char   fcc_txt[4];
     };
     uint32 size;
-    float height_map[(ADT_CELL_SIZE+1)*(ADT_CELL_SIZE+1)+ADT_CELL_SIZE*ADT_CELL_SIZE];
+    float height_map[(ADT_CELL_SIZE + 1)*(ADT_CELL_SIZE + 1) + ADT_CELL_SIZE * ADT_CELL_SIZE];
 };
 
 //
@@ -59,17 +59,17 @@ struct adt_MCVT
 //
 struct adt_MCLQ
 {
-    union{
+    union {
         uint32 fcc;
         char   fcc_txt[4];
     };
     uint32 size;
     float height1;
     float height2;
-    struct liquid_data{
+    struct liquid_data {
         uint32 light;
         float  height;
-    } liquid[ADT_CELL_SIZE+1][ADT_CELL_SIZE+1];
+    } liquid[ADT_CELL_SIZE + 1][ADT_CELL_SIZE + 1];
 
     // 1<<0 - ochen
     // 1<<1 - lava/slime
@@ -96,15 +96,8 @@ struct adt_MCNK
     uint32 iy;
     uint32 nLayers;
     uint32 nDoodadRefs;
-    union
-    {
-        struct
-        {
-            uint32 offsMCVT;        // height map
-            uint32 offsMCNR;        // Normal vectors for each vertex
-        } offsets;
-        uint8 HighResHoles[8];
-    } union_5_3_0;
+    uint32 offsMCVT;        // height map
+    uint32 offsMCNR;        // Normal vectors for each vertex
     uint32 offsMCLY;        // Texture layer definitions
     uint32 offsMCRF;        // A list of indices into the parent file's MDDF chunk
     uint32 offsMCAL;        // Alpha maps for additional texture layers
@@ -132,23 +125,24 @@ struct adt_MCNK
     uint32 effectId;
 };
 
+
 #define ADT_LIQUID_HEADER_FULL_LIGHT   0x01
 #define ADT_LIQUID_HEADER_NO_HIGHT     0x02
 
 enum class LiquidVertexFormatType : uint16
 {
-    HeightDepth             = 0,
-    HeightTextureCoord      = 1,
-    Depth                   = 2,
+    HeightDepth = 0,
+    HeightTextureCoord = 1,
+    Depth = 2,
     HeightDepthTextureCoord = 3,
-    Unk4                    = 4,
-    Unk5                    = 5
+    Unk4 = 4,
+    Unk5 = 5
 };
 
 struct adt_liquid_instance
 {
-    uint16 LiquidType;              // Index from LiquidType.db2
-    uint16 LiquidVertexFormat;      // Id from LiquidObject.db2 if >= 42
+    uint16 LiquidType;              // Index from LiquidType.dbc
+    uint16 LiquidVertexFormat;      // Id from LiquidObject.dbc if >= 42
     float MinHeightLevel;
     float MaxHeightLevel;
     uint8 OffsetX;
@@ -173,19 +167,22 @@ struct adt_liquid_attributes
 //
 // Adt file liquid data chunk (new)
 //
-struct adt_MH2O
+class adt_MH2O
 {
-    union{
+public:
+    union {
         uint32 fcc;
         char   fcc_txt[4];
     };
     uint32 size;
 
-    struct adt_LIQUID{
+    struct adt_LIQUID {
         uint32 OffsetInstances;
         uint32 used;
         uint32 OffsetAttributes;
     } liquid[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
+
+    bool   prepareLoadedData();
 
     adt_liquid_instance const* GetLiquidInstance(int32 x, int32 y) const
     {
@@ -222,17 +219,17 @@ struct adt_MH2O
 
         switch (GetLiquidVertexFormat(h))
         {
-            case LiquidVertexFormatType::HeightDepth:
-            case LiquidVertexFormatType::HeightTextureCoord:
-            case LiquidVertexFormatType::HeightDepthTextureCoord:
-                return ((float const*)((uint8*)this + 8 + h->OffsetVertexData))[pos];
-            case LiquidVertexFormatType::Depth:
-                return 0.0f;
-            case LiquidVertexFormatType::Unk4:
-            case LiquidVertexFormatType::Unk5:
-                return ((float const*)((uint8*)this + 8 + h->OffsetVertexData + 4))[pos * 2];
-            default:
-                break;
+        case LiquidVertexFormatType::HeightDepth:
+        case LiquidVertexFormatType::HeightTextureCoord:
+        case LiquidVertexFormatType::HeightDepthTextureCoord:
+            return ((float const*)((uint8*)this + 8 + h->OffsetVertexData))[pos];
+        case LiquidVertexFormatType::Depth:
+            return 0.0f;
+        case LiquidVertexFormatType::Unk4:
+        case LiquidVertexFormatType::Unk5:
+            return ((float const*)((uint8*)this + 8 + h->OffsetVertexData + 4))[pos * 2];
+        default:
+            break;
         }
 
         return 0.0f;
@@ -270,17 +267,17 @@ struct adt_MH2O
 
         switch (GetLiquidVertexFormat(h))
         {
-            case LiquidVertexFormatType::HeightDepth:
-            case LiquidVertexFormatType::Depth:
-            case LiquidVertexFormatType::Unk4:
-                return nullptr;
-            case LiquidVertexFormatType::HeightTextureCoord:
-            case LiquidVertexFormatType::HeightDepthTextureCoord:
-                return (uint16 const*)((uint8 const*)this + 8 + h->OffsetVertexData + 4 * ((h->GetWidth() + 1) * (h->GetHeight() + 1) + pos));
-            case LiquidVertexFormatType::Unk5:
-                return (uint16 const*)((uint8 const*)this + 8 + h->OffsetVertexData + 8 * ((h->GetWidth() + 1) * (h->GetHeight() + 1) + pos));
-            default:
-                break;
+        case LiquidVertexFormatType::HeightDepth:
+        case LiquidVertexFormatType::Depth:
+        case LiquidVertexFormatType::Unk4:
+            return nullptr;
+        case LiquidVertexFormatType::HeightTextureCoord:
+        case LiquidVertexFormatType::HeightDepthTextureCoord:
+            return (uint16 const*)((uint8 const*)this + 8 + h->OffsetVertexData + 4 * ((h->GetWidth() + 1) * (h->GetHeight() + 1) + pos));
+        case LiquidVertexFormatType::Unk5:
+            return (uint16 const*)((uint8 const*)this + 8 + h->OffsetVertexData + 8 * ((h->GetWidth() + 1) * (h->GetHeight() + 1) + pos));
+        default:
+            break;
         }
         return nullptr;
     }

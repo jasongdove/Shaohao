@@ -230,7 +230,6 @@ DB2Storage<LockEntry>                           sLockStore("Lock.db2", &LockLoad
 DB2Storage<MailTemplateEntry>                   sMailTemplateStore("MailTemplate.db2", &MailTemplateLoadInfo::Instance);
 DB2Storage<MapEntry>                            sMapStore("Map.db2", &MapLoadInfo::Instance);
 DB2Storage<MapChallengeModeEntry>               sMapChallengeModeStore("MapChallengeMode.db2", &MapChallengeModeLoadInfo::Instance);
-DB2Storage<MapDifficultyEntry>                  sMapDifficultyStore("MapDifficulty.db2", &MapDifficultyLoadInfo::Instance);
 DB2Storage<MapDifficultyXConditionEntry>        sMapDifficultyXConditionStore("MapDifficultyXCondition.db2", &MapDifficultyXConditionLoadInfo::Instance);
 DB2Storage<MawPowerEntry>                       sMawPowerStore("MawPower.db2", &MawPowerLoadInfo::Instance);
 DB2Storage<ModifierTreeEntry>                   sModifierTreeStore("ModifierTree.db2", &ModifierTreeLoadInfo::Instance);
@@ -840,7 +839,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sMailTemplateStore);
     LOAD_DB2(sMapStore);
     LOAD_DB2(sMapChallengeModeStore);
-    LOAD_DB2(sMapDifficultyStore);
     LOAD_DB2(sMapDifficultyXConditionStore);
     LOAD_DB2(sMawPowerStore);
     LOAD_DB2(sModifierTreeStore);
@@ -1264,8 +1262,9 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         }
     }
 
-    for (EmotesTextSoundEntry const* emoteTextSound : sEmotesTextSoundStore)
-        _emoteTextSounds[EmotesTextSoundContainer::key_type(emoteTextSound->EmotesTextID, emoteTextSound->RaceID, emoteTextSound->SexID, emoteTextSound->ClassID)] = emoteTextSound;
+    // TODO: DATA
+//    for (EmotesTextSoundEntry const* emoteTextSound : sEmotesTextSoundStore)
+//        _emoteTextSounds[EmotesTextSoundContainer::key_type(emoteTextSound->EmotesTextID, emoteTextSound->RaceID, emoteTextSound->SexID, emoteTextSound->ClassID)] = emoteTextSound;
 
     for (ExpectedStatEntry const* expectedStat : sExpectedStatStore)
         _expectedStatsByLevel[std::make_pair(expectedStat->Lvl, expectedStat->ExpansionID)] = expectedStat;
@@ -1329,9 +1328,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
 
     for (JournalTierEntry const* journalTier : sJournalTierStore)
         _journalTiersByIndex.push_back(journalTier);
-
-    for (MapDifficultyEntry const* entry : sMapDifficultyStore)
-        _mapDifficulties[entry->MapID][entry->DifficultyID] = entry;
 
     std::vector<MapDifficultyXConditionEntry const*> mapDifficultyConditions;
     mapDifficultyConditions.reserve(sMapDifficultyXConditionStore.GetNumRows());
@@ -1484,8 +1480,9 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         if (skill->ParentSkillLineID)
             _skillLinesByParentSkillLine[skill->ParentSkillLineID].push_back(skill);
 
-    for (SkillLineAbilityEntry const* skillLineAbility : sSkillLineAbilityStore)
-        _skillLineAbilitiesBySkillupSkill[skillLineAbility->SkillupSkillLineID ? skillLineAbility->SkillupSkillLineID : skillLineAbility->SkillLine].push_back(skillLineAbility);
+    // TODO: DATA MOP doesn't have SkillupSkillLineID
+//    for (SkillLineAbilityEntry const* skillLineAbility : sSkillLineAbilityStore)
+//        _skillLineAbilitiesBySkillupSkill[skillLineAbility->SkillupSkillLineID ? skillLineAbility->SkillupSkillLineID : skillLineAbility->SkillLine].push_back(skillLineAbility);
 
     for (SkillRaceClassInfoEntry const* entry : sSkillRaceClassInfoStore)
         if (sSkillLineStore.LookupEntry(entry->SkillID))
@@ -1969,18 +1966,19 @@ bool DB2Manager::IsInArea(uint32 objectAreaId, uint32 areaId)
     return false;
 }
 
-ContentTuningEntry const* DB2Manager::GetContentTuningForArea(AreaTableEntry const* areaEntry)
+ContentTuningEntry const* DB2Manager::GetContentTuningForArea(AreaTableEntry const* /*areaEntry*/)
 {
-    if (!areaEntry)
-        return nullptr;
-
-    // Get ContentTuning for the area
-    if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(areaEntry->ContentTuningID))
-        return contentTuning;
-
-    // If there is no data for the current area and it has a parent area, get data from the last (recursive)
-    if (AreaTableEntry const* parentAreaEntry = sAreaTableStore.LookupEntry(areaEntry->ParentAreaID))
-        return GetContentTuningForArea(parentAreaEntry);
+    // Shaohao: MOP doesn't have content tuning
+//    if (!areaEntry)
+//        return nullptr;
+//
+//    // Get ContentTuning for the area
+//    if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(areaEntry->ContentTuningID))
+//        return contentTuning;
+//
+//    // If there is no data for the current area and it has a parent area, get data from the last (recursive)
+//    if (AreaTableEntry const* parentAreaEntry = sAreaTableStore.LookupEntry(areaEntry->ParentAreaID))
+//        return GetContentTuningForArea(parentAreaEntry);
 
     return nullptr;
 }
@@ -2653,21 +2651,6 @@ LFGDungeonsEntry const* DB2Manager::GetLfgDungeon(uint32 mapId, Difficulty diffi
     return nullptr;
 }
 
-uint32 DB2Manager::GetDefaultMapLight(uint32 mapId)
-{
-    for (int32 i = sLightStore.GetNumRows(); i >= 0; --i)
-    {
-        LightEntry const* light = sLightStore.LookupEntry(uint32(i));
-        if (!light)
-            continue;
-
-        if (light->ContinentID == int32(mapId) && light->GameCoords.X == 0.0f && light->GameCoords.Y == 0.0f && light->GameCoords.Z == 0.0f)
-            return uint32(i);
-    }
-
-    return 0;
-}
-
 uint32 DB2Manager::GetLiquidFlags(uint32 liquidType)
 {
     if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(liquidType))
@@ -2978,21 +2961,6 @@ std::vector<SkillLineEntry const*> const* DB2Manager::GetSkillLinesForParentSkil
 std::vector<SkillLineAbilityEntry const*> const* DB2Manager::GetSkillLineAbilitiesBySkill(uint32 skillId) const
 {
     return Trinity::Containers::MapGetValuePtr(_skillLineAbilitiesBySkillupSkill, skillId);
-}
-
-SkillRaceClassInfoEntry const* DB2Manager::GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_) const
-{
-    for (auto&& [_, skllRaceClassInfo] : Trinity::Containers::MapEqualRange(_skillRaceClassInfoBySkill, skill))
-    {
-        if (!skllRaceClassInfo->RaceMask.IsEmpty() && !(skllRaceClassInfo->RaceMask.HasRace(race)))
-            continue;
-        if (skllRaceClassInfo->ClassMask && !(skllRaceClassInfo->ClassMask & (1 << (class_ - 1))))
-            continue;
-
-        return skllRaceClassInfo;
-    }
-
-    return nullptr;
 }
 
 std::vector<SkillRaceClassInfoEntry const*> DB2Manager::GetSkillRaceClassInfo(uint32 skill) const
