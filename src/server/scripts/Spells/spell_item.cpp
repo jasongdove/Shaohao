@@ -27,7 +27,7 @@
 #include "Containers.h"
 #include "Creature.h"
 #include "CreatureAIImpl.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Item.h"
 #include "Log.h"
 #include "LootMgr.h"

@@ -23,7 +23,7 @@
 
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GridNotifiers.h"
 #include "ObjectAccessor.h"
 #include "Player.h"

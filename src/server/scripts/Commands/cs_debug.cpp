@@ -34,7 +34,7 @@ EndScriptData */
 #include "ChatPackets.h"
 #include "Conversation.h"
 #include "CreatureAI.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"

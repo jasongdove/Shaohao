@@ -16,7 +16,7 @@
  */
 
 #include "ahnkahet.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "ObjectAccessor.h"

@@ -17,7 +17,7 @@
 
 #include "icecrown_citadel.h"
 #include "Containers.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GridNotifiers.h"
 #include "Group.h"
 #include "InstanceScript.h"

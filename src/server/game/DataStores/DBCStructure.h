@@ -193,8 +193,8 @@ struct CharTitlesEntry
 {
     uint32      ID;                                         // 0, title ids, for example in Quest::GetCharTitleId()
     //uint32    ConditionID;                                // 1
-    char*       Name;                                       // 2 m_name_lang
-    char*       Name1;                                      // 3 m_name1_lang
+    LocalizedString Name;                                       // 2 m_name_lang
+    LocalizedString Name1;                                      // 3 m_name1_lang
     uint32      MaskID;                                     // 4 m_mask_ID used in PLAYER_CHOSEN_TITLE and 1<<index in PLAYER__FIELD_KNOWN_TITLES
     uint32      Flags;                                      // 5
 };
@@ -686,7 +686,7 @@ struct ItemDisplayInfoEntry
 struct ItemSetEntry
 {
     uint32      ID;                                         // 0
-    char*       Name_lang;                                  // 1
+    LocalizedString Name;                                  // 1
     uint32      ItemID[MAX_ITEM_SET_ITEMS];                 // 2-18
     uint32      RequiredSkill;                              // 19
     uint32      RequiredSkillRank;                          // 20
@@ -1027,10 +1027,12 @@ struct SkillLineEntry
     //char*     AlternateVerb_lang;                         // 5        m_alternateVerb_lang
     uint32      CanLink;                                    // 6        m_canLink (prof. with recipes)
     uint32      ParentSkillLineID;                          // 7
-    //uint32    Flags;                                      // 8
+    uint32      Flags;                                      // 8
 
     // Shaohao: MOP doesn't have ParentTierIndex
     int32 ParentTierIndex = 0;
+
+    EnumFlag<SkillLineFlags> GetFlags() const { return static_cast<SkillLineFlags>(Flags); }
 };
 
 struct SkillLineAbilityEntry
