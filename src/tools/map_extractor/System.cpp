@@ -1111,7 +1111,7 @@ bool ExtractFile(HANDLE fileInArchive, std::string const& fileName)
     return true;
 }
 
-void ExtractDBCFiles(int locale, bool basicLocale)
+void ExtractDBCFiles(int locale)
 {
     printf("Extracting dbc files...\n");
 
@@ -1122,13 +1122,12 @@ void ExtractDBCFiles(int locale, bool basicLocale)
     uint32 count = 0;
     if (listFile)
     {
-        auto outputPath = output_path / "dbc";
-        CreateDir(outputPath);
-        if (!basicLocale)
-        {
-            outputPath = outputPath / localeNames[MpqToWowLocale[locale]];
-            CreateDir(outputPath);
-        }
+        boost::filesystem::path localePath = output_path / "dbc" / localeNames[MpqToWowLocale[locale]];
+
+        CreateDir(output_path / "dbc");
+        CreateDir(localePath);
+
+        printf("locale %s output path %s\n", localeNames[MpqToWowLocale[locale]], localePath.string().c_str());
 
         std::string fileName;
         do
@@ -1142,7 +1141,7 @@ void ExtractDBCFiles(int locale, bool basicLocale)
             fileName = foundFile.cFileName;
             fileName = fileName.substr(fileName.rfind('\\') + 1);
 
-            boost::filesystem::path filePath = outputPath / boost::filesystem::path(fileName).filename();
+            boost::filesystem::path filePath = localePath / boost::filesystem::path(fileName).filename();
 
             if (!boost::filesystem::exists(filePath))
                 if (ExtractFile(dbcFile, filePath.string()))
@@ -1157,7 +1156,7 @@ void ExtractDBCFiles(int locale, bool basicLocale)
     printf("Extracted %u DBC files\n\n", count);
 }
 
-void ExtractDB2Files(int locale, bool basicLocale)
+void ExtractDB2Files(int locale)
 {
     printf("Extracting db2 files...\n");
 
@@ -1168,11 +1167,9 @@ void ExtractDB2Files(int locale, bool basicLocale)
     uint32 count = 0;
     if (listFile)
     {
-        auto outputPath = output_path / "dbc";
-        if (!basicLocale)
-        {
-            outputPath = outputPath / localeNames[MpqToWowLocale[locale]];
-        }
+        boost::filesystem::path localePath = output_path / "dbc" / localeNames[MpqToWowLocale[locale]];
+
+        printf("locale %s output path %s\n", localeNames[MpqToWowLocale[locale]], localePath.string().c_str());
 
         std::string fileName;
         do
@@ -1186,7 +1183,7 @@ void ExtractDB2Files(int locale, bool basicLocale)
             fileName = foundFile.cFileName;
             fileName = fileName.substr(fileName.rfind('\\') + 1);
 
-            boost::filesystem::path filePath = outputPath / boost::filesystem::path(fileName).filename();
+            boost::filesystem::path filePath = localePath / boost::filesystem::path(fileName).filename();
 
             if (!boost::filesystem::exists(filePath))
                 if (ExtractFile(dbcFile, filePath.string()))
@@ -1486,8 +1483,8 @@ int main(int argc, char * arg[])
                 return 0;
             }
 
-            ExtractDBCFiles(i, firstInstalledLocale < 0);
-            ExtractDB2Files(i, firstInstalledLocale < 0);
+            ExtractDBCFiles(i);
+            ExtractDB2Files(i);
 
             if (firstInstalledLocale < 0)
             {
