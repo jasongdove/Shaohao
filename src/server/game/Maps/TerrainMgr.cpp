@@ -44,7 +44,7 @@ TerrainInfo::~TerrainInfo()
 
 char const* TerrainInfo::GetMapName() const
 {
-    return sMapStore.AssertEntry(GetId())->MapName[sWorld->GetDefaultDbcLocale()];
+    return sMapStore.AssertEntry(GetId())->MapName(sWorld->GetDefaultDbcLocale());
 }
 
 void TerrainInfo::DiscoverGridMapFiles()

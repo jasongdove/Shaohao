@@ -1358,7 +1358,7 @@ public:
         }
         if (!mEntry->IsDungeon())
         {
-            handler->PSendSysMessage("'%s' is not a dungeon map.", mEntry->MapName[handler->GetSessionDbcLocale()]);
+            handler->PSendSysMessage("'%s' is not a dungeon map.", mEntry->MapName(handler->GetSessionDbcLocale()));
             return true;
         }
         if (difficulty && !sDifficultyStore.HasRecord(*difficulty))
@@ -1368,7 +1368,7 @@ public:
         }
         if (difficulty && !sDBCManager.GetMapDifficultyData(mEntry->ID, Difficulty(*difficulty)))
         {
-            handler->PSendSysMessage("Difficulty %d is not valid for '%s'.", *difficulty, mEntry->MapName[handler->GetSessionDbcLocale()]);
+            handler->PSendSysMessage("Difficulty %d is not valid for '%s'.", *difficulty, mEntry->MapName(handler->GetSessionDbcLocale()));
             return true;
         }
 

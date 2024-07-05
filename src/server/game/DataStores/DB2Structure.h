@@ -938,35 +938,6 @@ struct CorruptionEffectsEntry
 //    uint32 CreatureID;
 //};
 
-struct CreatureDisplayInfoEntry
-{
-    uint32 ID;
-    uint16 ModelID;
-    uint16 SoundID;
-    int8 SizeClass;
-    float CreatureModelScale;
-    uint8 CreatureModelAlpha;
-    uint8 BloodID;
-    int32 ExtendedDisplayInfoID;
-    uint16 NPCSoundID;
-    uint16 ParticleColorID;
-    int32 PortraitCreatureDisplayInfoID;
-    int32 PortraitTextureFileDataID;
-    uint16 ObjectEffectPackageID;
-    uint16 AnimReplacementSetID;
-    uint8 Flags;
-    int32 StateSpellVisualKitID;
-    float PlayerOverrideScale;
-    float PetInstanceScale;                                         // scale of not own player pets inside dungeons/raids/scenarios
-    int8 UnarmedWeaponType;
-    int32 MountPoofSpellVisualKitID;
-    int32 DissolveEffectID;
-    int8 Gender;
-    int32 DissolveOutEffectID;
-    int8 CreatureModelMinLod;
-    std::array<int32, 4> TextureVariationFileDataID;
-};
-
 //struct CreatureDisplayInfoExtraEntry
 //{
 //    uint32 ID;
@@ -1045,13 +1016,6 @@ struct CreatureImmunitiesEntry
 //
 //    EnumFlag<CreatureModelDataFlags> GetFlags() const { return static_cast<CreatureModelDataFlags>(Flags); }
 //};
-
-struct CreatureTypeEntry
-{
-    uint32 ID;
-    LocalizedString Name;
-    uint8 Flags;
-};
 
 struct CriteriaEntry
 {

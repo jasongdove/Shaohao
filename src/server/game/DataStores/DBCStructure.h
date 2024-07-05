@@ -26,19 +26,6 @@
 // Structures using to access raw DBC data and required packing to portability
 #pragma pack(push, 1)
 
-// TODO: DATA this class fakes having localized strings in DBC stores
-// until we update to load localized strings from the DB
-class FakeLocalizedString
-{
-public:
-    explicit FakeLocalizedString(char* strLocal) : _str(strLocal) { }
-
-    constexpr char const* operator[](LocaleConstant /*locale*/) const { return _str; }
-
-private:
-    char* _str;
-};
-
 struct AnimKitEntry
 {
     uint32 ID;
@@ -76,15 +63,18 @@ struct AreaTableEntry
     uint32      WildBattlePetLevelMin;                      // 28
     uint32      WildBattlePetLevelMax;                      // 29
 
-    static const uint32 ExtraData = sizeof(int32) + sizeof(FakeLocalizedString);
+    static const uint32 ExtraData = sizeof(int32);
 
     // Shaohao: DBC doesn't have localized strings
-    FakeLocalizedString AreaName = FakeLocalizedString(AreaName_lang);
+    // TODO: DATA figure out better localization pattern?
+    const char* AreaName(LocaleConstant /*locale*/) const { return AreaName_lang; }
 
     // Shaohao: MOP doesn't have ContentTuningID
     int32 ContentTuningID = 0;
 
     // helpers
+    char* GetName() const { return AreaName_lang; }
+
     EnumFlag<AreaFlags> GetFlags() const { return static_cast<AreaFlags>(Flags[0]); }
     EnumFlag<AreaFlags2> GetFlags2() const { return static_cast<AreaFlags2>(Flags[1]); }
     EnumFlag<AreaMountFlags> GetMountFlags() const { return static_cast<AreaMountFlags>(MountFlags); }
@@ -134,9 +124,9 @@ struct AuctionHouseEntry
     uint32 ConsignmentRate;
     char* Name_lang;
 
-    static const uint32 ExtraData = sizeof(FakeLocalizedString);
+    const char* Name(LocaleConstant /*locale*/) const { return Name_lang; };
 
-    FakeLocalizedString Name = FakeLocalizedString(Name_lang);
+    char* GetName() const { return Name_lang; }
 };
 
 struct BankBagSlotPricesEntry
@@ -337,6 +327,28 @@ struct ChrSpecializationEntry
     }
 };
 
+struct CreatureDisplayInfoEntry
+{
+    uint32 ID;
+    uint32 ModelID;
+    uint32 SoundID;
+    uint32 ExtendedDisplayInfoID;
+    float CreatureModelScale;
+    //uint32 CreatureModelAlpha;
+    //std::array<uint32, 3> TextureVariationFileDataID;
+    //char* PortraitTextureName
+    //uint32 SizeClass;
+    //uint32 BloodID;
+    //uint32 NPCSoundID;
+    //uint32 ParticleColorID;
+    //uint32 CreatureGeosetData
+    //uint32 ObjectEffectPackageID;
+    //uint32 AnimReplacementSetID;
+    uint32 Flags;
+    uint32 Gender;
+    uint32 StateSpellVisualKitID;
+};
+
 struct CreatureDisplayInfoExtraEntry
 {
     //uint32    ID;                                         // 0
@@ -364,8 +376,10 @@ struct CreatureFamilyEntry
     uint32      PetFoodMask;                                // 7
     uint32      PetTalentType;                              // 8
     //uint32    CategoryEnumID;                             // 9
-    LocalizedString Name;                                       // 10
+    char*       Name_lang;                                  // 10
     //char*     IconFile;                                   // 11
+
+    const char* Name(LocaleConstant /*locale*/) const { return Name_lang; }
 };
 
 struct CreatureModelDataEntry
@@ -416,6 +430,13 @@ struct CreatureSpellDataEntry
     //uint32    availability[MAX_CREATURE_SPELL_DATA_SLOT]; // 4-7      m_availability[4]
 };
 
+struct CreatureTypeEntry
+{
+    uint32 ID;
+    //char* Name_lang;
+    //uint32 Flags;
+};
+
 /* not used
 struct CurrencyCategoryEntry
 {
@@ -441,9 +462,7 @@ struct DifficultyEntry
     //uint32    GroupSizeSpellPointsCurveID;                // 10
     char*       Name_lang;                                  // 11
 
-    static const uint32 ExtraData = sizeof(FakeLocalizedString);
-
-    FakeLocalizedString Name = FakeLocalizedString(Name_lang);
+    const char* Name(LocaleConstant /*locale*/) const { return Name_lang; }
 };
 
 //$id$ID<32>
@@ -528,9 +547,7 @@ struct FactionEntry
     //uint32    Flags;                                      // 26
     uint32      FriendshipRepID;                            // 27
 
-    static const uint32 ExtraData = sizeof(FakeLocalizedString);
-
-    FakeLocalizedString Name = FakeLocalizedString(Name_lang);
+    const char* Name(LocaleConstant /*locale*/) const { return Name_lang; }
 
     // Shaohao: MOP doesn't have Faction.ReputationMax[]
     static constexpr int32 ReputationMax[4] = { 0, 0, 0, 0};
@@ -888,22 +905,26 @@ struct MapEntry
     // TODO: DATA this might break stuff; MOP only has one Flags
     uint32          Flags[1];                               // 3
     //uint32        MapType;                                // 4
-    //uint32        unk5;                                   // 5
-    LocalizedString MapName;                                // 6
+    char*           MapName_lang;                           // 6
     uint32          AreaTableID;                            // 7
     //char*         MapDescription0_lang;                   // 8 Horde
     //char*         MapDescription1_lang;                   // 9 Alliance
     uint32          LoadingScreenID;                        // 10 LoadingScreens.dbc
     //float         MinimapIconScale;                       // 11
-    int32           CorpseMapID;                            // 12 map_id of entrance map in ghost mode (continent always and in most cases = normal entrance)
+    uint32          CorpseMapID;                            // 12 map_id of entrance map in ghost mode (continent always and in most cases = normal entrance)
     DBCPosition2D   Corpse;                                 // 13 entrance coordinates in ghost mode  (in most cases = normal entrance)
     //uint32        TimeOfDayOverride;                      // 15
     uint32          ExpansionID;                            // 16
     uint32          RaidOffset;                             // 17
     uint32          MaxPlayers;                             // 18
     int32           ParentMapID;                            // 19 related to phasing
-    int32           CosmeticParentMapID;                    // 20
-    //uint32        TimeOffset                              // 21
+
+    static const uint32 ExtraData = sizeof(int32);
+
+    // Shaohao: MOP doesn't have Map.CosmeticParentMapID
+    int32 CosmeticParentMapID = -1;
+
+    const char* MapName(LocaleConstant /*locale*/) const { return MapName_lang; }
 
     // Helpers
     uint32 Expansion() const { return ExpansionID; }

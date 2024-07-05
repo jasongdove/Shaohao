@@ -510,7 +510,7 @@ public:
                 {
                     AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID);
                     if (zone)
-                        zoneName = zone->AreaName[locale];
+                        zoneName = zone->AreaName(locale);
                 }
             }
 

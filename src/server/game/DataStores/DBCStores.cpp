@@ -431,7 +431,7 @@ LOAD_DBC_EXTRA(sAreaTableStore, "AreaTable.dbc", AreaTableEntry::ExtraData);//20
 //    // TODO: DATA LOAD_DBC(sAreaTriggerActionSetStore, "AreaTriggerActionSet.dbc");
 //    // TODO: DATA LOAD_DBC(sAreaTriggerSphereStore, "AreaTriggerSphere.dbc");
 //    LOAD_DBC(sArmorLocationStore, "ArmorLocation.dbc");//20444
-LOAD_DBC_EXTRA(sAuctionHouseStore, "AuctionHouse.dbc", AuctionHouseEntry::ExtraData);
+LOAD_DBC(sAuctionHouseStore, "AuctionHouse.dbc");
 //    LOAD_DBC(sBankBagSlotPricesStore, "BankBagSlotPrices.dbc");//20444
 //    LOAD_DBC(sBannedAddOnsStore, "BannedAddOns.dbc");//20444
 //    LOAD_DBC(sBarberShopStyleStore, "BarberShopStyle.dbc");
@@ -454,18 +454,18 @@ LOAD_DBC_EXTRA(sAuctionHouseStore, "AuctionHouse.dbc", AuctionHouseEntry::ExtraD
 //    // sChrSpecializationByIndexStore
 //    LOAD_DBC(sCinematicCameraStore, "CinematicCamera.dbc");
 //    LOAD_DBC(sCinematicSequencesStore, "CinematicSequences.dbc");
-//    LOAD_DBC(sCreatureDisplayInfoStore, "CreatureDisplayInfo.dbc");
+LOAD_DBC(sCreatureDisplayInfoStore, "CreatureDisplayInfo.dbc");
 //    LOAD_DBC(sCreatureDisplayInfoExtraStore, "CreatureDisplayInfoExtra.dbc");//20444
-//    LOAD_DBC(sCreatureFamilyStore, "CreatureFamily.dbc");//20444
+LOAD_DBC(sCreatureFamilyStore, "CreatureFamily.dbc");//20444
 //    LOAD_DBC(sCreatureImmunitiesStore, "CreatureImmunities.dbc");
 //    LOAD_DBC(sCreatureModelDataStore, "CreatureModelData.dbc");//20444
 //    LOAD_DBC(sCreatureSpellDataStore, "CreatureSpellData.dbc");
-//    LOAD_DBC(sCreatureTypeStore, "CreatureType.dbc");
+LOAD_DBC(sCreatureTypeStore, "CreatureType.dbc");
 //    LOAD_DBC(sCriteriaStore, "Criteria.dbc");
 //    LOAD_DBC(sCriteriaTreeStore, "CriteriaTree.dbc");
 //    LOAD_DBC(sCurrencyTypesStore, "CurrencyTypes.dbc");
 //    LOAD_DBC(sDestructibleModelDataStore, "DestructibleModelData.dbc");
-LOAD_DBC_EXTRA(sDifficultyStore, "Difficulty.dbc", DifficultyEntry::ExtraData);//20444
+LOAD_DBC(sDifficultyStore, "Difficulty.dbc");//20444
 //    LOAD_DBC(sDungeonEncounterStore, "DungeonEncounter.dbc");//20444
 //    LOAD_DBC(sDurabilityCostsStore, "DurabilityCosts.dbc");//20444
 //    LOAD_DBC(sDurabilityQualityStore, "DurabilityQuality.dbc");
@@ -474,7 +474,7 @@ LOAD_DBC_EXTRA(sDifficultyStore, "Difficulty.dbc", DifficultyEntry::ExtraData);/
 //    //
 //    //
 //    LOAD_DBC(sEmotesTextSoundStore, "EmotesTextSound.dbc");
-LOAD_DBC_EXTRA(sFactionStore, "Faction.dbc", FactionEntry::ExtraData);//20444
+LOAD_DBC(sFactionStore, "Faction.dbc");//20444
 LOAD_DBC(sFactionTemplateStore, "FactionTemplate.dbc");//20444
 //    // TODO: DATA LOAD_DBC(sFriendshipRepReactionStore, "FriendshipRepReaction.dbc");
 //    // TODO: DATA LOAD_DBC(sFriendshipReputationStore, "FriendshipReputation.dbc");
@@ -527,7 +527,7 @@ LOAD_DBC(sGameTablesStore, "GameTables.dbc");
 //    LOAD_DBC(sLiquidTypeStore, "LiquidType.dbc");//20444
 //    LOAD_DBC(sLockStore, "Lock.dbc");//20444
 //    LOAD_DBC(sMailTemplateStore, "MailTemplate.dbc");
-//    LOAD_DBC(sMapStore, "Map.dbc");//20444
+LOAD_DBC_EXTRA(sMapStore, "Map.dbc", MapEntry::ExtraData);//20444
 //    LOAD_DBC(sMapDifficultyStore, "MapDifficulty.dbc");//20444
 //    // sMapDifficultyMap
 //    LOAD_DBC(sModifierTreeStore, "ModifierTree.dbc");
@@ -733,7 +733,7 @@ LOAD_DBC(sSpellLevelsStore, "SpellLevels.dbc");//20444
         uint32 storageIndex = chrSpec->ClassID;
         if (chrSpec->GetFlags().HasFlag(ChrSpecializationFlag::PetOverrideSpec))
         {
-                    ASSERT(!chrSpec->ClassID);
+            ASSERT(!chrSpec->ClassID);
             storageIndex = PET_SPEC_OVERRIDE_CLASS_INDEX;
         }
 
@@ -1564,7 +1564,7 @@ char const* DBCManager::GetCreatureFamilyPetName(uint32 petfamily, LocaleConstan
     if (!petFamily)
         return nullptr;
 
-    return petFamily->Name[locale][0] != '\0' ? petFamily->Name[locale] : nullptr;
+    return petFamily->Name(locale)[0] != '\0' ? petFamily->Name(locale) : nullptr;
 }
 
 ChrSpecializationEntry const* DBCManager::GetChrSpecializationByIndex(uint32 class_, uint32 index) const

@@ -279,9 +279,9 @@ public:
         char const* unknown = handler->GetTrinityString(LANG_UNKNOWN);
 
         handler->PSendSysMessage(LANG_MAP_POSITION,
-            mapId, (mapEntry ? mapEntry->MapName[handler->GetSessionDbcLocale()] : unknown),
-            zoneId, (zoneEntry ? zoneEntry->AreaName[handler->GetSessionDbcLocale()] : unknown),
-            areaId, (areaEntry ? areaEntry->AreaName[handler->GetSessionDbcLocale()] : unknown),
+            mapId, (mapEntry ? mapEntry->MapName(handler->GetSessionDbcLocale()) : unknown),
+            zoneId, (zoneEntry ? zoneEntry->AreaName(handler->GetSessionDbcLocale()) : unknown),
+            areaId, (areaEntry ? areaEntry->AreaName(handler->GetSessionDbcLocale()) : unknown),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation());
         if (Transport* transport = dynamic_cast<Transport*>(object->GetTransport()))
             handler->PSendSysMessage(LANG_TRANSPORT_POSITION,
@@ -1939,7 +1939,7 @@ public:
         AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId);
         if (area)
         {
-            zoneName = area->AreaName[locale];
+            zoneName = area->AreaName(locale);
 
             if (area->GetFlags().HasFlag(AreaFlags::IsSubzone))
             {
@@ -1947,7 +1947,7 @@ public:
                 if (zone)
                 {
                     areaName = zoneName;
-                    zoneName = zone->AreaName[locale];
+                    zoneName = zone->AreaName(locale);
                 }
             }
         }
@@ -1956,9 +1956,9 @@ public:
             zoneName = handler->GetTrinityString(LANG_UNKNOWN);
 
         if (areaName)
-            handler->PSendSysMessage(LANG_PINFO_CHR_MAP_WITH_AREA, map->MapName[locale], zoneName, areaName);
+            handler->PSendSysMessage(LANG_PINFO_CHR_MAP_WITH_AREA, map->MapName(locale), zoneName, areaName);
         else
-            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->MapName[locale], zoneName);
+            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->MapName(locale), zoneName);
 
         // Output XVII. - XVIX. if they are not empty
         if (!guildName.empty())

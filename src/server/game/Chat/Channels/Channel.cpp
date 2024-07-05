@@ -105,7 +105,7 @@ void Channel::GetChannelName(std::string& channelName, uint32 channelId, LocaleC
             if (channelEntry->GetFlags().HasFlag(ChatChannelFlags::LinkedChannel))
                 zoneEntry = ChannelMgr::SpecialLinkedArea;
 
-            channelName = fmt::sprintf(channelEntry->Name[locale], ASSERT_NOTNULL(zoneEntry)->AreaName[locale]);
+            channelName = fmt::sprintf(channelEntry->Name[locale], ASSERT_NOTNULL(zoneEntry)->AreaName(locale));
         }
         else
             channelName = channelEntry->Name[locale];

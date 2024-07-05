@@ -84,7 +84,7 @@ public:
             if (!entry)
                 continue;
 
-            if (StringContainsStringI(entry->AreaName[handler->GetSessionDbcLocale()], channelName))
+            if (StringContainsStringI(entry->AreaName(handler->GetSessionDbcLocale()), channelName))
             {
                 zoneEntry = entry;
                 break;

@@ -364,7 +364,7 @@ struct LinkValidator<LinkTags::instancelock>
     static bool IsTextValid(InstanceLockLinkData const& data, std::string_view text)
     {
         for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
-            if (data.Map->MapName[i] == text)
+            if (data.Map->MapName(i) == text)
                 return true;
         return false;
     }

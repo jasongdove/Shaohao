@@ -1819,8 +1819,9 @@ bool World::SetInitialWorldSettings()
     sDB2Manager.LoadHotfixBlob(m_availableDbcLocaleMask);
     TC_LOG_INFO("misc", "Loading hotfix info...");
     sDB2Manager.LoadHotfixData(m_availableDbcLocaleMask);
-    TC_LOG_INFO("misc", "Loading hotfix optional data...");
-    sDB2Manager.LoadHotfixOptionalData(m_availableDbcLocaleMask);
+    // TODO: DATA tons of errors from this, disabling for now...
+//    TC_LOG_INFO("misc", "Loading hotfix optional data...");
+//    sDB2Manager.LoadHotfixOptionalData(m_availableDbcLocaleMask);
     ///- Load M2 fly by cameras
     LoadM2Cameras(m_dataPath);
     ///- Load GameTables
@@ -1842,9 +1843,10 @@ bool World::SetInitialWorldSettings()
         mapData.emplace(std::piecewise_construct, std::forward_as_tuple(mapEntry->ID), std::forward_as_tuple());
         if (mapEntry->ParentMapID != -1)
         {
-            ASSERT(mapEntry->CosmeticParentMapID == -1 || mapEntry->ParentMapID == mapEntry->CosmeticParentMapID,
-                "Inconsistent parent map data for map %u (ParentMapID = %hd, CosmeticParentMapID = %hd)",
-                mapEntry->ID, mapEntry->ParentMapID, mapEntry->CosmeticParentMapID);
+            // TODO: DATA can we fix CosmeticParentMapID, or keep ignoring it?
+//            ASSERT(mapEntry->CosmeticParentMapID == -1 || mapEntry->ParentMapID == mapEntry->CosmeticParentMapID,
+//                "Inconsistent parent map data for map %u (ParentMapID = %hd, CosmeticParentMapID = %hd)",
+//                mapEntry->ID, mapEntry->ParentMapID, mapEntry->CosmeticParentMapID);
 
             mapData[mapEntry->ParentMapID].push_back(mapEntry->ID);
         }

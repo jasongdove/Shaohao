@@ -1855,7 +1855,7 @@ TransferAbortParams Map::PlayerCannotEnter(uint32 mapid, Player* player)
 
 char const* Map::GetMapName() const
 {
-    return i_mapEntry->MapName[sWorld->GetDefaultDbcLocale()];
+    return i_mapEntry->MapName(sWorld->GetDefaultDbcLocale());
 }
 
 void Map::SendInitSelf(Player* player)
