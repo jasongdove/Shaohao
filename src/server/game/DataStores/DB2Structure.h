@@ -246,15 +246,6 @@ struct ArtifactUnlockEntry
     uint32 ArtifactID;
 };
 
-struct AuctionHouseEntry
-{
-    uint32 ID;
-    LocalizedString Name;
-    uint16 FactionID;                                               // id of faction.dbc for player factions associated with city
-    uint8 DepositRate;
-    uint8 ConsignmentRate;
-};
-
 struct AzeriteEmpoweredItemEntry
 {
     uint32 ID;

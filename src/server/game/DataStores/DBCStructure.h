@@ -109,6 +109,15 @@ struct ArmorLocationEntry
     float Modifier;
 };
 
+struct AuctionHouseEntry
+{
+    uint32 ID;
+    uint32 FactionID;                                               // id of faction.dbc for player factions associated with city
+    uint32 DepositRate;
+    uint32 ConsignmentRate;
+    char* Name;
+};
+
 struct BankBagSlotPricesEntry
 {
     uint32 ID;

@@ -425,7 +425,7 @@ uint32 DBCManager::LoadStores(const std::string& dataPath, uint32 defaultLocale)
 //    // TODO: DATA LOAD_DBC(sAreaTriggerActionSetStore, "AreaTriggerActionSet.dbc");
 //    // TODO: DATA LOAD_DBC(sAreaTriggerSphereStore, "AreaTriggerSphere.dbc");
 //    LOAD_DBC(sArmorLocationStore, "ArmorLocation.dbc");//20444
-//    LOAD_DBC(sAuctionHouseStore, "AuctionHouse.dbc");
+LOAD_DBC(sAuctionHouseStore, "AuctionHouse.dbc");
 //    LOAD_DBC(sBankBagSlotPricesStore, "BankBagSlotPrices.dbc");//20444
 //    LOAD_DBC(sBannedAddOnsStore, "BannedAddOns.dbc");//20444
 //    LOAD_DBC(sBarberShopStyleStore, "BarberShopStyle.dbc");
