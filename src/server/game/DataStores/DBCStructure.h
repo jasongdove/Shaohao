@@ -1183,7 +1183,7 @@ struct SpellAuraOptionsEntry
 struct SpellEntry
 {
     uint32      ID;                                         // 0
-    char*       Name_lang;                                  // 1
+    char*       Name;                                       // 1
     //char*     NameSubtext_lang;                           // 2
     //char*     Description_lang;                           // 3
     //char*     AuraDescription_lang;                       // 4

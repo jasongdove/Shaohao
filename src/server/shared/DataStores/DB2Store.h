@@ -22,6 +22,7 @@
 #include "Errors.h"
 #include "DBStorageIterator.h"
 #include <vector>
+#include <set>
 
 class ByteBuffer;
 struct DB2LoadInfo;
@@ -85,6 +86,24 @@ public:
 
     iterator begin() const { return iterator(reinterpret_cast<T const* const*>(_indexTable), _indexTableSize, _minId); }
     iterator end() const { return iterator(reinterpret_cast<T const* const*>(_indexTable), _indexTableSize, _indexTableSize); }
+};
+
+template<class T>
+class FakeDB2Storage : private std::unordered_map<uint32, T>
+{
+    typedef std::unordered_map<uint32, T> base;
+
+public:
+    // TODO: DATA can we make an interator that returns pointers to the values?
+    // then we wouldn't have to change the calling code at all (vs iterating real DB2Storage)
+    using typename base::iterator;
+    using typename base::const_iterator;
+    using base::emplace;
+    using base::begin;
+    using base::end;
+
+    bool HasRecord(uint32 key) { return base::contains(key); }
+    T LookupEntry(uint32 key) { if (HasRecord(key)) return base::at(key); else return nullptr; }
 };
 
 #endif

@@ -1276,7 +1276,7 @@ void LoadLootTemplates_Spell()
     uint32 count = LootTemplates_Spell.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    for (SpellNameEntry const* spellNameEntry : sSpellNameStore)
+    for (auto& [_, spellNameEntry] : sSpellNameStore)
     {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellNameEntry->ID, DIFFICULTY_NONE);
         if (!spellInfo)

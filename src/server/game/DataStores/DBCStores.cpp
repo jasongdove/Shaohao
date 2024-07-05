@@ -581,7 +581,7 @@ LOAD_DBC_EXTRA(sSpellEffectStore, "SpellEffect.dbc", SpellEffectEntry::ExtraData
 //    // TODO: DATA LOAD_DBC(sSpellItemEnchantmentConditionStore, "SpellItemEnchantmentCondition.dbc");
 //    // TODO: DATA LOAD_DBC(sSpellKeyboundOverrideStore, "SpellKeyboundOverride.dbc");
 //    // TODO: DATA LOAD_DBC(sSpellLearnSpellStore, "SpellLearnSpell.dbc");
-//    LOAD_DBC(sSpellLevelsStore, "SpellLevels.dbc");//20444
+LOAD_DBC(sSpellLevelsStore, "SpellLevels.dbc");//20444
 //    LOAD_DBC(sSpellMiscStore, "SpellMisc.dbc");
 //    LOAD_DBC(sSpellPowerStore, "SpellPower.dbc");
 //    LOAD_DBC(sSpellProcsPerMinuteStore, "SpellProcsPerMinute.dbc");
@@ -790,10 +790,10 @@ LOAD_DBC_EXTRA(sSpellEffectStore, "SpellEffect.dbc", SpellEffectEntry::ExtraData
 
     for (NamesProfanityEntry const* namesProfanity : sNamesProfanityStore)
     {
-                ASSERT(namesProfanity->Language < TOTAL_LOCALES || namesProfanity->Language == -1);
+        ASSERT(namesProfanity->Language < TOTAL_LOCALES || namesProfanity->Language == -1);
         std::wstring name;
         bool conversionResult = Utf8toWStr(namesProfanity->Name, name);
-                ASSERT(conversionResult);
+        ASSERT(conversionResult);
         if (namesProfanity->Language != -1)
             _nameValidators[namesProfanity->Language].emplace_back(name, Trinity::regex::perl | Trinity::regex::icase | Trinity::regex::optimize);
         else
@@ -812,16 +812,16 @@ LOAD_DBC_EXTRA(sSpellEffectStore, "SpellEffect.dbc", SpellEffectEntry::ExtraData
     {
         std::wstring name;
         bool conversionResult = Utf8toWStr(namesReserved->Name, name);
-                ASSERT(conversionResult);
+        ASSERT(conversionResult);
         _nameValidators[TOTAL_LOCALES].emplace_back(name, Trinity::regex::perl | Trinity::regex::icase | Trinity::regex::optimize);
     }
 
     for (NamesReservedLocaleEntry const* namesReserved : sNamesReservedLocaleStore)
     {
-                ASSERT(!(namesReserved->LocaleMask & ~((1u << TOTAL_LOCALES) - 1)));
+        ASSERT(!(namesReserved->LocaleMask & ~((1u << TOTAL_LOCALES) - 1)));
         std::wstring name;
         bool conversionResult = Utf8toWStr(namesReserved->Name, name);
-                ASSERT(conversionResult);
+        ASSERT(conversionResult);
         for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
         {
             if (i == LOCALE_none)
@@ -839,7 +839,7 @@ LOAD_DBC_EXTRA(sSpellEffectStore, "SpellEffect.dbc", SpellEffectEntry::ExtraData
     for (uint32 i = 0; i < sPvpDifficultyStore.GetNumRows(); ++i)
         if (PvPDifficultyEntry const* entry = sPvpDifficultyStore.LookupEntry(i))
             if (entry->BracketID > MAX_BATTLEGROUND_BRACKETS)
-                        ASSERT(false && "Need update MAX_BATTLEGROUND_BRACKETS by DBC data");
+                ASSERT(false && "Need update MAX_BATTLEGROUND_BRACKETS by DBC data");
 
     for (SkillLineEntry const* skill : sSkillLineStore)
         if (skill->ParentSkillLineID)

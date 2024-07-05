@@ -112,7 +112,7 @@ TC_GAME_API extern DB2Storage<SoundKitEntry>                        sSoundKitSto
 TC_GAME_API extern DB2Storage<SpellEmpowerEntry>                    sSpellEmpowerStore;
 TC_GAME_API extern DB2Storage<SpellEmpowerStageEntry>               sSpellEmpowerStageStore;
 TC_GAME_API extern DB2Storage<SpellLabelEntry>                      sSpellLabelStore;
-TC_GAME_API extern DB2Storage<SpellNameEntry>                       sSpellNameStore;
+TC_GAME_API extern FakeDB2Storage<SpellNameEntry*>                  sSpellNameStore;
 TC_GAME_API extern DB2Storage<SpellPowerDifficultyEntry>            sSpellPowerDifficultyStore;
 TC_GAME_API extern DB2Storage<SpellReagentsCurrencyEntry>           sSpellReagentsCurrencyStore;
 TC_GAME_API extern DB2Storage<SpellXSpellVisualEntry>               sSpellXSpellVisualStore;
