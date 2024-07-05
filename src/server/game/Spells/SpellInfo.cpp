@@ -1234,7 +1234,7 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
         if (SpellProcsPerMinuteEntry const* _ppm = sSpellProcsPerMinuteStore.LookupEntry(_options->SpellProcsPerMinuteID))
         {
             ProcBasePPM = _ppm->BaseProcRate;
-            ProcPPMMods = sDB2Manager.GetSpellProcsPerMinuteMods(_ppm->ID);
+            ProcPPMMods = sDBCManager.GetSpellProcsPerMinuteMods(_ppm->ID);
         }
     }
 
@@ -1988,7 +1988,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
         std::vector<uint32> areaGroupMembers = sDB2Manager.GetAreasForGroup(RequiredAreasID);
         for (uint32 areaId : areaGroupMembers)
         {
-            if (DB2Manager::IsInArea(area_id, areaId))
+            if (DBCManager::IsInArea(area_id, areaId))
             {
                 found = true;
                 break;

@@ -1748,7 +1748,7 @@ bool World::SetInitialWorldSettings()
 
     ///- Initialize VMapManager function pointers (to untangle game/collision circular deps)
     VMAP::VMapManager2* vmmgr2 = VMAP::VMapFactory::createOrGetVMapManager();
-    vmmgr2->GetLiquidFlagsPtr = &DB2Manager::GetLiquidFlags;
+    vmmgr2->GetLiquidFlagsPtr = &DBCManager::GetLiquidFlags;
     vmmgr2->IsVMAPDisabledForPtr = &DisableMgr::IsVMAPDisabledFor;
 
     ///- Initialize config settings
@@ -1797,6 +1797,7 @@ bool World::SetInitialWorldSettings()
     LoginDatabase.PExecute("UPDATE realmlist SET icon = {}, timezone = {} WHERE id = '{}'", server_type, realm_zone, realm.Id.Realm);      // One-time query
 
     TC_LOG_INFO("server.loading", "Initialize data stores...");
+    sDBCManager.LoadStores(m_dataPath, m_defaultDbcLocale);
     ///- Load DB2s
     m_availableDbcLocaleMask = sDB2Manager.LoadStores(m_dataPath, m_defaultDbcLocale);
     if (!(m_availableDbcLocaleMask & (1 << m_defaultDbcLocale)))
@@ -1821,7 +1822,7 @@ bool World::SetInitialWorldSettings()
     ///- Load M2 fly by cameras
     LoadM2Cameras(m_dataPath);
     ///- Load GameTables
-    LoadGameTables(m_dataPath);
+    LoadGameTables(m_dataPath, m_defaultDbcLocale);
 
     //Load weighted graph on taxi nodes path
     TaxiPathGraph::Initialize();

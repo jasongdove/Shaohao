@@ -413,7 +413,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
         uint16 specId = specializationId;
         if (ChrSpecializationEntry const* petSpec = sChrSpecializationStore.LookupEntry(specId))
-            specId = sDB2Manager.GetChrSpecializationByIndex(owner->HasAuraType(SPELL_AURA_OVERRIDE_PET_SPECS) ? PET_SPEC_OVERRIDE_CLASS_INDEX : 0, petSpec->OrderIndex)->ID;
+            specId = sDBCManager.GetChrSpecializationByIndex(owner->HasAuraType(SPELL_AURA_OVERRIDE_PET_SPECS) ? PET_SPEC_OVERRIDE_CLASS_INDEX : 0, petSpec->OrderIndex)->ID;
 
         SetSpecialization(specId);
 
@@ -1847,7 +1847,7 @@ void Pet::LearnSpecializationSpells()
 {
     std::vector<uint32> learnedSpells;
 
-    if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDB2Manager.GetSpecializationSpells(m_petSpecialization))
+    if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDBCManager.GetSpecializationSpells(m_petSpecialization))
     {
         for (size_t j = 0; j < specSpells->size(); ++j)
         {
@@ -1869,9 +1869,9 @@ void Pet::RemoveSpecializationSpells(bool clearActionBar)
 
     for (uint32 i = 0; i < MAX_SPECIALIZATIONS; ++i)
     {
-        if (ChrSpecializationEntry const* specialization = sDB2Manager.GetChrSpecializationByIndex(0, i))
+        if (ChrSpecializationEntry const* specialization = sDBCManager.GetChrSpecializationByIndex(0, i))
         {
-            if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDB2Manager.GetSpecializationSpells(specialization->ID))
+            if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDBCManager.GetSpecializationSpells(specialization->ID))
             {
                 for (size_t j = 0; j < specSpells->size(); ++j)
                 {
@@ -1881,9 +1881,9 @@ void Pet::RemoveSpecializationSpells(bool clearActionBar)
             }
         }
 
-        if (ChrSpecializationEntry const* specialization = sDB2Manager.GetChrSpecializationByIndex(PET_SPEC_OVERRIDE_CLASS_INDEX, i))
+        if (ChrSpecializationEntry const* specialization = sDBCManager.GetChrSpecializationByIndex(PET_SPEC_OVERRIDE_CLASS_INDEX, i))
         {
-            if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDB2Manager.GetSpecializationSpells(specialization->ID))
+            if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDBCManager.GetSpecializationSpells(specialization->ID))
             {
                 for (size_t j = 0; j < specSpells->size(); ++j)
                 {

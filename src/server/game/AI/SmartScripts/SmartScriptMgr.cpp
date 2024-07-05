@@ -2131,7 +2131,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             }
 
-            if (!sDB2Manager.GetPhasesForGroup(phaseGroup))
+            if (!sDBCManager.GetPhasesForGroup(phaseGroup))
             {
                 TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SET_INGAME_PHASE_GROUP uses invalid phase group id {} for creature {}, skipped", phaseGroup, e.entryOrGuid);
                 return false;

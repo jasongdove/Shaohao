@@ -73,7 +73,7 @@ SharedInstanceLock::SharedInstanceLock(uint32 mapId, Difficulty difficultyId, In
 }
 
 MapDb2Entries::MapDb2Entries(uint32 mapId, Difficulty difficulty)
-    : Map(sMapStore.AssertEntry(mapId)), MapDifficulty(ASSERT_NOTNULL(sDB2Manager.GetMapDifficultyData(mapId, difficulty)))
+    : Map(sMapStore.AssertEntry(mapId)), MapDifficulty(ASSERT_NOTNULL(sDBCManager.GetMapDifficultyData(mapId, difficulty)))
 {
 }
 

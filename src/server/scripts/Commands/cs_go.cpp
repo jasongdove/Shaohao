@@ -347,7 +347,7 @@ public:
         y /= 100.0f;
 
         std::shared_ptr<TerrainInfo> terrain = sTerrainMgr.LoadTerrain(zoneEntry->ContinentID);
-        if (!sDB2Manager.Zone2MapCoordinates(zoneEntry->ID, x, y))
+        if (!sDBCManager.Zone2MapCoordinates(zoneEntry->ID, x, y))
         {
             handler->PSendSysMessage(LANG_INVALID_ZONE_MAP, areaId, areaEntry->AreaName[handler->GetSessionDbcLocale()], terrain->GetId(), terrain->GetMapName());
             handler->SetSentErrorMessage(true);

@@ -2231,7 +2231,7 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, uint32 quality, uint32 item
 
         if (standardPrice)
         {
-            if (ItemClassEntry const* classEntry = sDB2Manager.GetItemClassByOldEnum(proto->GetClass()))
+            if (ItemClassEntry const* classEntry = sDBCManager.GetItemClassByOldEnum(proto->GetClass()))
             {
                 uint32 buyCount = std::max(proto->GetBuyCount(), 1u);
                 return cost * classEntry->PriceModifier / buyCount;

@@ -8168,7 +8168,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
             GetMap()->GetEntry()->ParentMapID != mountCapability->ReqMapID)
             continue;
 
-        if (mountCapability->ReqAreaID && !DB2Manager::IsInArea(areaId, mountCapability->ReqAreaID))
+        if (mountCapability->ReqAreaID && !DBCManager::IsInArea(areaId, mountCapability->ReqAreaID))
             continue;
 
         if (mountCapability->ReqSpellAuraID && !HasAura(mountCapability->ReqSpellAuraID))
@@ -13799,7 +13799,7 @@ void Unit::ClearBossEmotes(Optional<uint32> zoneId, Player const* target) const
     }
 
     for (MapReference const& ref : GetMap()->GetPlayers())
-        if (!zoneId || DB2Manager::IsInArea(ref.GetSource()->GetAreaId(), *zoneId))
+        if (!zoneId || DBCManager::IsInArea(ref.GetSource()->GetAreaId(), *zoneId))
             ref.GetSource()->SendDirectMessage(clearBossEmotes.GetRawPacket());
 }
 

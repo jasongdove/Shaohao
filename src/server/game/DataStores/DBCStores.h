@@ -25,54 +25,96 @@
 #include "GameTables.h"
 #include "SharedDefines.h"
 
-// CharSections
-TC_GAME_API CharSectionsEntry const* GetCharSectionEntry(uint8 race, CharSectionType genType, uint8 gender, uint8 type, uint8 color);
+class TC_GAME_API DBCManager
+{
+public:
+    DEFINE_DB2_SET_COMPARATOR(FriendshipRepReactionEntry)
 
-// ChrSpecialization
-typedef ChrSpecializationEntry const* ChrSpecializationByIndexArray[MAX_CLASSES][MAX_SPECIALIZATIONS];
+    using FriendshipRepReactionSet = std::set<FriendshipRepReactionEntry const*, FriendshipRepReactionEntryComparator>;
 
-// EmotesText
-TC_GAME_API EmotesTextSoundEntry const* FindTextSoundEmoteFor(uint32 emote, uint32 race, uint32 gender);
+    static DBCManager& Instance();
 
-// Faction
-TC_GAME_API std::vector<uint32> const* GetFactionTeamList(uint32 faction);
+    uint32 LoadStores(const std::string &dataPath, uint32 defaultLocale);
 
+    uint32 GetEmptyAnimStateID() const;
+    MapDifficultyEntry const* GetDefaultMapDifficulty(uint32 mapId, Difficulty* difficulty = nullptr) const;
+    MapDifficultyEntry const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty) const;
+    MapDifficultyEntry const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty) const;
+    static char const* GetChrRaceName(uint8 race, LocaleConstant locale = DEFAULT_LOCALE);
+    static char const* GetClassName(uint8 class_, LocaleConstant locale = DEFAULT_LOCALE);
+    static char const* GetCreatureFamilyPetName(uint32 petfamily, LocaleConstant locale);
+    std::vector<uint32> const* GetFactionTeamList(uint32 faction) const;
+    FriendshipRepReactionSet const* GetFriendshipRepReactions(uint32 friendshipRepID) const;
+    ItemClassEntry const* GetItemClassByOldEnum(uint32 itemClass) const;
+    std::vector<ItemSpecOverrideEntry const*> const* GetItemSpecOverrides(uint32 itemId) const;
+    JournalTierEntry const* GetJournalTier(uint32 index) const;
+    static LFGDungeonsEntry const* GetLfgDungeon(uint32 mapId, Difficulty difficulty);
+    static uint32 GetLiquidFlags(uint32 liquidType);
+    std::string GetNameGenEntry(uint8 race, uint8 gender) const;
+    ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale) const;
+    uint32 GetQuestUniqueBitFlag(uint32 questId);
+    std::vector<uint32> const* GetPhasesForGroup(uint32 group) const;
+    std::vector<SkillLineEntry const*> const* GetSkillLinesForParentSkill(uint32 parentSkillId) const;
+    std::vector<SpecializationSpellsEntry const*> const* GetSpecializationSpells(uint32 specId) const;
+    static bool IsValidSpellFamilyName(SpellFamilyNames family);
+    std::vector<SpellProcsPerMinuteModEntry const*> GetSpellProcsPerMinuteMods(uint32 spellprocsPerMinuteId) const;
+    std::vector<TalentEntry const*> const& GetTalentsByPosition(uint32 class_, uint32 tier, uint32 column) const;
+    static bool IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId, bool requireAllTotems = true);
+    WMOAreaTableEntry const* GetWMOAreaTable(int32 rootId, int32 adtId, int32 groupId) const;
+    ChrSpecializationEntry const* GetChrSpecializationByIndex(uint32 class_, uint32 index) const;
+    ChrSpecializationEntry const* GetDefaultChrSpecializationForClass(uint32 class_) const;
+    SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_) const;
+    std::vector<SkillRaceClassInfoEntry const*> GetSkillRaceClassInfo(uint32 skill) const;
+    TaxiPathEntry const* GetTaxiPath(uint32 from, uint32 to) const;
+    static bool IsInArea(uint32 objectAreaId, uint32 areaId);
+    static bool GetUiMapPosition(float x, float y, float z, int32 mapId, int32 areaId, int32 wmoDoodadPlacementId, int32 wmoGroupId, UiMapSystem system, bool local,
+                                 int32* uiMapId = nullptr, DBCPosition2D* newPos = nullptr);
+    bool Zone2MapCoordinates(uint32 areaId, float& x, float& y) const;
+    void Map2ZoneCoordinates(uint32 areaId, float& x, float& y) const;
+};
+
+class Whatever
+{
 // ItemSetSpells
-typedef std::vector<ItemSetSpellEntry const*> ItemSetSpells;
-typedef std::unordered_map<uint32, ItemSetSpells> ItemSetSpellsStore;
+    typedef std::vector<ItemSetSpellEntry const *> ItemSetSpells;
 
 // MapDifficulty
-typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry const*>> MapDifficultyMap;
-TC_GAME_API MapDifficultyEntry const* GetDefaultMapDifficulty(uint32 mapId, Difficulty* difficulty = nullptr);
-TC_GAME_API MapDifficultyEntry const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty);
-TC_GAME_API MapDifficultyEntry const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty);
+    typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry const *>> MapDifficultyMap;
+    TC_GAME_API MapDifficultyEntry const *GetDefaultMapDifficulty(uint32 mapId, Difficulty *difficulty = nullptr);
+
+    TC_GAME_API MapDifficultyEntry const *GetMapDifficultyData(uint32 mapId, Difficulty difficulty);
+
+    TC_GAME_API MapDifficultyEntry const *GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty);
 
 // PvpDifficulty
-TC_GAME_API PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
-TC_GAME_API PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
+    TC_GAME_API PvPDifficultyEntry const *GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
+
+    TC_GAME_API PvPDifficultyEntry const *GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
 
 // SkillRaceClassInfo
-typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRaceClassInfoMap;
-typedef std::pair<SkillRaceClassInfoMap::iterator, SkillRaceClassInfoMap::iterator> SkillRaceClassInfoBounds;
-TC_GAME_API SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_);
+    typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const *> SkillRaceClassInfoMap;
+    typedef std::pair<SkillRaceClassInfoMap::iterator, SkillRaceClassInfoMap::iterator> SkillRaceClassInfoBounds;
 
 // SpellEffectScaling
-typedef std::unordered_map<uint32, uint32> SpellEffectScalingByEffectId;
+    typedef std::unordered_map<uint32, uint32> SpellEffectScalingByEffectId;
 
 // Talent
-typedef std::vector<TalentEntry const*> TalentsByPosition[MAX_CLASSES][MAX_TALENT_TIERS][MAX_TALENT_COLUMNS];
+    typedef std::vector<TalentEntry const *> TalentsByPosition[MAX_CLASSES][MAX_TALENT_TIERS][MAX_TALENT_COLUMNS];
 
 // TotemCategory
-TC_GAME_API bool IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId);
+    TC_GAME_API bool IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId);
 
 // WorldMapArea
-TC_GAME_API uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId);
-TC_GAME_API void Map2ZoneCoordinates(float &x, float &y, uint32 worldMapAreaId);
+    TC_GAME_API uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId);
+
+    TC_GAME_API void Map2ZoneCoordinates(float &x, float &y, uint32 worldMapAreaId);
 
 // WorldMapTransforms
-TC_GAME_API void DeterminaAlternateMapPosition(uint32 mapId, float x, float y, float z, uint32* newMapId = nullptr, DBCPosition2D* newPos = nullptr);
+    TC_GAME_API void DeterminaAlternateMapPosition(uint32 mapId, float x, float y, float z, uint32 *newMapId = nullptr,
+                                                   DBCPosition2D *newPos = nullptr);
 
-TC_GAME_API uint32 GetExpansionForLevel(uint32 level);
+    TC_GAME_API uint32 GetExpansionForLevel(uint32 level);
+};
 
 TC_GAME_API extern DBCStorage<Achievement_CategoryEntry>          sAchievementCategoryStore;
 TC_GAME_API extern DBCStorage<AchievementEntry>                   sAchievementStore;
@@ -100,7 +142,6 @@ TC_GAME_API extern DBCStorage<ChrClassesEntry>                    sChrClassesSto
 TC_GAME_API extern DBCStorage<ChrClassesXPowerTypesEntry>         sChrClassesXPowerTypesStore;
 TC_GAME_API extern DBCStorage<ChrRacesEntry>                      sChrRacesStore;
 TC_GAME_API extern DBCStorage<ChrSpecializationEntry>             sChrSpecializationStore;
-TC_GAME_API extern ChrSpecializationByIndexArray                  sChrSpecializationByIndexStore;
 TC_GAME_API extern DBCStorage<CinematicCameraEntry>               sCinematicCameraStore;
 TC_GAME_API extern DBCStorage<CinematicSequencesEntry>            sCinematicSequencesStore;
 TC_GAME_API extern DBCStorage<CreatureDisplayInfoEntry>           sCreatureDisplayInfoStore;
@@ -174,7 +215,7 @@ TC_GAME_API extern DBCStorage<LockEntry>                          sLockStore;
 TC_GAME_API extern DBCStorage<MailTemplateEntry>                  sMailTemplateStore;
 TC_GAME_API extern DBCStorage<MapEntry>                           sMapStore;
 TC_GAME_API extern DBCStorage<MapDifficultyEntry>                 sMapDifficultyStore;
-TC_GAME_API extern MapDifficultyMap                               sMapDifficultyMap;
+//TC_GAME_API extern MapDifficultyMap                               sMapDifficultyMap;
 TC_GAME_API extern DBCStorage<ModifierTreeEntry>                  sModifierTreeStore;
 TC_GAME_API extern DBCStorage<MountCapabilityEntry>               sMountCapabilityStore;
 TC_GAME_API extern DBCStorage<MountTypeEntry>                     sMountTypeStore;
@@ -267,7 +308,6 @@ TC_GAME_API extern DBCStorage<WorldSafeLocsEntry>                 sWorldSafeLocs
 TC_GAME_API extern DBCStorage<WorldStateExpressionEntry>          sWorldStateExpressionStore;
 // TODO: DATA Meta entries ???
 
-
-TC_GAME_API void LoadDBCStores(const std::string& dataPath, uint32 defaultLocale);
+#define sDBCManager DBCManager::Instance()
 
 #endif

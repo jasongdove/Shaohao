@@ -276,7 +276,7 @@ TC_GAME_API extern GameTable<GtNpcManaCostScalerEntry>              sNpcManaCost
 TC_GAME_API extern GameTable<GtRegenMPPerSptEntry>                  sRegenMPPerSptGameTable;
 TC_GAME_API extern GameTable<GtSpellScalingEntry>                   sSpellScalingGameTable;
 
-TC_GAME_API void LoadGameTables(std::string const& dataPath);
+TC_GAME_API void LoadGameTables(std::string const& dataPath, uint32 defaultLocale);
 
 template<class T>
 inline float GetGameTableColumnForClass(T const* row, int32 class_)

@@ -267,7 +267,7 @@ void WorldStateMgr::FillInitialWorldStates(WorldPackets::WorldState::InitWorldSt
         if (worldStateTemplate && !worldStateTemplate->AreaIds.empty())
         {
             bool isInAllowedArea = std::any_of(worldStateTemplate->AreaIds.begin(), worldStateTemplate->AreaIds.end(),
-                [=](uint32 requiredAreaId) { return DB2Manager::IsInArea(playerAreaId, requiredAreaId); });
+                [=](uint32 requiredAreaId) { return DBCManager::IsInArea(playerAreaId, requiredAreaId); });
             if (!isInAllowedArea)
                 continue;
         }

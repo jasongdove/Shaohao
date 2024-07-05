@@ -1366,7 +1366,7 @@ public:
             handler->PSendSysMessage("Invalid difficulty %d.", *difficulty);
             return false;
         }
-        if (difficulty && !sDB2Manager.GetMapDifficultyData(mEntry->ID, Difficulty(*difficulty)))
+        if (difficulty && !sDBCManager.GetMapDifficultyData(mEntry->ID, Difficulty(*difficulty)))
         {
             handler->PSendSysMessage("Difficulty %d is not valid for '%s'.", *difficulty, mEntry->MapName[handler->GetSessionDbcLocale()]);
             return true;

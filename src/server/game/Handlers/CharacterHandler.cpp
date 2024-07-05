@@ -2669,7 +2669,7 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPackets::Character::Genera
 
     WorldPackets::Character::GenerateRandomCharacterNameResult result;
     result.Success = true;
-    result.Name = sDB2Manager.GetNameGenEntry(packet.Race, packet.Sex);
+    result.Name = sDBCManager.GetNameGenEntry(packet.Race, packet.Sex);
 
     SendPacket(result.Write());
 }

@@ -222,7 +222,7 @@ void Load()
         _traitTreesBySkillLine[skillLineXTraitTreeEntry->SkillLineID].push_back(tree);
         if (skillLineEntry->CategoryID == SKILL_CATEGORY_CLASS)
         {
-            for (SkillRaceClassInfoEntry const* skillRaceClassInfo : sDB2Manager.GetSkillRaceClassInfo(skillLineEntry->ID))
+            for (SkillRaceClassInfoEntry const* skillRaceClassInfo : sDBCManager.GetSkillRaceClassInfo(skillLineEntry->ID))
                 for (int32 i = 1; i < MAX_CLASSES; ++i)
                     if (skillRaceClassInfo->ClassMask & (1 << (i - 1)))
                         _skillLinesByClass[i] = skillLineXTraitTreeEntry->SkillLineID;

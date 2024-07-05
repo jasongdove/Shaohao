@@ -557,7 +557,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     }
     // all item positions resolved
 
-    if (ChrSpecializationEntry const* defaultSpec = sDB2Manager.GetDefaultChrSpecializationForClass(GetClass()))
+    if (ChrSpecializationEntry const* defaultSpec = sDBCManager.GetDefaultChrSpecializationForClass(GetClass()))
     {
         SetActiveTalentGroup(defaultSpec->OrderIndex);
         SetPrimarySpecialization(defaultSpec->ID);
@@ -2397,7 +2397,7 @@ void Player::InitTalentForLevel()
         if (!GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_MORE_TALENTS_THAN_ALLOWED))
             for (int32 t = talentTiers; t < MAX_TALENT_TIERS; ++t)
                 for (uint32 c = 0; c < MAX_TALENT_COLUMNS; ++c)
-                    for (TalentEntry const* talent : sDB2Manager.GetTalentsByPosition(GetClass(), t, c))
+                    for (TalentEntry const* talent : sDBCManager.GetTalentsByPosition(GetClass(), t, c))
                         RemoveTalent(talent);
     }
 
@@ -3083,7 +3083,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
 
             if (new_skill_max_value == 0)
             {
-                if (SkillRaceClassInfoEntry const* rcInfo = GetSkillRaceClassInfo(spellLearnSkill->skill, GetRace(), GetClass()))
+                if (SkillRaceClassInfoEntry const* rcInfo = sDBCManager.GetSkillRaceClassInfo(spellLearnSkill->skill, GetRace(), GetClass()))
                 {
                     switch (GetSkillRangeType(rcInfo))
                     {
@@ -3132,7 +3132,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
 
             // Runeforging special case
             if ((_spell_idx->second->AcquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(_spell_idx->second->SkillLine)) || ((_spell_idx->second->SkillLine == SKILL_RUNEFORGING) && _spell_idx->second->TrivialSkillLineRankHigh == 0))
-                if (SkillRaceClassInfoEntry const* rcInfo = GetSkillRaceClassInfo(_spell_idx->second->SkillLine, GetRace(), GetClass()))
+                if (SkillRaceClassInfoEntry const* rcInfo = sDBCManager.GetSkillRaceClassInfo(_spell_idx->second->SkillLine, GetRace(), GetClass()))
                     LearnDefaultSkill(rcInfo);
         }
     }
@@ -3358,7 +3358,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_
 
                 if (new_skill_max_value == 0)
                 {
-                    if (SkillRaceClassInfoEntry const* rcInfo = GetSkillRaceClassInfo(prevSkill->skill, GetRace(), GetClass()))
+                    if (SkillRaceClassInfoEntry const* rcInfo = sDBCManager.GetSkillRaceClassInfo(prevSkill->skill, GetRace(), GetClass()))
                     {
                         switch (GetSkillRangeType(rcInfo))
                         {
@@ -5736,7 +5736,7 @@ void Player::ModifySkillBonus(uint32 skillid, int32 val, bool talent)
         SetSkillTempBonus(itr->second.pos, m_activePlayerData->Skill->SkillTempBonus[itr->second.pos] + val);
 
     // Apply/Remove bonus to child skill lines
-    if (std::vector<SkillLineEntry const*> const* childSkillLines = sDB2Manager.GetSkillLinesForParentSkill(skillid))
+    if (std::vector<SkillLineEntry const*> const* childSkillLines = sDBCManager.GetSkillLinesForParentSkill(skillid))
         for (SkillLineEntry const* childSkillLine : *childSkillLines)
             ModifySkillBonus(childSkillLine->ID, val, talent);
 }
@@ -5752,7 +5752,7 @@ void Player::UpdateSkillsForLevel()
             continue;
 
         uint32 pskill = itr->first;
-        SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(pskill, GetRace(), GetClass());
+        SkillRaceClassInfoEntry const* rcEntry = sDBCManager.GetSkillRaceClassInfo(pskill, GetRace(), GetClass());
         if (!rcEntry)
             continue;
 
@@ -5776,7 +5776,7 @@ void Player::InitializeSkillFields()
     uint32 i = 0;
     for (SkillLineEntry const* skillLine : sSkillLineStore)
     {
-        if (GetSkillRaceClassInfo(skillLine->ID, GetRace(), GetClass()))
+        if (sDBCManager.GetSkillRaceClassInfo(skillLine->ID, GetRace(), GetClass()))
         {
             SetSkillLineId(i, skillLine->ID);
             SetSkillStartingRank(i, 1);
@@ -5829,7 +5829,7 @@ void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
         {
             // enable parent skill line if missing
             if (skillEntry->ParentSkillLineID && skillEntry->ParentTierIndex > 0 && GetSkillStep(skillEntry->ParentSkillLineID) < skillEntry->ParentTierIndex)
-                if (SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skillEntry->ParentSkillLineID, GetRace(), GetClass()))
+                if (SkillRaceClassInfoEntry const* rcEntry = sDBCManager.GetSkillRaceClassInfo(skillEntry->ParentSkillLineID, GetRace(), GetClass()))
                     if (SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcEntry->SkillTierID))
                         SetSkill(skillEntry->ParentSkillLineID, skillEntry->ParentTierIndex, std::max<uint16>(GetPureSkillValue(skillEntry->ParentSkillLineID), 1), tier->GetValueForTierIndex(skillEntry->ParentTierIndex - 1));
 
@@ -5927,7 +5927,7 @@ void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
                 for (SkillLineAbilityEntry const* skillLineAbility : *skillLineAbilities)
                     RemoveSpell(sSpellMgr->GetFirstSpellInChain(skillLineAbility->Spell));
 
-            if (std::vector<SkillLineEntry const*> const* childSkillLines = sDB2Manager.GetSkillLinesForParentSkill(id))
+            if (std::vector<SkillLineEntry const*> const* childSkillLines = sDBCManager.GetSkillLinesForParentSkill(id))
                 for (SkillLineEntry const* childSkillLine : *childSkillLines)
                     SetSkill(childSkillLine->ID, 0, 0, 0);
         }
@@ -5957,7 +5957,7 @@ void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
         {
             if (skillEntry->ParentTierIndex > 0)
             {
-                if (SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skillEntry->ParentSkillLineID, GetRace(), GetClass()))
+                if (SkillRaceClassInfoEntry const* rcEntry = sDBCManager.GetSkillRaceClassInfo(skillEntry->ParentSkillLineID, GetRace(), GetClass()))
                 {
                     if (SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcEntry->SkillTierID))
                     {
@@ -5970,7 +5970,7 @@ void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
         else
         {
             // also learn missing child skills at 0 value
-            if (std::vector<SkillLineEntry const*> const* childSkillLines = sDB2Manager.GetSkillLinesForParentSkill(id))
+            if (std::vector<SkillLineEntry const*> const* childSkillLines = sDBCManager.GetSkillLinesForParentSkill(id))
                 for (SkillLineEntry const* childSkillLine : *childSkillLines)
                     if (!HasSkill(childSkillLine->ID))
                         SetSkill(childSkillLine->ID, 0, 0, 0);
@@ -6021,7 +6021,7 @@ uint32 Player::GetProfessionSkillForExp(uint32 skill, int32 expansion) const
     if (expansion < 0)
         expansion = CURRENT_EXPANSION;
 
-    if (std::vector<SkillLineEntry const*> const* childSkillLines = sDB2Manager.GetSkillLinesForParentSkill(skillEntry->ID))
+    if (std::vector<SkillLineEntry const*> const* childSkillLines = sDBCManager.GetSkillLinesForParentSkill(skillEntry->ID))
         for (SkillLineEntry const* childSkillLine : *childSkillLines)
         {
             // Values of ParentTierIndex in SkillLine.db2 start at 4 (Classic) and increase by one for each expansion skillLine
@@ -6619,7 +6619,7 @@ void Player::RewardReputation(Unit* victim, float rate)
         // support for: Championing - http://www.wowwiki.com/Championing
         Map const* map = GetMap();
         if (map->IsNonRaidDungeon())
-            if (LFGDungeonsEntry const* dungeon = DB2Manager::GetLfgDungeon(map->GetId(), map->GetDifficultyID()))
+            if (LFGDungeonsEntry const* dungeon = DBCManager::GetLfgDungeon(map->GetId(), map->GetDifficultyID()))
                 if (Optional<ContentTuningLevels> dungeonLevels = sDB2Manager.GetContentTuningData(dungeon->ContentTuningID, m_playerData->CtrOptions->ContentTuningConditionMask))
                     if (dungeonLevels->TargetLevelMax == int16(GetMaxLevelForExpansion(EXPANSION_WRATH_OF_THE_LICH_KING)))
                         ChampioningFaction = GetChampioningFaction();
@@ -10049,7 +10049,7 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec& des
 bool Player::HasItemTotemCategory(uint32 TotemCategory) const
 {
     for (AuraEffect const* providedTotemCategory : GetAuraEffectsByType(SPELL_AURA_PROVIDE_TOTEM_CATEGORY))
-        if (DB2Manager::IsTotemCategoryCompatibleWith(providedTotemCategory->GetMiscValueB(), TotemCategory))
+        if (DBCManager::IsTotemCategoryCompatibleWith(providedTotemCategory->GetMiscValueB(), TotemCategory))
             return true;
 
     Item* item;
@@ -10057,7 +10057,7 @@ bool Player::HasItemTotemCategory(uint32 TotemCategory) const
     for (uint8 i = EQUIPMENT_SLOT_START; i < inventoryEnd; ++i)
     {
         item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i);
-        if (item && DB2Manager::IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
+        if (item && DBCManager::IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
             return true;
     }
 
@@ -10070,7 +10070,7 @@ bool Player::HasItemTotemCategory(uint32 TotemCategory) const
             for (uint32 j = 0; j < bag->GetBagSize(); ++j)
             {
                 item = GetUseableItemByPos(i, j);
-                if (item && DB2Manager::IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
+                if (item && DBCManager::IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
                     return true;
             }
         }
@@ -10079,7 +10079,7 @@ bool Player::HasItemTotemCategory(uint32 TotemCategory) const
     for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
     {
         item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i);
-        if (item && DB2Manager::IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
+        if (item && DBCManager::IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
             return true;
     }
 
@@ -15281,7 +15281,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     // make full db save
     SaveToDB(false);
 
-    if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(quest_id))
+    if (uint32 questBit = sDBCManager.GetQuestUniqueBitFlag(quest_id))
         SetQuestCompletedBit(questBit, true);
 
     if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
@@ -15334,7 +15334,7 @@ void Player::SetRewardedQuest(uint32 quest_id)
     m_RewardedQuests.insert(quest_id);
     m_RewardedQuestsSave[quest_id] = QUEST_DEFAULT_SAVE_TYPE;
 
-    if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(quest_id))
+    if (uint32 questBit = sDBCManager.GetQuestUniqueBitFlag(quest_id))
         SetQuestCompletedBit(questBit, true);
 }
 
@@ -16035,7 +16035,7 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
         m_RewardedQuestsSave[questId] = QUEST_FORCE_DELETE_SAVE_TYPE;
     }
 
-    if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(questId))
+    if (uint32 questBit = sDBCManager.GetQuestUniqueBitFlag(questId))
         SetQuestCompletedBit(questBit, false);
 
     // Remove seasonal quest also
@@ -19392,7 +19392,7 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
                 // Skip loading special quests - they are also added to rewarded quests but only once and remain there forever
                 // instead add them separately from load daily/weekly/monthly/seasonal
                 if (!quest->IsDailyOrWeekly() && !quest->IsMonthly() && !quest->IsSeasonal())
-                    if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(quest_id))
+                    if (uint32 questBit = sDBCManager.GetQuestUniqueBitFlag(quest_id))
                         SetQuestCompletedBit(questBit, true);
 
                 for (uint32 i = 0; i < quest->GetRewChoiceItemsCount(); ++i)
@@ -19445,7 +19445,7 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
                 continue;
 
             AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::DailyQuestsCompleted)) = quest_id;
-            if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(quest_id))
+            if (uint32 questBit = sDBCManager.GetQuestUniqueBitFlag(quest_id))
                 SetQuestCompletedBit(questBit, true);
 
             TC_LOG_DEBUG("entities.player.loading", "Player::_LoadDailyQuestStatus: Loaded daily quest cooldown (QuestID: {}) for player '{}' ({})",
@@ -19472,7 +19472,7 @@ void Player::_LoadWeeklyQuestStatus(PreparedQueryResult result)
                 continue;
 
             m_weeklyquests.insert(quest_id);
-            if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(quest_id))
+            if (uint32 questBit = sDBCManager.GetQuestUniqueBitFlag(quest_id))
                 SetQuestCompletedBit(questBit, true);
 
             TC_LOG_DEBUG("entities.player.loading", "Player::_LoadWeeklyQuestStatus: Loaded weekly quest cooldown (QuestID: {}) for player '{}' ({})",
@@ -19501,7 +19501,7 @@ void Player::_LoadSeasonalQuestStatus(PreparedQueryResult result)
                 continue;
 
             m_seasonalquests[event_id][quest_id] = completedTime;
-            if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(quest_id))
+            if (uint32 questBit = sDBCManager.GetQuestUniqueBitFlag(quest_id))
                 SetQuestCompletedBit(questBit, true);
 
             TC_LOG_DEBUG("entities.player.loading", "Player::_LoadSeasonalQuestStatus: Loaded seasonal quest cooldown (QuestID: {}) for player '{}' ({})",
@@ -19528,7 +19528,7 @@ void Player::_LoadMonthlyQuestStatus(PreparedQueryResult result)
                 continue;
 
             m_monthlyquests.insert(quest_id);
-            if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(quest_id))
+            if (uint32 questBit = sDBCManager.GetQuestUniqueBitFlag(quest_id))
                 SetQuestCompletedBit(questBit, true);
 
             TC_LOG_DEBUG("entities.player.loading", "Player::_LoadMonthlyQuestStatus: Loaded monthly quest cooldown (QuestID: {}) for player '{}' ({})",
@@ -19681,7 +19681,7 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, TransferAbo
             return false;
 
         Difficulty target_difficulty = GetDifficultyID(mapEntry);
-        MapDifficultyEntry const* mapDiff = sDB2Manager.GetDownscaledMapDifficultyData(target_map, target_difficulty);
+        MapDifficultyEntry const* mapDiff = sDBCManager.GetDownscaledMapDifficultyData(target_map, target_difficulty);
         if (!sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_LEVEL))
         {
             if (DB2Manager::MapDifficultyConditionsContainer const* mapDifficultyConditions = sDB2Manager.GetMapDifficultyConditions(mapDiff->ID))
@@ -19837,7 +19837,7 @@ WorldSafeLocsEntry const* Player::GetInstanceEntrance(uint32 targetMapId)
             Group* group = GetGroup();
             Difficulty difficulty = group ? group->GetDifficultyID(mapEntry) : GetDifficultyID(mapEntry);
             ObjectGuid instanceOwnerGuid = group ? group->GetRecentInstanceOwner(targetMapId) : GetGUID();
-            if (InstanceLock const* instanceLock = sInstanceLockMgr.FindActiveInstanceLock(instanceOwnerGuid, { mapEntry, sDB2Manager.GetDownscaledMapDifficultyData(targetMapId, difficulty) }))
+            if (InstanceLock const* instanceLock = sInstanceLockMgr.FindActiveInstanceLock(instanceOwnerGuid, { mapEntry, sDBCManager.GetDownscaledMapDifficultyData(targetMapId, difficulty) }))
                 entranceLocation = sObjectMgr->GetWorldSafeLoc(instanceLock->GetData()->EntranceWorldSafeLocId);
         }
     }
@@ -22910,7 +22910,7 @@ void Player::InitDisplayIds()
     }
 
     SetDisplayId(model->DisplayID, true);
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateAnimID), sDB2Manager.GetEmptyAnimStateID());
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateAnimID), sDBCManager.GetEmptyAnimStateID());
 }
 
 inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int64 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore)
@@ -24960,7 +24960,7 @@ void Player::SetMonthlyQuestStatus(uint32 quest_id)
 void Player::DailyReset()
 {
     for (int32 questId : m_activePlayerData->DailyQuestsCompleted)
-        if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(questId))
+        if (uint32 questBit = sDBCManager.GetQuestUniqueBitFlag(questId))
             SetQuestCompletedBit(questBit, false);
 
     WorldPackets::Quest::DailyQuestsReset dailyQuestsReset;
@@ -25008,7 +25008,7 @@ void Player::ResetWeeklyQuestStatus()
         return;
 
     for (uint32 questId : m_weeklyquests)
-        if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(questId))
+        if (uint32 questBit = sDBCManager.GetQuestUniqueBitFlag(questId))
             SetQuestCompletedBit(questBit, false);
 
     for (uint16 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
@@ -25053,7 +25053,7 @@ void Player::ResetSeasonalQuestStatus(uint16 event_id, time_t eventStartTime)
     {
         if (questItr->second < eventStartTime)
         {
-            if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(questItr->first))
+            if (uint32 questBit = sDBCManager.GetQuestUniqueBitFlag(questItr->first))
                 SetQuestCompletedBit(questBit, false);
 
             questItr = eventItr->second.erase(questItr);
@@ -25073,7 +25073,7 @@ void Player::ResetMonthlyQuestStatus()
         return;
 
     for (uint32 questId : m_monthlyquests)
-        if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(questId))
+        if (uint32 questBit = sDBCManager.GetQuestUniqueBitFlag(questId))
             SetQuestCompletedBit(questBit, false);
 
     m_monthlyquests.clear();
@@ -25280,7 +25280,7 @@ bool Player::IsSpellFitByClassAndRace(uint32 spell_id) const
             continue;
 
         // skip wrong class and race skill saved in SkillRaceClassInfo.dbc
-        if (!GetSkillRaceClassInfo(_spell_idx->second->SkillLine, GetRace(), GetClass()))
+        if (!sDBCManager.GetSkillRaceClassInfo(_spell_idx->second->SkillLine, GetRace(), GetClass()))
             continue;
 
         return true;
@@ -26610,7 +26610,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             uint16 max      = fields[2].GetUInt16();
             int8 professionSlot = fields[3].GetInt8();
 
-            SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skill, race, GetClass());
+            SkillRaceClassInfoEntry const* rcEntry = sDBCManager.GetSkillRaceClassInfo(skill, race, GetClass());
             if (!rcEntry)
             {
                 TC_LOG_ERROR("entities.player", "Player::_LoadSkills: Player '{}' ({}, Race: {}, Class: {}) has forbidden skill {} for his race/class combination",
@@ -26682,11 +26682,11 @@ void Player::_LoadSkills(PreparedQueryResult result)
         // enable parent skill line if missing
         SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(skillId);
         if (skillEntry->ParentSkillLineID && skillEntry->ParentTierIndex > 0 && GetSkillStep(skillEntry->ParentSkillLineID) < skillEntry->ParentTierIndex)
-            if (SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skillEntry->ParentSkillLineID, GetRace(), GetClass()))
+            if (SkillRaceClassInfoEntry const* rcEntry = sDBCManager.GetSkillRaceClassInfo(skillEntry->ParentSkillLineID, GetRace(), GetClass()))
                 if (SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcEntry->SkillTierID))
                     SetSkill(skillEntry->ParentSkillLineID, skillEntry->ParentTierIndex, std::max<uint16>(GetPureSkillValue(skillEntry->ParentSkillLineID), 1), tier->GetValueForTierIndex(skillEntry->ParentTierIndex - 1));
 
-        if (std::vector<SkillLineEntry const*> const* childSkillLines = sDB2Manager.GetSkillLinesForParentSkill(skillId))
+        if (std::vector<SkillLineEntry const*> const* childSkillLines = sDBCManager.GetSkillLinesForParentSkill(skillId))
         {
             for (auto childItr = childSkillLines->begin(); childItr != childSkillLines->end() && mSkillStatus.size() < PLAYER_MAX_SKILLS; ++childItr)
             {
@@ -26931,7 +26931,7 @@ TalentLearnResult Player::LearnTalent(uint32 talentId, int32* spellOnCooldown)
     // but only 2 out of 3 have SpecID != 0
     // We need to make sure that if player is in one of these defined specs he will not learn the other choice
     TalentEntry const* bestSlotMatch = nullptr;
-    for (TalentEntry const* talent : sDB2Manager.GetTalentsByPosition(GetClass(), talentInfo->TierID, talentInfo->ColumnIndex))
+    for (TalentEntry const* talent : sDBCManager.GetTalentsByPosition(GetClass(), talentInfo->TierID, talentInfo->ColumnIndex))
     {
         if (!talent->SpecID)
             bestSlotMatch = talent;
@@ -26948,7 +26948,7 @@ TalentLearnResult Player::LearnTalent(uint32 talentId, int32* spellOnCooldown)
     // Check if player doesn't have any talent in current tier
     for (uint32 c = 0; c < MAX_TALENT_COLUMNS; ++c)
     {
-        for (TalentEntry const* talent : sDB2Manager.GetTalentsByPosition(GetClass(), talentInfo->TierID, c))
+        for (TalentEntry const* talent : sDBCManager.GetTalentsByPosition(GetClass(), talentInfo->TierID, c))
         {
             if (!HasTalent(talent->ID, GetActiveTalentGroup()))
                 continue;
@@ -26992,15 +26992,15 @@ void Player::ResetTalentSpecialization()
     uint32 class_ = GetClass();
     for (uint32 t = 0; t < MAX_TALENT_TIERS; ++t)
         for (uint32 c = 0; c < MAX_TALENT_COLUMNS; ++c)
-            if (sDB2Manager.GetTalentsByPosition(class_, t, c).size() > 1)
-                for (TalentEntry const* talent : sDB2Manager.GetTalentsByPosition(class_, t, c))
+            if (sDBCManager.GetTalentsByPosition(class_, t, c).size() > 1)
+                for (TalentEntry const* talent : sDBCManager.GetTalentsByPosition(class_, t, c))
                     RemoveTalent(talent);
 
     ResetPvpTalents();
 
     RemoveSpecializationSpells();
 
-    ChrSpecializationEntry const* defaultSpec = ASSERT_NOTNULL(sDB2Manager.GetDefaultChrSpecializationForClass(GetClass()));
+    ChrSpecializationEntry const* defaultSpec = ASSERT_NOTNULL(sDBCManager.GetDefaultChrSpecializationForClass(GetClass()));
     SetPrimarySpecialization(defaultSpec->ID);
     SetActiveTalentGroup(defaultSpec->OrderIndex);
 
@@ -27395,7 +27395,7 @@ void Player::SendTalentsInfoData()
 
     for (uint8 i = 0; i < MAX_SPECIALIZATIONS; ++i)
     {
-        ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(GetClass(), i);
+        ChrSpecializationEntry const* spec = sDBCManager.GetChrSpecializationByIndex(GetClass(), i);
         if (!spec)
             continue;
 
@@ -27690,7 +27690,7 @@ void Player::_LoadGlyphs(PreparedQueryResult result)
         Field* fields = result->Fetch();
 
         uint8 spec = fields[0].GetUInt8();
-        if (spec >= MAX_SPECIALIZATIONS || !sDB2Manager.GetChrSpecializationByIndex(GetClass(), spec))
+        if (spec >= MAX_SPECIALIZATIONS || !sDBCManager.GetChrSpecializationByIndex(GetClass(), spec))
             continue;
 
         uint16 glyphId = fields[1].GetUInt16();
@@ -27843,7 +27843,7 @@ void Player::_LoadTraits(PreparedQueryResult configsResult, PreparedQueryResult 
 
     for (uint32 i = 0; i < MAX_SPECIALIZATIONS - 1 /*initial spec doesnt get a config*/; ++i)
     {
-        if (ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(GetClass(), i))
+        if (ChrSpecializationEntry const* spec = sDBCManager.GetChrSpecializationByIndex(GetClass(), i))
         {
             if (hasConfigForSpec(spec->ID))
                 continue;
@@ -29768,7 +29768,7 @@ Difficulty Player::GetDifficultyID(MapEntry const* mapEntry) const
     if (!mapEntry->IsRaid())
         return m_dungeonDifficulty;
 
-    MapDifficultyEntry const* defaultDifficulty = sDB2Manager.GetDefaultMapDifficulty(mapEntry->ID);
+    MapDifficultyEntry const* defaultDifficulty = sDBCManager.GetDefaultMapDifficulty(mapEntry->ID);
     if (!defaultDifficulty)
         return m_legacyRaidDifficulty;
 
@@ -29853,7 +29853,7 @@ void Player::RemoveOverrideSpell(uint32 overridenSpellId, uint32 newSpellId)
 
 void Player::LearnSpecializationSpells()
 {
-    if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDB2Manager.GetSpecializationSpells(AsUnderlyingType(GetPrimarySpecialization())))
+    if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDBCManager.GetSpecializationSpells(AsUnderlyingType(GetPrimarySpecialization())))
     {
         for (size_t j = 0; j < specSpells->size(); ++j)
         {
@@ -29873,9 +29873,9 @@ void Player::RemoveSpecializationSpells()
 {
     for (uint32 i = 0; i < MAX_SPECIALIZATIONS; ++i)
     {
-        if (ChrSpecializationEntry const* specialization = sDB2Manager.GetChrSpecializationByIndex(GetClass(), i))
+        if (ChrSpecializationEntry const* specialization = sDBCManager.GetChrSpecializationByIndex(GetClass(), i))
         {
-            if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDB2Manager.GetSpecializationSpells(specialization->ID))
+            if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDBCManager.GetSpecializationSpells(specialization->ID))
             {
                 for (size_t j = 0; j < specSpells->size(); ++j)
                 {
@@ -29951,7 +29951,7 @@ void Player::RemoveSocial()
 
 uint32 Player::GetDefaultSpecId() const
 {
-    return ASSERT_NOTNULL(sDB2Manager.GetDefaultChrSpecializationForClass(GetClass()))->ID;
+    return ASSERT_NOTNULL(sDBCManager.GetDefaultChrSpecializationForClass(GetClass()))->ID;
 }
 
 ChrSpecializationEntry const* Player::GetPrimarySpecializationEntry() const
