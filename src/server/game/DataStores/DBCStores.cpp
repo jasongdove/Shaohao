@@ -459,7 +459,7 @@ LOAD_DBC(sAuctionHouseStore, "AuctionHouse.dbc");
 //    LOAD_DBC(sCriteriaTreeStore, "CriteriaTree.dbc");
 //    LOAD_DBC(sCurrencyTypesStore, "CurrencyTypes.dbc");
 //    LOAD_DBC(sDestructibleModelDataStore, "DestructibleModelData.dbc");
-//    LOAD_DBC(sDifficultyStore, "Difficulty.dbc");//20444
+LOAD_DBC(sDifficultyStore, "Difficulty.dbc");//20444
 //    LOAD_DBC(sDungeonEncounterStore, "DungeonEncounter.dbc");//20444
 //    LOAD_DBC(sDurabilityCostsStore, "DurabilityCosts.dbc");//20444
 //    LOAD_DBC(sDurabilityQualityStore, "DurabilityQuality.dbc");

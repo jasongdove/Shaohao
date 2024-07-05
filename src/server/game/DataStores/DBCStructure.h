@@ -418,8 +418,21 @@ struct DifficultyEntry
     //uint32    GroupSizeHealthCurveID;                     // 8
     //uint32    GroupSizeDmgCurveID;                        // 9
     //uint32    GroupSizeSpellPointsCurveID;                // 10
-    LocalizedString Name;                                   // 11
+    char* Name;                                             // 11
 };
+
+//$id$ID<32>
+//        FallbackDifficultyID<32>
+//InstanceType<32>
+//        MinPlayers<32>
+//MaxPlayers<32>
+//        OldEnumValue<32>
+//Flags<32>
+//        ToggleDifficultyID<32>
+//GroupSizeHealthCurveID<32>
+//        GroupSizeDmgCurveID<32>
+//GroupSizeSpellPointsCurveID<32>
+//        Name_lang
 
 struct DungeonEncounterEntry
 {
