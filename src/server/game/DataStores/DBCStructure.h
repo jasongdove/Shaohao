@@ -26,6 +26,19 @@
 // Structures using to access raw DBC data and required packing to portability
 #pragma pack(push, 1)
 
+// TODO: DATA this class fakes having localized strings in DBC stores
+// until we update to load localized strings from the DB
+class FakeLocalizedString
+{
+public:
+    explicit FakeLocalizedString(char* strLocal) : _str(strLocal) { }
+
+    constexpr char const* operator[](LocaleConstant /*locale*/) const { return _str; }
+
+private:
+    char* _str;
+};
+
 struct AnimKitEntry
 {
     uint32 ID;
@@ -48,7 +61,7 @@ struct AreaTableEntry
     //char*     ZoneName;                                   // 10 - Internal name
     //uint32    IntroSound;                                 // 11
     uint32      ExplorationLevel;                           // 12
-    LocalizedString AreaName;                               // 13 - In-game name
+    char*       AreaName_lang;                              // 13 - In-game name
     uint32      FactionGroupMask;                           // 14
     uint32      LiquidTypeID[4];                            // 15-18
     //float     MinElevation;                               // 19
@@ -62,7 +75,11 @@ struct AreaTableEntry
     uint32      PvpCombatWorldStateID;                      // 27
     uint32      WildBattlePetLevelMin;                      // 28
     uint32      WildBattlePetLevelMax;                      // 29
-    //uint32    WindSettingsID;                             // 30
+
+    static const uint32 ExtraData = sizeof(int32) + sizeof(FakeLocalizedString);
+
+    // Shaohao: DBC doesn't have localized strings
+    FakeLocalizedString AreaName = FakeLocalizedString(AreaName_lang);
 
     // Shaohao: MOP doesn't have ContentTuningID
     int32 ContentTuningID = 0;
@@ -115,7 +132,11 @@ struct AuctionHouseEntry
     uint32 FactionID;                                               // id of faction.dbc for player factions associated with city
     uint32 DepositRate;
     uint32 ConsignmentRate;
-    char* Name;
+    char* Name_lang;
+
+    static const uint32 ExtraData = sizeof(FakeLocalizedString);
+
+    FakeLocalizedString Name = FakeLocalizedString(Name_lang);
 };
 
 struct BankBagSlotPricesEntry
@@ -418,7 +439,11 @@ struct DifficultyEntry
     //uint32    GroupSizeHealthCurveID;                     // 8
     //uint32    GroupSizeDmgCurveID;                        // 9
     //uint32    GroupSizeSpellPointsCurveID;                // 10
-    char* Name;                                             // 11
+    char*       Name_lang;                                  // 11
+
+    static const uint32 ExtraData = sizeof(FakeLocalizedString);
+
+    FakeLocalizedString Name = FakeLocalizedString(Name_lang);
 };
 
 //$id$ID<32>
@@ -497,11 +522,15 @@ struct FactionEntry
     uint32      ParentFactionID;                            // 18
     float       ParentFactionMod[2];                        // 19-20
     uint32      ParentFactionCap[2];                        // 21-22
-    char*       Name;                                       // 23
+    char*       Name_lang;                                  // 23
     //char*     Description_lang;                           // 24
     uint32      Expansion;                                  // 25
     //uint32    Flags;                                      // 26
     uint32      FriendshipRepID;                            // 27
+
+    static const uint32 ExtraData = sizeof(FakeLocalizedString);
+
+    FakeLocalizedString Name = FakeLocalizedString(Name_lang);
 
     // Shaohao: MOP doesn't have Faction.ReputationMax[]
     static constexpr int32 ReputationMax[4] = { 0, 0, 0, 0};
@@ -589,6 +618,14 @@ struct GameObjectDisplayInfoEntry
     //uint32        ObjectEffectPackageID;                  // 18
     //float         OverrideLootEffectScale;                // 19
     //float         OverrideNameScale;                      // 20
+};
+
+struct GameTablesEntry
+{
+    uint32 ID;                                                      // 0
+    char* Name;                                                     // 1
+    uint32 NumRows;                                                 // 2
+    uint32 NumColumns;                                              // 3
 };
 
 struct GemPropertiesEntry
@@ -1183,7 +1220,7 @@ struct SpellAuraOptionsEntry
 struct SpellEntry
 {
     uint32      ID;                                         // 0
-    char*       Name;                                       // 1
+    char*       Name_lang;                                  // 1
     //char*     NameSubtext_lang;                           // 2
     //char*     Description_lang;                           // 3
     //char*     AuraDescription_lang;                       // 4

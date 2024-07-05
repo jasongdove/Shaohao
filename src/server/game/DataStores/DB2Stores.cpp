@@ -958,7 +958,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         SpellNameEntry spellName = SpellNameEntry();
         spellName.ID = spell->ID;
         spellName.Name = LocalizedString();
-        spellName.Name.Str[defaultLocale] = spell->Name;
+        spellName.Name.Str[defaultLocale] = spell->Name_lang;
         sSpellNameStore.emplace(spellName.ID, &spellName);
     }
 

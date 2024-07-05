@@ -413,7 +413,12 @@ uint32 DBCManager::LoadStores(const std::string& dataPath, uint32 defaultLocale)
     StoreProblemList bad_dbc_files;
     uint32 availableDbcLocales = 0xFFFFFFFF;
 
+// Shaohao: it seems better to make the MOP data look like TC master data than to change
+// tons of code outside of DB2/DBC that will complicate future merges
+// Specifically, LOAD_DBC_EXTRA adjusts the validation for members that have been added to
+// match TC master and are not part of the MOP DBC files
 #define LOAD_DBC_EXTRA(store, file, extraData) LoadDBC(availableDbcLocales, bad_dbc_files, store, dbcPath, file, defaultLocale, extraData)
+
 #define LOAD_DBC(store, file) LoadDBC(availableDbcLocales, bad_dbc_files, store, dbcPath, file, defaultLocale)
 
 //    LOAD_DBC(sAchievementStore, "Achievement.dbc");
@@ -421,12 +426,12 @@ uint32 DBCManager::LoadStores(const std::string& dataPath, uint32 defaultLocale)
 //    // TODO: DATA LOAD_DBC(sAchievementCriteriaStore, "Achievement_Criteria.dbc");
 //    // TODO: DATA LOAD_DBC(sAnimationDataStore, "AnimationData.dbc");
 //    LOAD_DBC(sAnimKitStore, "AnimKit.dbc");//20444
-//    LOAD_DBC(sAreaTableStore, "AreaTable.dbc");//20444
+LOAD_DBC_EXTRA(sAreaTableStore, "AreaTable.dbc", AreaTableEntry::ExtraData);//20444
 //    LOAD_DBC(sAreaTriggerStore, "AreaTrigger.dbc");//20444
 //    // TODO: DATA LOAD_DBC(sAreaTriggerActionSetStore, "AreaTriggerActionSet.dbc");
 //    // TODO: DATA LOAD_DBC(sAreaTriggerSphereStore, "AreaTriggerSphere.dbc");
 //    LOAD_DBC(sArmorLocationStore, "ArmorLocation.dbc");//20444
-LOAD_DBC(sAuctionHouseStore, "AuctionHouse.dbc");
+LOAD_DBC_EXTRA(sAuctionHouseStore, "AuctionHouse.dbc", AuctionHouseEntry::ExtraData);
 //    LOAD_DBC(sBankBagSlotPricesStore, "BankBagSlotPrices.dbc");//20444
 //    LOAD_DBC(sBannedAddOnsStore, "BannedAddOns.dbc");//20444
 //    LOAD_DBC(sBarberShopStyleStore, "BarberShopStyle.dbc");
@@ -460,7 +465,7 @@ LOAD_DBC(sAuctionHouseStore, "AuctionHouse.dbc");
 //    LOAD_DBC(sCriteriaTreeStore, "CriteriaTree.dbc");
 //    LOAD_DBC(sCurrencyTypesStore, "CurrencyTypes.dbc");
 //    LOAD_DBC(sDestructibleModelDataStore, "DestructibleModelData.dbc");
-LOAD_DBC(sDifficultyStore, "Difficulty.dbc");//20444
+LOAD_DBC_EXTRA(sDifficultyStore, "Difficulty.dbc", DifficultyEntry::ExtraData);//20444
 //    LOAD_DBC(sDungeonEncounterStore, "DungeonEncounter.dbc");//20444
 //    LOAD_DBC(sDurabilityCostsStore, "DurabilityCosts.dbc");//20444
 //    LOAD_DBC(sDurabilityQualityStore, "DurabilityQuality.dbc");
@@ -469,7 +474,7 @@ LOAD_DBC(sDifficultyStore, "Difficulty.dbc");//20444
 //    //
 //    //
 //    LOAD_DBC(sEmotesTextSoundStore, "EmotesTextSound.dbc");
-LOAD_DBC(sFactionStore, "Faction.dbc");//20444
+LOAD_DBC_EXTRA(sFactionStore, "Faction.dbc", FactionEntry::ExtraData);//20444
 LOAD_DBC(sFactionTemplateStore, "FactionTemplate.dbc");//20444
 //    // TODO: DATA LOAD_DBC(sFriendshipRepReactionStore, "FriendshipRepReaction.dbc");
 //    // TODO: DATA LOAD_DBC(sFriendshipReputationStore, "FriendshipReputation.dbc");

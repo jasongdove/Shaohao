@@ -25,7 +25,7 @@
 char const AchievementCriteriafmt[] = "niiiixiiiisiiiiixxiiiii";
 char const Achievementfmt[] = "niiissiiiiisiii";
 char const AnimKitfmt[] = "nxxx";
-char const AreaTablefmt[] = "niiiiixxxxxxisiiiiixxxxxxxxxx";
+char const AreaTablefmt[] = "niiiiixxxxxxisiiiiixxxixxxxiii";
 char const AreaTriggerfmt[] = "nifffxxxfffffxxxx";
 char const ArmorLocationfmt[] = "nfffff";
 char const AuctionHousefmt[] = "niiis";

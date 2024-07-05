@@ -1664,14 +1664,6 @@ struct GameObjectsEntry
     std::array<int32, 8> PropValue;
 };
 
-struct GameTablesEntry
-{
-    uint32 ID;                                                      // 0
-    char* Name;                                                     // 1
-    uint32 NumRows;                                                 // 2
-    uint32 NumColumns;                                              // 3
-};
-
 struct GarrAbilityEntry
 {
     uint32 ID;
