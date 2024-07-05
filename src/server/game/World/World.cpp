@@ -1799,18 +1799,21 @@ bool World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Initialize data stores...");
     sDBCManager.LoadStores(m_dataPath, m_defaultDbcLocale);
     ///- Load DB2s
-    m_availableDbcLocaleMask = sDB2Manager.LoadStores(m_dataPath, m_defaultDbcLocale);
-    if (!(m_availableDbcLocaleMask & (1 << m_defaultDbcLocale)))
-    {
-        TC_LOG_FATAL("server.loading", "Unable to load db2 files for {} locale specified in DBC.Locale config!", localeNames[m_defaultDbcLocale]);
-        return false;
-    }
+    // TODO: DATA actually load these
+//    m_availableDbcLocaleMask = sDB2Manager.LoadStores(m_dataPath, m_defaultDbcLocale);
+//    if (!(m_availableDbcLocaleMask & (1 << m_defaultDbcLocale)))
+//    {
+//        TC_LOG_FATAL("server.loading", "Unable to load db2 files for {} locale specified in DBC.Locale config!", localeNames[m_defaultDbcLocale]);
+//        return false;
+//    }
+
+    m_availableDbcLocaleMask = m_defaultDbcLocale;
 
     TC_LOG_INFO("server.loading", "Loading GameObject models...");
     if (!LoadGameObjectModelList(m_dataPath))
     {
         TC_LOG_FATAL("server.loading", "Unable to load gameobject models (part of vmaps), objects using WMO models will crash the client - server shutting down!");
-        return false;
+        // TODO: DATA return false;
     }
 
     TC_LOG_INFO("misc", "Loading hotfix blobs...");

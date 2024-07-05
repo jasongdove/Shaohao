@@ -195,26 +195,6 @@ struct GtXpEntry
     float Divisor = 0.0f;
 };
 
-//template<class T>
-//class GameTable
-//{
-//public:
-//    T const* GetRow(uint32 row) const
-//    {
-//        if (row >= _data.size())
-//            return nullptr;
-//
-//        return &_data[row];
-//    }
-//
-//    std::size_t GetTableRowCount() const { return _data.size(); }
-//
-//    void SetData(std::vector<T> data) { _data = std::move(data); }
-//
-//private:
-//    std::vector<T> _data;
-//};
-
 template<class T>
 class GameTable
 {
@@ -225,8 +205,8 @@ public:
 
     T const* EvaluateTable(uint32 row, uint32 column) const
     {
-                ASSERT(row < _gtEntry->NumRows, "Requested row %u from GameTable %s but there are only %u rows!", row, _gtEntry->Name->Str[0], _gtEntry->NumRows);
-                ASSERT(column < _gtEntry->NumColumns, "Requested column %u from GameTable %s but there are only %u columns!", column, _gtEntry->Name->Str[0], _gtEntry->NumColumns);
+        ASSERT(row < _gtEntry->NumRows, "Requested row %u from GameTable %s but there are only %u rows!", row, _gtEntry->Name, _gtEntry->NumRows);
+        ASSERT(column < _gtEntry->NumColumns, "Requested column %u from GameTable %s but there are only %u columns!", column, _gtEntry->Name, _gtEntry->NumColumns);
 
         return _storage.LookupEntry(_gtEntry->NumRows * column + row);
     }

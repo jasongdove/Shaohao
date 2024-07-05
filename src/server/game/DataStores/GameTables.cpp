@@ -58,9 +58,9 @@ template<class T>
 inline void LoadGameTable(StoreProblemList& errors, std::string const& tableName, GameTable<T>& storage, std::string const& dbcPath, std::string const& filename)
 {
     // compatibility format and C++ structure sizes
-            ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T),
-                   "Size of '%s' set by format string (%u) not equal size of C++ structure (%u).",
-                   filename.c_str(), DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), uint32(sizeof(T)));
+    ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T),
+           "Size of '%s' set by format string (%u) not equal size of C++ structure (%u).",
+           filename.c_str(), DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), uint32(sizeof(T)));
 
     ++GameTableCount;
     std::string dbcFilename = dbcPath + filename;
@@ -75,21 +75,15 @@ inline void LoadGameTable(StoreProblemList& errors, std::string const& tableName
             if (!gt)
                 continue;
 
-            for (uint32 l = 0; l < TOTAL_LOCALES; ++l)
+            if (tableName == gt->Name)
             {
-                if (l != LOCALE_none && tableName == gt->Name->Str[l])
-                {
-                    found = true;
-                    storage.SetGameTableEntry(gt);
-                    break;
-                }
-            }
-
-            if (found)
+                found = true;
+                storage.SetGameTableEntry(gt);
                 break;
+            }
         }
 
-                ASSERT(found, "Game table %s definition not found in GameTables.dbc", tableName.c_str());
+        ASSERT(found, "Game table %s definition not found in GameTables.dbc", tableName.c_str());
     }
     else
     {

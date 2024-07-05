@@ -158,9 +158,8 @@ struct LinkValidator<LinkTags::achievement>
     {
         if (text.empty())
             return false;
-        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
-            if (text == data.Achievement->Title[i])
-                return true;
+        if (text == data.Achievement->Title)
+            return true;
         return false;
     }
 

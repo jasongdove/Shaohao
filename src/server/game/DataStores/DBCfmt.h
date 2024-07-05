@@ -23,7 +23,7 @@
 // n - index (included), l - uint64, p - field present in sql dbc, a - field absent in sql dbc
 
 char const AchievementCriteriafmt[] = "niiiixiiiisiiiiixxiiiii";
-char const Achievementfmt[] = "niiisxiixixxiii";
+char const Achievementfmt[] = "niiissiiiiisiii";
 char const AnimKitfmt[] = "nxxx";
 char const AreaTablefmt[] = "niiiiixxxxxxisiiiiixxxxxxxxxx";
 char const AreaTriggerfmt[] = "nifffxxxfffffxxxx";
@@ -63,6 +63,7 @@ char const EmotesTextSoundfmt[] = "niiii";
 char const Factionfmt[] = "niiiiiiiiiiiiiiiiiiffixsxixx";
 char const FactionTemplatefmt[] = "niiiiiiiiiiiii";
 char const GameObjectDisplayInfofmt[] = "nixxxxxxxxxxffffffxxx";
+char const GameTablesfmt[] = "nsii";
 char const GemPropertiesfmt[] = "nixxii";
 char const GlyphPropertiesfmt[] = "niiix";
 char const GtBarberShopCostBasefmt[] = "xf";

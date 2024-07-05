@@ -108,7 +108,7 @@ DBCStorage<FriendshipRepReactionEntry>         sFriendshipRepReactionStore("");
 DBCStorage<FriendshipReputationEntry>          sFriendshipReputationStore("");
 DBCStorage<GameObjectArtKitEntry>              sGameObjectArtKitStore("");
 DBCStorage<GameObjectDisplayInfoEntry>         sGameObjectDisplayInfoStore(GameObjectDisplayInfofmt);
-DBCStorage<GameTablesEntry>                    sGameTablesStore("");
+DBCStorage<GameTablesEntry>                    sGameTablesStore(GameTablesfmt);
 DBCStorage<GemPropertiesEntry>                 sGemPropertiesStore(GemPropertiesfmt);
 DBCStorage<GlyphPropertiesEntry>               sGlyphPropertiesStore(GlyphPropertiesfmt);
 DBCStorage<GuildColorBackgroundEntry>          sGuildColorBackgroundStore("");
@@ -312,6 +312,7 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCSt
         "Size of '%s' set by format string (%u) not equal size of C++ structure (%u).",
         filename.c_str(), DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), uint32(sizeof(T)));
 
+    ++DBCFileCount;
     std::string dbcFilename = dbcPath + localeNames[defaultLocale] + '/' + filename;
     SqlDbc * sql = NULL;
     if (customFormat)
@@ -371,18 +372,12 @@ inline void LoadGameTable(StoreProblemList& errors, std::string const& tableName
             if (!gt)
                 continue;
 
-            for (uint32 l = 0; l < TOTAL_LOCALES; ++l)
+            if (tableName == gt->Name)
             {
-                if (l != LOCALE_none && tableName == gt->Name->Str[l])
-                {
-                    found = true;
-                    storage.SetGameTableEntry(gt);
-                    break;
-                }
-            }
-
-            if (found)
+                found = true;
+                storage.SetGameTableEntry(gt);
                 break;
+            }
         }
 
         ASSERT(found, "Game table %s definition not found in GameTables.db2", tableName.c_str());
@@ -420,210 +415,210 @@ uint32 DBCManager::LoadStores(const std::string& dataPath, uint32 defaultLocale)
 
 #define LOAD_DBC(store, file) LoadDBC(availableDbcLocales, bad_dbc_files, store, dbcPath, file, defaultLocale)
 
-    LOAD_DBC(sAchievementStore, "Achievement.dbc");
-    // TODO: DATA LOAD_DBC(sAchievementCategoryStore, "Achievement_Category.dbc");
-    // TODO: DATA LOAD_DBC(sAchievementCriteriaStore, "Achievement_Criteria.dbc");
-    // TODO: DATA LOAD_DBC(sAnimationDataStore, "AnimationData.dbc");
-    LOAD_DBC(sAnimKitStore, "AnimKit.dbc");//20444
-    LOAD_DBC(sAreaTableStore, "AreaTable.dbc");//20444
-    LOAD_DBC(sAreaTriggerStore, "AreaTrigger.dbc");//20444
-    // TODO: DATA LOAD_DBC(sAreaTriggerActionSetStore, "AreaTriggerActionSet.dbc");
-    // TODO: DATA LOAD_DBC(sAreaTriggerSphereStore, "AreaTriggerSphere.dbc");
-    LOAD_DBC(sArmorLocationStore, "ArmorLocation.dbc");//20444
-    LOAD_DBC(sAuctionHouseStore, "AuctionHouse.dbc");
-    LOAD_DBC(sBankBagSlotPricesStore, "BankBagSlotPrices.dbc");//20444
-    LOAD_DBC(sBannedAddOnsStore, "BannedAddOns.dbc");//20444
-    LOAD_DBC(sBarberShopStyleStore, "BarberShopStyle.dbc");
-    LOAD_DBC(sBattlemasterListStore, "BattlemasterList.dbc");//20444
-    // TODO: DATA LOAD_DBC(sCfgCategoriesStore, "Cfg_Categories.dbc");
-    // TODO: DATA LOAD_DBC(sCfgRegionsStore, "Cfg_Regions.dbc");
-    // TODO: DATA LOAD_DBC(sCharacterLoadoutStore, "CharacterLoadout.dbc");
-    // TODO: DATA LOAD_DBC(sCharacterLoadoutItemStore, "CharacterLoadoutItem.dbc");
-    // TODO: DATA LOAD_DBC(sCharBaseInfoStore, "CharBaseInfo.dbc");
-    LOAD_DBC(sCharSectionsStore, "CharSections.dbc");//20444
-    // sCharSectionMap
-    LOAD_DBC(sCharStartOutfitStore, "CharStartOutfit.dbc");
-    // sCharStartOutfitMap
-    LOAD_DBC(sCharTitlesStore, "CharTitles.dbc");//20444
-    LOAD_DBC(sChatChannelsStore, "ChatChannels.dbc");//20444
-    LOAD_DBC(sChrClassesStore, "ChrClasses.dbc");//20444
-    // TODO: DATA LOAD_DBC(sChrClassesXPowerTypesStore, "ChrClassesXPowerTypes.dbc");
-    LOAD_DBC(sChrRacesStore, "ChrRaces.dbc");//20444
-    LOAD_DBC(sChrSpecializationStore, "ChrSpecialization.dbc");//20444
-    // sChrSpecializationByIndexStore
-    LOAD_DBC(sCinematicCameraStore, "CinematicCamera.dbc");
-    LOAD_DBC(sCinematicSequencesStore, "CinematicSequences.dbc");
-    LOAD_DBC(sCreatureDisplayInfoStore, "CreatureDisplayInfo.dbc");
-    LOAD_DBC(sCreatureDisplayInfoExtraStore, "CreatureDisplayInfoExtra.dbc");//20444
-    LOAD_DBC(sCreatureFamilyStore, "CreatureFamily.dbc");//20444
-    LOAD_DBC(sCreatureImmunitiesStore, "CreatureImmunities.dbc");
-    LOAD_DBC(sCreatureModelDataStore, "CreatureModelData.dbc");//20444
-    LOAD_DBC(sCreatureSpellDataStore, "CreatureSpellData.dbc");
-    LOAD_DBC(sCreatureTypeStore, "CreatureType.dbc");
-    LOAD_DBC(sCriteriaStore, "Criteria.dbc");
-    LOAD_DBC(sCriteriaTreeStore, "CriteriaTree.dbc");
-    LOAD_DBC(sCurrencyTypesStore, "CurrencyTypes.dbc");
-    LOAD_DBC(sDestructibleModelDataStore, "DestructibleModelData.dbc");
-    LOAD_DBC(sDifficultyStore, "Difficulty.dbc");//20444
-    LOAD_DBC(sDungeonEncounterStore, "DungeonEncounter.dbc");//20444
-    LOAD_DBC(sDurabilityCostsStore, "DurabilityCosts.dbc");//20444
-    LOAD_DBC(sDurabilityQualityStore, "DurabilityQuality.dbc");
-    LOAD_DBC(sEmotesStore, "Emotes.dbc");//20444
-    LOAD_DBC(sEmotesTextStore, "EmotesText.dbc");//20444
-    //
-    //
-    LOAD_DBC(sEmotesTextSoundStore, "EmotesTextSound.dbc");
-    LOAD_DBC(sFactionStore, "Faction.dbc");//20444
-    //
-    LOAD_DBC(sFactionTemplateStore, "FactionTemplate.dbc");//20444
-    // TODO: DATA LOAD_DBC(sFriendshipRepReactionStore, "FriendshipRepReaction.dbc");
-    // TODO: DATA LOAD_DBC(sFriendshipReputationStore, "FriendshipReputation.dbc");
-    // TODO: DATA LOAD_DBC(sGameObjectArtKitStore, "GameObjectArtKit.dbc");
-    LOAD_DBC(sGameObjectDisplayInfoStore, "GameObjectDisplayInfo.dbc");//20444
-    // TODO: DATA LOAD_DBC(sGameTablesStore, "GameTables.dbc");
-    LOAD_DBC(sGemPropertiesStore, "GemProperties.dbc");//20444
-    LOAD_DBC(sGlyphPropertiesStore, "GlyphProperties.dbc");//20444
-    // TODO: DATA LOAD_DBC(sGuildColorBackgroundStore, "GuildColorBackground.dbc");//20444
-    // TODO: DATA LOAD_DBC(sGuildColorBorderStore, "GuildColorBorder.dbc"); //20444
-    // TODO: DATA LOAD_DBC(sGuildColorEmblemStore, "GuildColorEmblem.dbc");//20444
-    // TODO: DATA LOAD_DBC(sGuildPerkSpellsStore, "GuildPerkSpells.dbc");//20444
-    LOAD_DBC(sHolidaysStore, "Holidays.dbc");
-    LOAD_DBC(sImportPriceArmorStore, "ImportPriceArmor.dbc");
-    LOAD_DBC(sImportPriceQualityStore, "ImportPriceQuality.dbc");
-    LOAD_DBC(sImportPriceShieldStore, "ImportPriceShield.dbc");
-    LOAD_DBC(sImportPriceWeaponStore, "ImportPriceWeapon.dbc");
-    LOAD_DBC(sItemArmorQualityStore, "ItemArmorQuality.dbc");//20444
-    LOAD_DBC(sItemArmorShieldStore, "ItemArmorShield.dbc");//20444
-    LOAD_DBC(sItemArmorTotalStore, "ItemArmorTotal.dbc");//20444
-    LOAD_DBC(sItemBagFamilyStore, "ItemBagFamily.dbc");//20444
-    LOAD_DBC(sItemClassStore, "ItemClass.dbc");
-    // TODO: DATA LOAD_DBC(sItemDamageAmmoStore, "ItemDamageAmmo.dbc");//20444
-    LOAD_DBC(sItemDamageOneHandStore, "ItemDamageOneHand.dbc");//20444
-    LOAD_DBC(sItemDamageOneHandCasterStore, "ItemDamageOneHandCaster.dbc");//20444
-    // TODO: DATA LOAD_DBC(sItemDamageRangedStore, "ItemDamageRanged.dbc");//20444
-    // TODO: DATA LOAD_DBC(sItemDamageThrownStore, "ItemDamageThrown.dbc");//20444
-    LOAD_DBC(sItemDamageTwoHandStore, "ItemDamageTwoHand.dbc");//20444
-    LOAD_DBC(sItemDamageTwoHandCasterStore, "ItemDamageTwoHandCaster.dbc");//20444
-    // TODO: DATA LOAD_DBC(sItemDamageWandStore, "ItemDamageWand.dbc");//20444
-    LOAD_DBC(sItemDisenchantLootStore, "ItemDisenchantLoot.dbc");
-    LOAD_DBC(sItemDisplayInfoStore, "ItemDisplayInfo.dbc");//20444
-    LOAD_DBC(sItemLimitCategoryStore, "ItemLimitCategory.dbc");
-    LOAD_DBC(sItemNameDescriptionStore, "ItemNameDescription.dbc");
-    // TODO: DATA LOAD_DBC(sItemPriceBaseStore, "ItemPriceBase.dbc");
-    LOAD_DBC(sItemRandomPropertiesStore, "ItemRandomProperties.dbc");
-    LOAD_DBC(sItemRandomSuffixStore, "ItemRandomSuffix.dbc");
-    LOAD_DBC(sItemSetStore, "ItemSet.dbc");//20444
-    LOAD_DBC(sItemSpecStore, "ItemSpec.dbc");
-    LOAD_DBC(sItemSpecOverrideStore, "ItemSpecOverride.dbc");
-    //
-    // TODO: DATA LOAD_DBC(sJournalEncounterStore, "JournalEncounter.dbc");
-    // TODO: DATA LOAD_DBC(sJournalEncounterSectionStore, "JournalEncounterSection.dbc");
-    // TODO: DATA LOAD_DBC(sJournalInstanceStore, "Journalnstance.dbc");
-    // TODO: DATA LOAD_DBC(sJournalTierStore, "JournalTier.dbc");
-    // TODO: DATA LOAD_DBC(sLanguagesStore, "Languages.dbc");
-    // TODO: DATA LOAD_DBC(sLanguageWordsStore, "LanguageWords.dbc");
-    LOAD_DBC(sLFGDungeonsStore, "LfgDungeons.dbc");//20444
-    LOAD_DBC(sLightStore, "Light.dbc"); //20444
-    LOAD_DBC(sLiquidTypeStore, "LiquidType.dbc");//20444
-    LOAD_DBC(sLockStore, "Lock.dbc");//20444
-    LOAD_DBC(sMailTemplateStore, "MailTemplate.dbc");
-    LOAD_DBC(sMapStore, "Map.dbc");//20444
-    LOAD_DBC(sMapDifficultyStore, "MapDifficulty.dbc");//20444
-    // sMapDifficultyMap
-    LOAD_DBC(sModifierTreeStore, "ModifierTree.dbc");
-    LOAD_DBC(sMountCapabilityStore, "MountCapability.dbc");
-    LOAD_DBC(sMountTypeStore, "MountType.dbc");
-    LOAD_DBC(sMovieStore, "Movie.dbc");//20444
-    LOAD_DBC(sNameGenStore, "NameGen.dbc");
-    // TODO: DATA LOAD_DBC(sNamesProfanityStore, "NamesProfanity.dbc");
-    // TODO: DATA LOAD_DBC(sNamesReservedStore, "NamesReserved.dbc");
-    // TODO: DATA LOAD_DBC(sNamesReservedLocaleStore, "NamesReservedLocaleStore.dbc");
-    LOAD_DBC(sOverrideSpellDataStore, "OverrideSpellData.dbc");
-    LOAD_DBC(sPhaseStore, "Phase.dbc"); // 20444
-    // TODO: DATA LOAD_DBC(sPhaseXPhaseGroupStore, "PhaseXPhaseGroup.dbc");
-    LOAD_DBC(sPlayerConditionStore, "PlayerCondition.dbc");
-    LOAD_DBC(sPowerDisplayStore, "PowerDisplay.dbc");//20444
-    LOAD_DBC(sPvpDifficultyStore, "PvpDifficulty.dbc");//20444
-    LOAD_DBC(sQuestFactionRewardStore, "QuestFactionReward.dbc");//20444
-    // TODO: DATA LOAD_DBC(sQuestInfoStore, "QuestInfo.dbc");
-    // TODO: DATA LOAD_DBC(sQuestMoneyRewardStore, "QuestMoneyReward.dbc");
-    //
-    LOAD_DBC(sQuestSortStore, "QuestSort.dbc");
-    LOAD_DBC(sQuestV2Store, "QuestV2.dbc");
-    LOAD_DBC(sQuestXPStore, "QuestXP.dbc");
-    LOAD_DBC(sRandPropPointsStore, "RandPropPoints.dbc");
-    LOAD_DBC(sResearchBranchStore, "ResearchBranch.dbc");
-    LOAD_DBC(sResearchProjectStore, "ResearchProject.dbc");
-    LOAD_DBC(sResearchSiteStore, "ResearchSite.dbc");
-    //
-    LOAD_DBC(sScenarioStore, "Scenario.dbc");
-    LOAD_DBC(sScenarioStepStore, "ScenarioStep.dbc");
-    // TODO: DATA LOAD_DBC(sServerMessagesStore, "ServerMessages.dbc");
-    LOAD_DBC(sSkillLineStore, "SkillLine.dbc");//20444
-    LOAD_DBC(sSkillLineAbilityStore, "SkillLineAbility.dbc");//20444
-    LOAD_DBC(sSkillRaceClassInfoStore, "SkillRaceClassInfo.dbc");//20444
-    //
-    //
-    LOAD_DBC(sSoundEntriesStore, "SoundEntries.dbc");
-    LOAD_DBC(sSpecializationSpellsStore, "SpecializationSpells.dbc");
-    LOAD_DBC(sSpellStore, "Spell.dbc"/*, &CustomSpellfmt, &CustomSpellEntryIndex*/);//20444
-    LOAD_DBC(sSpellAuraOptionsStore, "SpellAuraOptions.dbc");//20444
-    LOAD_DBC(sSpellAuraRestrictionsStore, "SpellAuraRestrictions.dbc");
-    LOAD_DBC(sSpellCastingRequirementsStore, "SpellCastingRequirements.dbc");
-    // TODO: DATA LOAD_DBC(sSpellCastTimesStore, "SpellCastTimes.dbc");
-    LOAD_DBC(sSpellCategoriesStore, "SpellCategories.dbc");//20444
-    LOAD_DBC(sSpellCategoryStore, "SpellCategory.dbc");//20444
-    // TODO: DATA LOAD_DBC(sSpellClassOptionsStore, "SpellClassOptions.dbc");
-    LOAD_DBC(sSpellCooldownsStore, "SpellCooldowns.dbc");//20444
-    LOAD_DBC(sSpellDurationStore, "SpellDuration.dbc");
-    LOAD_DBC(sSpellEffectStore, "SpellEffect.dbc"/*, &CustomSpellEffectfmt, &CustomSpellEffectEntryIndex*/);//20444
-    LOAD_DBC(sSpellEffectScalingStore, "SpellEffectScaling.dbc");//20444
-    //
-    LOAD_DBC(sSpellEquippedItemsStore, "SpellEquippedItems.dbc");//20444
-    LOAD_DBC(sSpellFocusObjectStore, "SpellFocusObject.dbc");//20444
-    LOAD_DBC(sSpellInterruptsStore, "SpellInterrupts.dbc");//20444
-    LOAD_DBC(sSpellItemEnchantmentStore, "SpellItemEnchantment.dbc");//20444
-    // TODO: DATA LOAD_DBC(sSpellItemEnchantmentConditionStore, "SpellItemEnchantmentCondition.dbc");
-    // TODO: DATA LOAD_DBC(sSpellKeyboundOverrideStore, "SpellKeyboundOverride.dbc");
-    // TODO: DATA LOAD_DBC(sSpellLearnSpellStore, "SpellLearnSpell.dbc");
-    LOAD_DBC(sSpellLevelsStore, "SpellLevels.dbc");//20444
-    LOAD_DBC(sSpellMiscStore, "SpellMisc.dbc");
-    LOAD_DBC(sSpellPowerStore, "SpellPower.dbc");
-    LOAD_DBC(sSpellProcsPerMinuteStore, "SpellProcsPerMinute.dbc");
-    LOAD_DBC(sSpellProcsPerMinuteModStore, "SpellProcsPerMinuteModStore.dbc");
-    LOAD_DBC(sSpellRadiusStore, "SpellRadius.dbc");
-    LOAD_DBC(sSpellRangeStore, "SpellRange.dbc");
-    // TODO: DATA LOAD_DBC(sSpellReagentsStore, "SpellReagents.dbc");
-    LOAD_DBC(sSpellRuneCostStore, "SpellRuneCost.dbc");
-    LOAD_DBC(sSpellScalingStore, "SpellScaling.dbc");//20444
-    LOAD_DBC(sSpellShapeshiftStore, "SpellShapeshift.dbc");//20444
-    LOAD_DBC(sSpellShapeshiftFormStore, "SpellShapeshiftForm.dbc");//20444
-    LOAD_DBC(sSpellTargetRestrictionsStore, "SpellTargetRestrictions.dbc");//20444
-    LOAD_DBC(sSpellTotemsStore, "SpellTotems.dbc");
-    // TODO: DATA LOAD_DBC(sSpellVisualStore, "SpellVisual.dbc");
-    // TODO: DATA LOAD_DBC(sSpellVisualEffectNameStore, "SpellVisualEffectName.dbc");
-    // TODO: DATA LOAD_DBC(sSpellVisualKitStore, "SpellVisualKit.dbc");
-    LOAD_DBC(sSummonPropertiesStore, "SummonProperties.dbc");//20444
-    LOAD_DBC(sTalentStore, "Talent.dbc");//20444
-    //
-    LOAD_DBC(sTaxiNodesStore, "TaxiNodes.dbc");
-    LOAD_DBC(sTaxiPathStore, "TaxiPath.dbc");
-    LOAD_DBC(sTaxiPathNodeStore, "TaxiPathNode.dbc");
-    LOAD_DBC(sTotemCategoryStore, "TotemCategory.dbc");
-    LOAD_DBC(sTransportAnimationStore, "TransportAnimation.dbc");
-    LOAD_DBC(sTransportRotationStore, "TransportRotation.dbc");
-    // TODO: DATA LOAD_DBC(sUnitConditionStore, "UnitCondition.dbc");
-    // TODO: DATA LOAD_DBC(sUnitPowerBarStore, "UnitPowerBar.dbc");
-    LOAD_DBC(sVehicleStore, "Vehicle.dbc");//20444
-    LOAD_DBC(sVehicleSeatStore, "VehicleSeat.dbc");//20444
-    LOAD_DBC(sWMOAreaTableStore, "WMOAreaTable.dbc");//20444
-    //
-    // TODO: DATA LOAD_DBC(sWorldEffectStore, "WorldEffect.dbc");
-    LOAD_DBC(sWorldMapAreaStore, "WorldMapArea.dbc");//20444
-    LOAD_DBC(sWorldMapOverlayStore, "WorldMapOverlay.dbc");
-    LOAD_DBC(sWorldMapTransformsStore, "WorldMapTransforms.dbc");//20444
-    LOAD_DBC(sWorldSafeLocsStore, "WorldSafeLocs.dbc"); // 20444
-    // TODO: DATA LOAD_DBC(sWorldStateExpressionStore, "WorldStateExpression.dbc");
+//    LOAD_DBC(sAchievementStore, "Achievement.dbc");
+//    // TODO: DATA LOAD_DBC(sAchievementCategoryStore, "Achievement_Category.dbc");
+//    // TODO: DATA LOAD_DBC(sAchievementCriteriaStore, "Achievement_Criteria.dbc");
+//    // TODO: DATA LOAD_DBC(sAnimationDataStore, "AnimationData.dbc");
+//    LOAD_DBC(sAnimKitStore, "AnimKit.dbc");//20444
+//    LOAD_DBC(sAreaTableStore, "AreaTable.dbc");//20444
+//    LOAD_DBC(sAreaTriggerStore, "AreaTrigger.dbc");//20444
+//    // TODO: DATA LOAD_DBC(sAreaTriggerActionSetStore, "AreaTriggerActionSet.dbc");
+//    // TODO: DATA LOAD_DBC(sAreaTriggerSphereStore, "AreaTriggerSphere.dbc");
+//    LOAD_DBC(sArmorLocationStore, "ArmorLocation.dbc");//20444
+//    LOAD_DBC(sAuctionHouseStore, "AuctionHouse.dbc");
+//    LOAD_DBC(sBankBagSlotPricesStore, "BankBagSlotPrices.dbc");//20444
+//    LOAD_DBC(sBannedAddOnsStore, "BannedAddOns.dbc");//20444
+//    LOAD_DBC(sBarberShopStyleStore, "BarberShopStyle.dbc");
+//    LOAD_DBC(sBattlemasterListStore, "BattlemasterList.dbc");//20444
+//    // TODO: DATA LOAD_DBC(sCfgCategoriesStore, "Cfg_Categories.dbc");
+//    // TODO: DATA LOAD_DBC(sCfgRegionsStore, "Cfg_Regions.dbc");
+//    // TODO: DATA LOAD_DBC(sCharacterLoadoutStore, "CharacterLoadout.dbc");
+//    // TODO: DATA LOAD_DBC(sCharacterLoadoutItemStore, "CharacterLoadoutItem.dbc");
+//    // TODO: DATA LOAD_DBC(sCharBaseInfoStore, "CharBaseInfo.dbc");
+//    LOAD_DBC(sCharSectionsStore, "CharSections.dbc");//20444
+//    // sCharSectionMap
+//    LOAD_DBC(sCharStartOutfitStore, "CharStartOutfit.dbc");
+//    // sCharStartOutfitMap
+//    LOAD_DBC(sCharTitlesStore, "CharTitles.dbc");//20444
+//    LOAD_DBC(sChatChannelsStore, "ChatChannels.dbc");//20444
+//    LOAD_DBC(sChrClassesStore, "ChrClasses.dbc");//20444
+//    // TODO: DATA LOAD_DBC(sChrClassesXPowerTypesStore, "ChrClassesXPowerTypes.dbc");
+//    LOAD_DBC(sChrRacesStore, "ChrRaces.dbc");//20444
+//    LOAD_DBC(sChrSpecializationStore, "ChrSpecialization.dbc");//20444
+//    // sChrSpecializationByIndexStore
+//    LOAD_DBC(sCinematicCameraStore, "CinematicCamera.dbc");
+//    LOAD_DBC(sCinematicSequencesStore, "CinematicSequences.dbc");
+//    LOAD_DBC(sCreatureDisplayInfoStore, "CreatureDisplayInfo.dbc");
+//    LOAD_DBC(sCreatureDisplayInfoExtraStore, "CreatureDisplayInfoExtra.dbc");//20444
+//    LOAD_DBC(sCreatureFamilyStore, "CreatureFamily.dbc");//20444
+//    LOAD_DBC(sCreatureImmunitiesStore, "CreatureImmunities.dbc");
+//    LOAD_DBC(sCreatureModelDataStore, "CreatureModelData.dbc");//20444
+//    LOAD_DBC(sCreatureSpellDataStore, "CreatureSpellData.dbc");
+//    LOAD_DBC(sCreatureTypeStore, "CreatureType.dbc");
+//    LOAD_DBC(sCriteriaStore, "Criteria.dbc");
+//    LOAD_DBC(sCriteriaTreeStore, "CriteriaTree.dbc");
+//    LOAD_DBC(sCurrencyTypesStore, "CurrencyTypes.dbc");
+//    LOAD_DBC(sDestructibleModelDataStore, "DestructibleModelData.dbc");
+//    LOAD_DBC(sDifficultyStore, "Difficulty.dbc");//20444
+//    LOAD_DBC(sDungeonEncounterStore, "DungeonEncounter.dbc");//20444
+//    LOAD_DBC(sDurabilityCostsStore, "DurabilityCosts.dbc");//20444
+//    LOAD_DBC(sDurabilityQualityStore, "DurabilityQuality.dbc");
+//    LOAD_DBC(sEmotesStore, "Emotes.dbc");//20444
+//    LOAD_DBC(sEmotesTextStore, "EmotesText.dbc");//20444
+//    //
+//    //
+//    LOAD_DBC(sEmotesTextSoundStore, "EmotesTextSound.dbc");
+//    LOAD_DBC(sFactionStore, "Faction.dbc");//20444
+//    //
+//    LOAD_DBC(sFactionTemplateStore, "FactionTemplate.dbc");//20444
+//    // TODO: DATA LOAD_DBC(sFriendshipRepReactionStore, "FriendshipRepReaction.dbc");
+//    // TODO: DATA LOAD_DBC(sFriendshipReputationStore, "FriendshipReputation.dbc");
+//    // TODO: DATA LOAD_DBC(sGameObjectArtKitStore, "GameObjectArtKit.dbc");
+//    LOAD_DBC(sGameObjectDisplayInfoStore, "GameObjectDisplayInfo.dbc");//20444
+LOAD_DBC(sGameTablesStore, "GameTables.dbc");
+//    LOAD_DBC(sGemPropertiesStore, "GemProperties.dbc");//20444
+//    LOAD_DBC(sGlyphPropertiesStore, "GlyphProperties.dbc");//20444
+//    // TODO: DATA LOAD_DBC(sGuildColorBackgroundStore, "GuildColorBackground.dbc");//20444
+//    // TODO: DATA LOAD_DBC(sGuildColorBorderStore, "GuildColorBorder.dbc"); //20444
+//    // TODO: DATA LOAD_DBC(sGuildColorEmblemStore, "GuildColorEmblem.dbc");//20444
+//    // TODO: DATA LOAD_DBC(sGuildPerkSpellsStore, "GuildPerkSpells.dbc");//20444
+//    LOAD_DBC(sHolidaysStore, "Holidays.dbc");
+//    LOAD_DBC(sImportPriceArmorStore, "ImportPriceArmor.dbc");
+//    LOAD_DBC(sImportPriceQualityStore, "ImportPriceQuality.dbc");
+//    LOAD_DBC(sImportPriceShieldStore, "ImportPriceShield.dbc");
+//    LOAD_DBC(sImportPriceWeaponStore, "ImportPriceWeapon.dbc");
+//    LOAD_DBC(sItemArmorQualityStore, "ItemArmorQuality.dbc");//20444
+//    LOAD_DBC(sItemArmorShieldStore, "ItemArmorShield.dbc");//20444
+//    LOAD_DBC(sItemArmorTotalStore, "ItemArmorTotal.dbc");//20444
+//    LOAD_DBC(sItemBagFamilyStore, "ItemBagFamily.dbc");//20444
+//    LOAD_DBC(sItemClassStore, "ItemClass.dbc");
+//    // TODO: DATA LOAD_DBC(sItemDamageAmmoStore, "ItemDamageAmmo.dbc");//20444
+//    LOAD_DBC(sItemDamageOneHandStore, "ItemDamageOneHand.dbc");//20444
+//    LOAD_DBC(sItemDamageOneHandCasterStore, "ItemDamageOneHandCaster.dbc");//20444
+//    // TODO: DATA LOAD_DBC(sItemDamageRangedStore, "ItemDamageRanged.dbc");//20444
+//    // TODO: DATA LOAD_DBC(sItemDamageThrownStore, "ItemDamageThrown.dbc");//20444
+//    LOAD_DBC(sItemDamageTwoHandStore, "ItemDamageTwoHand.dbc");//20444
+//    LOAD_DBC(sItemDamageTwoHandCasterStore, "ItemDamageTwoHandCaster.dbc");//20444
+//    // TODO: DATA LOAD_DBC(sItemDamageWandStore, "ItemDamageWand.dbc");//20444
+//    LOAD_DBC(sItemDisenchantLootStore, "ItemDisenchantLoot.dbc");
+//    LOAD_DBC(sItemDisplayInfoStore, "ItemDisplayInfo.dbc");//20444
+//    LOAD_DBC(sItemLimitCategoryStore, "ItemLimitCategory.dbc");
+//    LOAD_DBC(sItemNameDescriptionStore, "ItemNameDescription.dbc");
+//    // TODO: DATA LOAD_DBC(sItemPriceBaseStore, "ItemPriceBase.dbc");
+//    LOAD_DBC(sItemRandomPropertiesStore, "ItemRandomProperties.dbc");
+//    LOAD_DBC(sItemRandomSuffixStore, "ItemRandomSuffix.dbc");
+//    LOAD_DBC(sItemSetStore, "ItemSet.dbc");//20444
+//    LOAD_DBC(sItemSpecStore, "ItemSpec.dbc");
+//    LOAD_DBC(sItemSpecOverrideStore, "ItemSpecOverride.dbc");
+//    //
+//    // TODO: DATA LOAD_DBC(sJournalEncounterStore, "JournalEncounter.dbc");
+//    // TODO: DATA LOAD_DBC(sJournalEncounterSectionStore, "JournalEncounterSection.dbc");
+//    // TODO: DATA LOAD_DBC(sJournalInstanceStore, "Journalnstance.dbc");
+//    // TODO: DATA LOAD_DBC(sJournalTierStore, "JournalTier.dbc");
+//    // TODO: DATA LOAD_DBC(sLanguagesStore, "Languages.dbc");
+//    // TODO: DATA LOAD_DBC(sLanguageWordsStore, "LanguageWords.dbc");
+//    LOAD_DBC(sLFGDungeonsStore, "LfgDungeons.dbc");//20444
+//    LOAD_DBC(sLightStore, "Light.dbc"); //20444
+//    LOAD_DBC(sLiquidTypeStore, "LiquidType.dbc");//20444
+//    LOAD_DBC(sLockStore, "Lock.dbc");//20444
+//    LOAD_DBC(sMailTemplateStore, "MailTemplate.dbc");
+//    LOAD_DBC(sMapStore, "Map.dbc");//20444
+//    LOAD_DBC(sMapDifficultyStore, "MapDifficulty.dbc");//20444
+//    // sMapDifficultyMap
+//    LOAD_DBC(sModifierTreeStore, "ModifierTree.dbc");
+//    LOAD_DBC(sMountCapabilityStore, "MountCapability.dbc");
+//    LOAD_DBC(sMountTypeStore, "MountType.dbc");
+//    LOAD_DBC(sMovieStore, "Movie.dbc");//20444
+//    LOAD_DBC(sNameGenStore, "NameGen.dbc");
+//    // TODO: DATA LOAD_DBC(sNamesProfanityStore, "NamesProfanity.dbc");
+//    // TODO: DATA LOAD_DBC(sNamesReservedStore, "NamesReserved.dbc");
+//    // TODO: DATA LOAD_DBC(sNamesReservedLocaleStore, "NamesReservedLocaleStore.dbc");
+//    LOAD_DBC(sOverrideSpellDataStore, "OverrideSpellData.dbc");
+//    LOAD_DBC(sPhaseStore, "Phase.dbc"); // 20444
+//    // TODO: DATA LOAD_DBC(sPhaseXPhaseGroupStore, "PhaseXPhaseGroup.dbc");
+//    LOAD_DBC(sPlayerConditionStore, "PlayerCondition.dbc");
+//    LOAD_DBC(sPowerDisplayStore, "PowerDisplay.dbc");//20444
+//    LOAD_DBC(sPvpDifficultyStore, "PvpDifficulty.dbc");//20444
+//    LOAD_DBC(sQuestFactionRewardStore, "QuestFactionReward.dbc");//20444
+//    // TODO: DATA LOAD_DBC(sQuestInfoStore, "QuestInfo.dbc");
+//    // TODO: DATA LOAD_DBC(sQuestMoneyRewardStore, "QuestMoneyReward.dbc");
+//    //
+//    LOAD_DBC(sQuestSortStore, "QuestSort.dbc");
+//    LOAD_DBC(sQuestV2Store, "QuestV2.dbc");
+//    LOAD_DBC(sQuestXPStore, "QuestXP.dbc");
+//    LOAD_DBC(sRandPropPointsStore, "RandPropPoints.dbc");
+//    LOAD_DBC(sResearchBranchStore, "ResearchBranch.dbc");
+//    LOAD_DBC(sResearchProjectStore, "ResearchProject.dbc");
+//    LOAD_DBC(sResearchSiteStore, "ResearchSite.dbc");
+//    //
+//    LOAD_DBC(sScenarioStore, "Scenario.dbc");
+//    LOAD_DBC(sScenarioStepStore, "ScenarioStep.dbc");
+//    // TODO: DATA LOAD_DBC(sServerMessagesStore, "ServerMessages.dbc");
+//    LOAD_DBC(sSkillLineStore, "SkillLine.dbc");//20444
+//    LOAD_DBC(sSkillLineAbilityStore, "SkillLineAbility.dbc");//20444
+//    LOAD_DBC(sSkillRaceClassInfoStore, "SkillRaceClassInfo.dbc");//20444
+//    //
+//    //
+//    LOAD_DBC(sSoundEntriesStore, "SoundEntries.dbc");
+//    LOAD_DBC(sSpecializationSpellsStore, "SpecializationSpells.dbc");
+//    LOAD_DBC(sSpellStore, "Spell.dbc"/*, &CustomSpellfmt, &CustomSpellEntryIndex*/);//20444
+//    LOAD_DBC(sSpellAuraOptionsStore, "SpellAuraOptions.dbc");//20444
+//    LOAD_DBC(sSpellAuraRestrictionsStore, "SpellAuraRestrictions.dbc");
+//    LOAD_DBC(sSpellCastingRequirementsStore, "SpellCastingRequirements.dbc");
+//    // TODO: DATA LOAD_DBC(sSpellCastTimesStore, "SpellCastTimes.dbc");
+//    LOAD_DBC(sSpellCategoriesStore, "SpellCategories.dbc");//20444
+//    LOAD_DBC(sSpellCategoryStore, "SpellCategory.dbc");//20444
+//    // TODO: DATA LOAD_DBC(sSpellClassOptionsStore, "SpellClassOptions.dbc");
+//    LOAD_DBC(sSpellCooldownsStore, "SpellCooldowns.dbc");//20444
+//    LOAD_DBC(sSpellDurationStore, "SpellDuration.dbc");
+//    LOAD_DBC(sSpellEffectStore, "SpellEffect.dbc"/*, &CustomSpellEffectfmt, &CustomSpellEffectEntryIndex*/);//20444
+//    LOAD_DBC(sSpellEffectScalingStore, "SpellEffectScaling.dbc");//20444
+//    //
+//    LOAD_DBC(sSpellEquippedItemsStore, "SpellEquippedItems.dbc");//20444
+//    LOAD_DBC(sSpellFocusObjectStore, "SpellFocusObject.dbc");//20444
+//    LOAD_DBC(sSpellInterruptsStore, "SpellInterrupts.dbc");//20444
+//    LOAD_DBC(sSpellItemEnchantmentStore, "SpellItemEnchantment.dbc");//20444
+//    // TODO: DATA LOAD_DBC(sSpellItemEnchantmentConditionStore, "SpellItemEnchantmentCondition.dbc");
+//    // TODO: DATA LOAD_DBC(sSpellKeyboundOverrideStore, "SpellKeyboundOverride.dbc");
+//    // TODO: DATA LOAD_DBC(sSpellLearnSpellStore, "SpellLearnSpell.dbc");
+//    LOAD_DBC(sSpellLevelsStore, "SpellLevels.dbc");//20444
+//    LOAD_DBC(sSpellMiscStore, "SpellMisc.dbc");
+//    LOAD_DBC(sSpellPowerStore, "SpellPower.dbc");
+//    LOAD_DBC(sSpellProcsPerMinuteStore, "SpellProcsPerMinute.dbc");
+//    LOAD_DBC(sSpellProcsPerMinuteModStore, "SpellProcsPerMinuteModStore.dbc");
+//    LOAD_DBC(sSpellRadiusStore, "SpellRadius.dbc");
+//    LOAD_DBC(sSpellRangeStore, "SpellRange.dbc");
+//    // TODO: DATA LOAD_DBC(sSpellReagentsStore, "SpellReagents.dbc");
+//    LOAD_DBC(sSpellRuneCostStore, "SpellRuneCost.dbc");
+//    LOAD_DBC(sSpellScalingStore, "SpellScaling.dbc");//20444
+//    LOAD_DBC(sSpellShapeshiftStore, "SpellShapeshift.dbc");//20444
+//    LOAD_DBC(sSpellShapeshiftFormStore, "SpellShapeshiftForm.dbc");//20444
+//    LOAD_DBC(sSpellTargetRestrictionsStore, "SpellTargetRestrictions.dbc");//20444
+//    LOAD_DBC(sSpellTotemsStore, "SpellTotems.dbc");
+//    // TODO: DATA LOAD_DBC(sSpellVisualStore, "SpellVisual.dbc");
+//    // TODO: DATA LOAD_DBC(sSpellVisualEffectNameStore, "SpellVisualEffectName.dbc");
+//    // TODO: DATA LOAD_DBC(sSpellVisualKitStore, "SpellVisualKit.dbc");
+//    LOAD_DBC(sSummonPropertiesStore, "SummonProperties.dbc");//20444
+//    LOAD_DBC(sTalentStore, "Talent.dbc");//20444
+//    //
+//    LOAD_DBC(sTaxiNodesStore, "TaxiNodes.dbc");
+//    LOAD_DBC(sTaxiPathStore, "TaxiPath.dbc");
+//    LOAD_DBC(sTaxiPathNodeStore, "TaxiPathNode.dbc");
+//    LOAD_DBC(sTotemCategoryStore, "TotemCategory.dbc");
+//    LOAD_DBC(sTransportAnimationStore, "TransportAnimation.dbc");
+//    LOAD_DBC(sTransportRotationStore, "TransportRotation.dbc");
+//    // TODO: DATA LOAD_DBC(sUnitConditionStore, "UnitCondition.dbc");
+//    // TODO: DATA LOAD_DBC(sUnitPowerBarStore, "UnitPowerBar.dbc");
+//    LOAD_DBC(sVehicleStore, "Vehicle.dbc");//20444
+//    LOAD_DBC(sVehicleSeatStore, "VehicleSeat.dbc");//20444
+//    LOAD_DBC(sWMOAreaTableStore, "WMOAreaTable.dbc");//20444
+//    //
+//    // TODO: DATA LOAD_DBC(sWorldEffectStore, "WorldEffect.dbc");
+//    LOAD_DBC(sWorldMapAreaStore, "WorldMapArea.dbc");//20444
+//    LOAD_DBC(sWorldMapOverlayStore, "WorldMapOverlay.dbc");
+//    LOAD_DBC(sWorldMapTransformsStore, "WorldMapTransforms.dbc");//20444
+//    LOAD_DBC(sWorldSafeLocsStore, "WorldSafeLocs.dbc"); // 20444
+//    // TODO: DATA LOAD_DBC(sWorldStateExpressionStore, "WorldStateExpression.dbc");
 
 #undef LOAD_DBC
 
@@ -933,16 +928,17 @@ uint32 DBCManager::LoadStores(const std::string& dataPath, uint32 defaultLocale)
         exit(1);
     }
 
+    // TODO: DATA re-enable these checks, and adjust for MOP
     // Check loaded DBC files proper version
-    if (!sAreaTableStore.LookupEntry(7941)     ||     // last area added in 6.2.2 (20444)
-        !sCharTitlesStore.LookupEntry(457)     ||     // last char title added in 6.2.2 (20444)
-        !sGemPropertiesStore.LookupEntry(2544) ||     // last gem property added in 6.2.2 (20444)
-        !sMapStore.LookupEntry(1497)           ||     // last map added in 6.2.2 (20444)
-        !sSpellStore.LookupEntry(197204)       )      // last spell added in 6.2.2 (20444)
-    {
-        TC_LOG_ERROR("misc", "You have _outdated_ DBC files. Please extract correct versions from current using client.");
-        exit(1);
-    }
+//    if (!sAreaTableStore.LookupEntry(7941)     ||     // last area added in 6.2.2 (20444)
+//        !sCharTitlesStore.LookupEntry(457)     ||     // last char title added in 6.2.2 (20444)
+//        !sGemPropertiesStore.LookupEntry(2544) ||     // last gem property added in 6.2.2 (20444)
+//        !sMapStore.LookupEntry(1497)           ||     // last map added in 6.2.2 (20444)
+//        !sSpellStore.LookupEntry(197204)       )      // last spell added in 6.2.2 (20444)
+//    {
+//        TC_LOG_ERROR("misc", "You have _outdated_ DBC files. Please extract correct versions from current using client.");
+//        exit(1);
+//    }
 
     // TODO: DATA MOP doesn't have ui map?
 //    std::unordered_multimap<int32, UiMapAssignmentEntry const*> uiMapAssignmentByUiMap;

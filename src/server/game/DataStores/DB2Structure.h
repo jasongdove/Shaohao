@@ -27,25 +27,24 @@
 
 struct AchievementEntry
 {
-    LocalizedString Description;
-    LocalizedString Title;
-    LocalizedString Reward;
     uint32 ID;
-    int16 InstanceID;                                               // -1 = none
-    int8 Faction;                                                   // -1 = all, 0 = horde, 1 = alliance
-    int32 Supercedes;                                               // its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)
-    int16 Category;
-    int8 MinimumCriteria;                                           // need this count of completed criterias (own or referenced achievement criterias)
-    int8 Points;
-    int32 Flags;
-    int16 UiOrder;
-    int32 IconFileID;
-    int32 RewardItemID;
+    int32 Faction;                                                   // -1 = all, 0 = horde, 1 = alliance
+    int32 InstanceID;                                               // -1 = none
+    uint32 Supercedes;                                              // its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)
+    char* Title;
+    char* Description;
+    uint32 Category;
+    uint32 Points;
+    uint32 UiOrder;
+    uint32 Flags;
+    uint32 IconFileID;
+    char* Reward;
+    uint32 MinimumCriteria;                                           // need this count of completed criterias (own or referenced achievement criterias)
+    uint32 SharesCriteria;                                           // referenced achievement (counting of all completed criterias)
     uint32 CriteriaTree;
-    int16 SharesCriteria;                                           // referenced achievement (counting of all completed criterias)
-    int32 CovenantID;
-    int32 HiddenBeforeDisplaySeason;                                // hidden in UI before this DisplaySeason is active
-    int32 LegacyAfterTimeEvent;                                     // category changes clientside to Legacy after this TimeEvent is passed
+
+    // Shaohao: MOP doesn't have Achievement.ConvenantID
+    static const uint32 CovenantID = 0;
 };
 
 struct Achievement_CategoryEntry
@@ -1677,7 +1676,7 @@ struct GameObjectsEntry
 struct GameTablesEntry
 {
     uint32 ID;                                                      // 0
-    LocalizedString* Name;                                          // 1
+    char* Name;                                                     // 1
     uint32 NumRows;                                                 // 2
     uint32 NumColumns;                                              // 3
 };
