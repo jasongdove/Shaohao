@@ -490,10 +490,7 @@ struct FactionEntry
 {
     uint32      ID;                                         // 0
     int32       ReputationIndex;                            // 1
-
-    // TODO: DATA might need to fix loading this
     std::array<Trinity::RaceMask<uint32>, 4> ReputationRaceMask; // 2-5
-
     uint32      ReputationClassMask[4];                     // 6-9
     int32       ReputationBase[4];                          // 10-13
     uint32      ReputationFlags[4];                         // 14-17
@@ -1108,7 +1105,7 @@ struct SpellEffectEntry
     uint32      EffectDieSides;                             // 10
     uint32      EffectItemType;                             // 11
     uint32      EffectMechanic;                             // 12
-    int32       EffectMiscValue[2];                         // 13-14
+    uint32      EffectMiscValue[2];                         // 13-14
     float       EffectPointsPerResource;                    // 15
     uint32      EffectRadiusIndex[2];                       // 16-17
     float       EffectRealPointsPerLevel;                   // 18
@@ -1119,15 +1116,19 @@ struct SpellEffectEntry
     uint32      SpellID;                                    // 27
     uint32      EffectIndex;                                // 28
     uint32      EffectAttributes;                           // 29
-    float       BonusCoefficientFromAP;                     // 30
+
+    static const uint32 ExtraData = sizeof(float) * 6 + sizeof(int32);
 
     // Shaohao: MOP doesn't have these
+    float BonusCoefficientFromAP = 0;
     float PvpMultiplier = 0;
     float GroupSizeBasePointsCoefficient = 0;
     float Coefficient = 0;
     float Variance = 0;
     float ResourceCoefficient = 0;
     int32 ScalingClass = 0;
+
+    // Shaohao: MOP doesn't have EffectAttributes
     SpellEffectAttributes GetEffectAttributes() const { return SpellEffectAttributes::None; }
 };
 
@@ -1189,22 +1190,23 @@ struct SpellEntry
     uint32      RuneCostID;                                 // 5
     uint32      SpellMissileID;                             // 6
     uint32      DescriptionVariablesID;                     // 7
-    uint32      ScalingID;                                  // 8
-    uint32      AuraOptionsID;                              // 9
-    uint32      AuraRestrictionsID;                         // 10
-    uint32      CastingRequirementsID;                      // 11
-    uint32      CategoriesID;                               // 12
-    uint32      ClassOptionsID;                             // 13
-    uint32      CooldownsID;                                // 14
-    uint32      EquippedItemsID;                            // 15
-    uint32      InterruptsID;                               // 16
-    uint32      LevelsID;                                   // 17
-    uint32      ReagentsID;                                 // 18
-    uint32      ShapeshiftID;                               // 19
-    uint32      TargetRestrictionsID;                       // 20
-    uint32      TotemsID;                                   // 21
-    uint32      RequiredProjectID;                          // 22
-    uint32      MiscID;                                     // 23
+    float       BonusCoefficient;                           // 8
+    uint32      ScalingID;                                  // 9
+    uint32      AuraOptionsID;                              // 10
+    uint32      AuraRestrictionsID;                         // 11
+    uint32      CastingRequirementsID;                      // 12
+    uint32      CategoriesID;                               // 13
+    uint32      ClassOptionsID;                             // 14
+    uint32      CooldownsID;                                // 15
+    uint32      EquippedItemsID;                            // 16
+    uint32      InterruptsID;                               // 17
+    uint32      LevelsID;                                   // 18
+    uint32      ReagentsID;                                 // 19
+    uint32      ShapeshiftID;                               // 20
+    uint32      TargetRestrictionsID;                       // 21
+    uint32      TotemsID;                                   // 22
+    uint32      RequiredProjectID;                          // 23
+    uint32      MiscID;                                     // 24
 };
 
 // SpellCategories.dbc

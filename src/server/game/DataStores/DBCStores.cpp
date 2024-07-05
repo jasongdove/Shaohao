@@ -305,12 +305,12 @@ namespace
 uint32 DBCFileCount = 0;
 
 template<class T>
-inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCStorage<T>& storage, std::string const& dbcPath, std::string const& filename, uint32 defaultLocale, std::string const* customFormat = NULL, std::string const* customIndexName = NULL)
+inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCStorage<T>& storage, std::string const& dbcPath, std::string const& filename, uint32 defaultLocale, uint32 extraData = 0, std::string const* customFormat = NULL, std::string const* customIndexName = NULL)
 {
     // compatibility format and C++ structure sizes
-    ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T),
-        "Size of '%s' set by format string (%u) not equal size of C++ structure (%u).",
-        filename.c_str(), DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), uint32(sizeof(T)));
+    ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T) - extraData,
+        "Size of '%s' set by format string (%u) not equal size of C++ structure (%u - %u = %u).",
+        filename.c_str(), DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), uint32(sizeof(T)), extraData, uint32(sizeof(T) - extraData));
 
     ++DBCFileCount;
     std::string dbcFilename = dbcPath + localeNames[defaultLocale] + '/' + filename;
@@ -413,6 +413,7 @@ uint32 DBCManager::LoadStores(const std::string& dataPath, uint32 defaultLocale)
     StoreProblemList bad_dbc_files;
     uint32 availableDbcLocales = 0xFFFFFFFF;
 
+#define LOAD_DBC_EXTRA(store, file, extraData) LoadDBC(availableDbcLocales, bad_dbc_files, store, dbcPath, file, defaultLocale, extraData)
 #define LOAD_DBC(store, file) LoadDBC(availableDbcLocales, bad_dbc_files, store, dbcPath, file, defaultLocale)
 
 //    LOAD_DBC(sAchievementStore, "Achievement.dbc");
@@ -560,7 +561,7 @@ LOAD_DBC(sGameTablesStore, "GameTables.dbc");
 //    //
 //    LOAD_DBC(sSoundEntriesStore, "SoundEntries.dbc");
 //    LOAD_DBC(sSpecializationSpellsStore, "SpecializationSpells.dbc");
-//    LOAD_DBC(sSpellStore, "Spell.dbc"/*, &CustomSpellfmt, &CustomSpellEntryIndex*/);//20444
+LOAD_DBC(sSpellStore, "Spell.dbc"/*, &CustomSpellfmt, &CustomSpellEntryIndex*/);//20444
 //    LOAD_DBC(sSpellAuraOptionsStore, "SpellAuraOptions.dbc");//20444
 //    LOAD_DBC(sSpellAuraRestrictionsStore, "SpellAuraRestrictions.dbc");
 //    LOAD_DBC(sSpellCastingRequirementsStore, "SpellCastingRequirements.dbc");
@@ -570,7 +571,7 @@ LOAD_DBC(sGameTablesStore, "GameTables.dbc");
 //    // TODO: DATA LOAD_DBC(sSpellClassOptionsStore, "SpellClassOptions.dbc");
 //    LOAD_DBC(sSpellCooldownsStore, "SpellCooldowns.dbc");//20444
 //    LOAD_DBC(sSpellDurationStore, "SpellDuration.dbc");
-//    LOAD_DBC(sSpellEffectStore, "SpellEffect.dbc"/*, &CustomSpellEffectfmt, &CustomSpellEffectEntryIndex*/);//20444
+LOAD_DBC_EXTRA(sSpellEffectStore, "SpellEffect.dbc", SpellEffectEntry::ExtraData/*, &CustomSpellEffectfmt, &CustomSpellEffectEntryIndex*/);//20444
 //    LOAD_DBC(sSpellEffectScalingStore, "SpellEffectScaling.dbc");//20444
 //    //
 //    LOAD_DBC(sSpellEquippedItemsStore, "SpellEquippedItems.dbc");//20444
@@ -620,6 +621,7 @@ LOAD_DBC(sGameTablesStore, "GameTables.dbc");
 //    // TODO: DATA LOAD_DBC(sWorldStateExpressionStore, "WorldStateExpression.dbc");
 
 #undef LOAD_DBC
+#undef LOAD_DBC_EXTRA
 
     for (uint32 i = 0; i < sCharSectionsStore.GetNumRows(); ++i)
         if (CharSectionsEntry const* entry = sCharSectionsStore.LookupEntry(i))
@@ -914,7 +916,7 @@ LOAD_DBC(sGameTablesStore, "GameTables.dbc");
     // error checks
     if (bad_dbc_files.size() >= DBCFileCount)
     {
-        TC_LOG_ERROR("misc", "Incorrect DataDir value in worldserver.conf or ALL required *.dbc files (%d) not found by path: %sdbc/%s/", DBCFileCount, dataPath.c_str(), localeNames[defaultLocale]);
+        TC_LOG_ERROR("misc", "Incorrect DataDir value in worldserver.conf or ALL required *.dbc files ({}) not found by path: {}dbc/{}/", DBCFileCount, dataPath.c_str(), localeNames[defaultLocale]);
         exit(1);
     }
     else if (!bad_dbc_files.empty())
@@ -923,7 +925,7 @@ LOAD_DBC(sGameTablesStore, "GameTables.dbc");
         for (StoreProblemList::iterator i = bad_dbc_files.begin(); i != bad_dbc_files.end(); ++i)
             str += *i + "\n";
 
-        TC_LOG_ERROR("misc", "Some required *.dbc files (%u from %d) not found or not compatible:\n%s", (uint32)bad_dbc_files.size(), DBCFileCount, str.c_str());
+        TC_LOG_ERROR("misc", "Some required *.dbc files ({} from {}) not found or not compatible:\n{}", (uint32)bad_dbc_files.size(), DBCFileCount, str.c_str());
         exit(1);
     }
 
@@ -1065,7 +1067,7 @@ LOAD_DBC(sGameTablesStore, "GameTables.dbc");
     for (WMOAreaTableEntry const* entry : sWMOAreaTableStore)
         _wmoAreaTableLookup[WMOAreaTableKey(entry->WmoID, entry->NameSetID, entry->WmoGroupID)] = entry;
 
-    TC_LOG_INFO("server.loading", ">> Initialized %d DBC data stores in %u ms", DBCFileCount, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Initialized {} DBC data stores in {} ms", DBCFileCount, GetMSTimeDiffToNow(oldMSTime));
 
     return availableDbcLocales;
 }
