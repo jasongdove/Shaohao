@@ -4326,7 +4326,9 @@ void ObjectMgr::LoadPlayerInfo()
     {
         uint32 oldMSTime = getMSTime();
 
-        _playerXPperLevel.resize(sXpGameTable.GetTableRowCount(), 0);
+        // Shaohao: MOP doesn't have sXpGameTable
+        uint32 levelCount = std::max(sXpGameTable.GetTableRowCount(), sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
+        _playerXPperLevel.resize(levelCount, 0);
 
         //                                               0      1
         QueryResult result = WorldDatabase.Query("SELECT Level, Experience FROM player_xp_for_level");

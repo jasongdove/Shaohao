@@ -225,7 +225,7 @@ public:
     uint32 GetFieldCount() const { return _storage.GetFieldCount(); }
     bool Load(char const* fileName) { return _storage.Load(fileName, nullptr); }
 
-    uint32 GetTableRowCount() const { return _gtEntry->NumRows; }
+    uint32 GetTableRowCount() const { if (_gtEntry) return _gtEntry->NumRows; else return 0; }
     uint32 GetTableColumnCount() const { return _gtEntry->NumColumns; }
 
 private:
