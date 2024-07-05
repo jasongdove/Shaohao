@@ -470,7 +470,7 @@ struct FactionEntry
     int32       ReputationIndex;                            // 1
 
     // TODO: DATA might need to fix loading this
-    std::array<Trinity::RaceMask<int64>, 4> ReputationRaceMask;                      // 2-5
+    std::array<Trinity::RaceMask<uint32>, 4> ReputationRaceMask; // 2-5
 
     uint32      ReputationClassMask[4];                     // 6-9
     int32       ReputationBase[4];                          // 10-13
@@ -478,20 +478,20 @@ struct FactionEntry
     uint32      ParentFactionID;                            // 18
     float       ParentFactionMod[2];                        // 19-20
     uint32      ParentFactionCap[2];                        // 21-22
-    LocalizedString Name;                                   // 23
+    char*       Name;                                       // 23
     //char*     Description_lang;                           // 24
     uint32      Expansion;                                  // 25
     //uint32    Flags;                                      // 26
     uint32      FriendshipRepID;                            // 27
 
     // Shaohao: MOP doesn't have Faction.ReputationMax[]
-    int32 ReputationMax[4] = { 0, 0, 0, 0};
+    static constexpr int32 ReputationMax[4] = { 0, 0, 0, 0};
 
     // Shaohao: MOP doesn't have Faction.RenownCurrencyID
-    int32 RenownCurrencyID = 0;
+    static const int32 RenownCurrencyID = 0;
 
     // Shaohao: paragon reputation was added in Legion
-    uint16 ParagonFactionID = 0;
+    static const uint16 ParagonFactionID = 0;
 
     // helpers
     bool CanHaveReputation() const

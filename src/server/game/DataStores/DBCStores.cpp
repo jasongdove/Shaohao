@@ -468,9 +468,8 @@ uint32 DBCManager::LoadStores(const std::string& dataPath, uint32 defaultLocale)
 //    //
 //    //
 //    LOAD_DBC(sEmotesTextSoundStore, "EmotesTextSound.dbc");
-//    LOAD_DBC(sFactionStore, "Faction.dbc");//20444
-//    //
-//    LOAD_DBC(sFactionTemplateStore, "FactionTemplate.dbc");//20444
+LOAD_DBC(sFactionStore, "Faction.dbc");//20444
+LOAD_DBC(sFactionTemplateStore, "FactionTemplate.dbc");//20444
 //    // TODO: DATA LOAD_DBC(sFriendshipRepReactionStore, "FriendshipRepReaction.dbc");
 //    // TODO: DATA LOAD_DBC(sFriendshipReputationStore, "FriendshipReputation.dbc");
 //    // TODO: DATA LOAD_DBC(sGameObjectArtKitStore, "GameObjectArtKit.dbc");

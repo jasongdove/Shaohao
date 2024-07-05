@@ -536,7 +536,7 @@ public:
         {
             FactionState const& faction = itr->second;
             FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction.ID);
-            char const* factionName = factionEntry ? factionEntry->Name[loc] : "#Not found#";
+            char const* factionName = factionEntry ? factionEntry->Name : "#Not found#";
             std::string rankName = target->GetReputationMgr().GetReputationRankName(factionEntry);
             std::ostringstream ss;
             if (handler->GetSession())
