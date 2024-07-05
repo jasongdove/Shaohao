@@ -1147,6 +1147,15 @@ struct SkillRaceClassInfoEntry
     uint32      SkillTierID;                                // 7
 };
 
+struct SpellRadiusEntry
+{
+    uint32 ID;
+    float Radius;
+    float RadiusPerLevel;
+    float RadiusMin;
+    float RadiusMax;
+};
+
 // SpellEffect.dbc
 struct SpellEffectEntry
 {

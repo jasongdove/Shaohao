@@ -3752,15 +3752,6 @@ struct SpellProcsPerMinuteModEntry
     uint32 SpellProcsPerMinuteID;
 };
 
-struct SpellRadiusEntry
-{
-    uint32 ID;
-    float Radius;
-    float RadiusPerLevel;
-    float RadiusMin;
-    float RadiusMax;
-};
-
 struct SpellRangeEntry
 {
     uint32 ID;

@@ -591,7 +591,7 @@ LOAD_DBC(sSpellLevelsStore, "SpellLevels.dbc");//20444
 //    LOAD_DBC(sSpellPowerStore, "SpellPower.dbc");
 //    LOAD_DBC(sSpellProcsPerMinuteStore, "SpellProcsPerMinute.dbc");
 //    LOAD_DBC(sSpellProcsPerMinuteModStore, "SpellProcsPerMinuteModStore.dbc");
-//    LOAD_DBC(sSpellRadiusStore, "SpellRadius.dbc");
+LOAD_DBC(sSpellRadiusStore, "SpellRadius.dbc");
 //    LOAD_DBC(sSpellRangeStore, "SpellRange.dbc");
 //    // TODO: DATA LOAD_DBC(sSpellReagentsStore, "SpellReagents.dbc");
 //    LOAD_DBC(sSpellRuneCostStore, "SpellRuneCost.dbc");
