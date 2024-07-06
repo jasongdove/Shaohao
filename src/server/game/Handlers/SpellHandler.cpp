@@ -19,7 +19,7 @@
 #include "CollectionMgr.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GameObjectAI.h"
 #include "GameObjectPackets.h"
 #include "Guild.h"

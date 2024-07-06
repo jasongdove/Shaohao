@@ -29,7 +29,7 @@
 #include "Conversation.h"
 #include "Corpse.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GameTime.h"
 #include "GossipDef.h"
 #include "Group.h"
@@ -189,7 +189,7 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
         {
             std::string aName;
             if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(target.GetZoneId()))
-                aName = areaEntry->AreaName[GetSessionDbcLocale()];
+                aName = areaEntry->AreaName(GetSessionDbcLocale());
 
             bool show = false;
             for (size_t i = 0; i < wWords.size(); ++i)

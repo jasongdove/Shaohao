@@ -19,7 +19,7 @@
 #include "CellImpl.h"
 #include "CharmInfo.h"
 #include "CreatureAI.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "GridNotifiers.h"
@@ -429,7 +429,7 @@ bool TempSummon::IsSharingTotemSlotWith(ObjectGuid objectGuid) const
     for (uint16 myTotemCategory : mySummonSpell->TotemCategory)
         if (myTotemCategory)
             for (uint16 otherTotemCategory : otherSummonSpell->TotemCategory)
-                if (otherTotemCategory && DB2Manager::IsTotemCategoryCompatibleWith(myTotemCategory, otherTotemCategory, false))
+                if (otherTotemCategory && DBCManager::IsTotemCategoryCompatibleWith(myTotemCategory, otherTotemCategory, false))
                     return true;
 
     for (int32 myTotemId : mySummonSpell->Totem)

@@ -17,7 +17,7 @@
 
 #include "CharacterTemplateDataStore.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Log.h"
 #include "Timer.h"
 

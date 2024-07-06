@@ -18,7 +18,7 @@
 #include "ScenarioMgr.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "InstanceScenario.h"
 #include "Log.h"
 #include "Map.h"

@@ -23,7 +23,7 @@
 #include "CharacterPackets.h"
 #include "Containers.h"
 #include "Conversation.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "DynamicTree.h"
 #include "GameObjectModel.h"
@@ -492,7 +492,7 @@ void Map::SetWorldStateValue(int32 worldStateId, int32 value, bool hidden)
         if (worldStateTemplate && !worldStateTemplate->AreaIds.empty())
         {
             bool isInAllowedArea = std::any_of(worldStateTemplate->AreaIds.begin(), worldStateTemplate->AreaIds.end(),
-                [playerAreaId = mapReference.GetSource()->GetAreaId()](uint32 requiredAreaId) { return DB2Manager::IsInArea(playerAreaId, requiredAreaId); });
+                [playerAreaId = mapReference.GetSource()->GetAreaId()](uint32 requiredAreaId) { return DBCManager::IsInArea(playerAreaId, requiredAreaId); });
             if (!isInAllowedArea)
                 continue;
         }
@@ -1817,7 +1817,7 @@ TransferAbortParams Map::PlayerCannotEnter(uint32 mapid, Player* player)
 
     Difficulty targetDifficulty = player->GetDifficultyID(entry);
     // Get the highest available difficulty if current setting is higher than the instance allows
-    MapDifficultyEntry const* mapDiff = sDB2Manager.GetDownscaledMapDifficultyData(mapid, targetDifficulty);
+    MapDifficultyEntry const* mapDiff = sDBCManager.GetDownscaledMapDifficultyData(mapid, targetDifficulty);
     if (!mapDiff)
         return TRANSFER_ABORT_DIFFICULTY;
 
@@ -1855,7 +1855,7 @@ TransferAbortParams Map::PlayerCannotEnter(uint32 mapid, Player* player)
 
 char const* Map::GetMapName() const
 {
-    return i_mapEntry->MapName[sWorld->GetDefaultDbcLocale()];
+    return i_mapEntry->MapName(sWorld->GetDefaultDbcLocale());
 }
 
 void Map::SendInitSelf(Player* player)
@@ -3224,7 +3224,7 @@ void InstanceMap::CreateInstanceLockForPlayer(Player* player)
 
 MapDifficultyEntry const* Map::GetMapDifficulty() const
 {
-    return sDB2Manager.GetMapDifficultyData(GetId(), GetDifficultyID());
+    return sDBCManager.GetMapDifficultyData(GetId(), GetDifficultyID());
 }
 
 uint32 Map::GetId() const

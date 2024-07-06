@@ -18,7 +18,7 @@
 #include "WorldStateMgr.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Log.h"
 #include "Map.h"
 #include "ObjectMgr.h"
@@ -267,7 +267,7 @@ void WorldStateMgr::FillInitialWorldStates(WorldPackets::WorldState::InitWorldSt
         if (worldStateTemplate && !worldStateTemplate->AreaIds.empty())
         {
             bool isInAllowedArea = std::any_of(worldStateTemplate->AreaIds.begin(), worldStateTemplate->AreaIds.end(),
-                [=](uint32 requiredAreaId) { return DB2Manager::IsInArea(playerAreaId, requiredAreaId); });
+                [=](uint32 requiredAreaId) { return DBCManager::IsInArea(playerAreaId, requiredAreaId); });
             if (!isInAllowedArea)
                 continue;
         }

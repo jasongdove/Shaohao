@@ -27,7 +27,7 @@ EndScriptData */
 #include "Chat.h"
 #include "ChatCommand.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GameEventMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -113,7 +113,7 @@ public:
             if (areaEntry)
             {
                 LocaleConstant locale = handler->GetSessionDbcLocale();
-                std::string name = areaEntry->AreaName[locale];
+                std::string name = areaEntry->AreaName(locale);
                 if (name.empty())
                     continue;
 
@@ -125,7 +125,7 @@ public:
                         if (locale == handler->GetSessionDbcLocale())
                             continue;
 
-                        name = areaEntry->AreaName[locale];
+                        name = areaEntry->AreaName(locale);
                         if (name.empty())
                             continue;
 
@@ -325,7 +325,7 @@ public:
                 FactionState const* factionState = target ? target->GetReputationMgr().GetState(factionEntry) : nullptr;
 
                 LocaleConstant locale = handler->GetSessionDbcLocale();
-                std::string name = factionEntry->Name[locale];
+                std::string name = factionEntry->Name(locale);
                 if (name.empty())
                     continue;
 
@@ -337,7 +337,7 @@ public:
                         if (locale == handler->GetSessionDbcLocale())
                             continue;
 
-                        name = factionEntry->Name[locale];
+                        name = factionEntry->Name(locale);
                         if (name.empty())
                             continue;
 
@@ -946,7 +946,7 @@ public:
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
         // Search in SpellName.dbc
-        for (SpellNameEntry const* spellName : sSpellNameStore)
+        for (auto& [_, spellName] : sSpellNameStore)
         {
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellName->ID, DIFFICULTY_NONE))
             {
@@ -1329,7 +1329,7 @@ public:
         {
             if (MapEntry const* mapInfo = sMapStore.LookupEntry(id))
             {
-                std::string name = mapInfo->MapName[locale];
+                std::string name = mapInfo->MapName(locale);
                 if (name.empty())
                     continue;
 
@@ -1341,7 +1341,7 @@ public:
                         if (locale == handler->GetSessionDbcLocale())
                             continue;
 
-                        name = mapInfo->MapName[locale];
+                        name = mapInfo->MapName(locale);
                         if (name.empty())
                             continue;
 
@@ -1406,7 +1406,7 @@ public:
         if (MapEntry const* mapInfo = sMapStore.LookupEntry(id))
         {
             LocaleConstant locale = handler->GetSession() ? handler->GetSession()->GetSessionDbcLocale() : sWorld->GetDefaultDbcLocale();
-            std::string name = mapInfo->MapName[locale];
+            std::string name = mapInfo->MapName(locale);
             if (name.empty())
             {
                 handler->SendSysMessage(LANG_COMMAND_NOSPELLFOUND);

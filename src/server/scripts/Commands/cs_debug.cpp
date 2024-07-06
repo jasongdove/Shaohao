@@ -34,7 +34,7 @@ EndScriptData */
 #include "ChatPackets.h"
 #include "Conversation.h"
 #include "CreatureAI.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
@@ -1358,7 +1358,7 @@ public:
         }
         if (!mEntry->IsDungeon())
         {
-            handler->PSendSysMessage("'%s' is not a dungeon map.", mEntry->MapName[handler->GetSessionDbcLocale()]);
+            handler->PSendSysMessage("'%s' is not a dungeon map.", mEntry->MapName(handler->GetSessionDbcLocale()));
             return true;
         }
         if (difficulty && !sDifficultyStore.HasRecord(*difficulty))
@@ -1366,9 +1366,9 @@ public:
             handler->PSendSysMessage("Invalid difficulty %d.", *difficulty);
             return false;
         }
-        if (difficulty && !sDB2Manager.GetMapDifficultyData(mEntry->ID, Difficulty(*difficulty)))
+        if (difficulty && !sDBCManager.GetMapDifficultyData(mEntry->ID, Difficulty(*difficulty)))
         {
-            handler->PSendSysMessage("Difficulty %d is not valid for '%s'.", *difficulty, mEntry->MapName[handler->GetSessionDbcLocale()]);
+            handler->PSendSysMessage("Difficulty %d is not valid for '%s'.", *difficulty, mEntry->MapName(handler->GetSessionDbcLocale()));
             return true;
         }
 

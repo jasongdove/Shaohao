@@ -1830,8 +1830,8 @@ void DB2FileLoader::LoadHeaders(DB2FileSource* source, DB2FileLoadInfo const* lo
     EndianConvert(_header.PalletDataSize);
     EndianConvert(_header.SectionCount);
 
-    if (_header.Signature != 0x35434457)                        //'WDC5'
-        throw DB2FileLoadException(Trinity::StringFormat("Incorrect file signature in {}, expected 'WDC5', got {}{}{}{}", source->GetFileName(),
+    if (_header.Signature != 0x32424457) //'WDB2'
+        throw DB2FileLoadException(Trinity::StringFormat("Incorrect file signature in {}, expected 'WDB2', got {}{}{}{}", source->GetFileName(),
             char(_header.Signature & 0xFF), char((_header.Signature >> 8) & 0xFF), char((_header.Signature >> 16) & 0xFF), char((_header.Signature >> 24) & 0xFF)));
 
     if (_header.Version != 5)

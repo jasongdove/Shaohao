@@ -18,6 +18,7 @@
 #include "ChatCommandArgs.h"
 #include "ChatCommand.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 

@@ -19,7 +19,7 @@
 #include "CriteriaHandler.h"
 #include "CharacterDatabaseCleaner.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Log.h"
 #include "World.h"
 #include "SpellMgr.h"

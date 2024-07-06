@@ -18,7 +18,7 @@
 #include "ReputationMgr.h"
 #include "CharacterPackets.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectMgr.h"
@@ -75,7 +75,7 @@ static int32 ReputationToRankHelper(std::set<T, Rest...> const& thresholds, int3
 ReputationRank ReputationMgr::ReputationToRank(FactionEntry const* factionEntry, int32 standing)
 {
     int32 rank = MIN_REPUTATION_RANK;
-    if (DB2Manager::FriendshipRepReactionSet const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
+    if (DBCManager::FriendshipRepReactionSet const* friendshipReactions = sDBCManager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
         rank = ReputationToRankHelper(*friendshipReactions, standing, [](FriendshipRepReactionEntry const* frr) { return frr->ReactionThreshold; });
     else
         rank = ReputationToRankHelper(ReputationRankThresholds, standing, [](int32 threshold) { return threshold; });
@@ -135,7 +135,7 @@ int32 ReputationMgr::GetBaseReputation(FactionEntry const* factionEntry) const
 
 int32 ReputationMgr::GetMinReputation(FactionEntry const* factionEntry) const
 {
-    if (DB2Manager::FriendshipRepReactionSet const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
+    if (DBCManager::FriendshipRepReactionSet const* friendshipReactions = sDBCManager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
         return (*friendshipReactions->begin())->ReactionThreshold;
 
     return *ReputationRankThresholds.begin();
@@ -170,7 +170,7 @@ int32 ReputationMgr::GetMaxReputation(FactionEntry const* factionEntry) const
         return GetRenownMaxLevel(factionEntry) * GetRenownLevelThreshold(factionEntry);
     }
 
-    if (DB2Manager::FriendshipRepReactionSet const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
+    if (DBCManager::FriendshipRepReactionSet const* friendshipReactions = sDBCManager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
         return (*friendshipReactions->rbegin())->ReactionThreshold;
 
     int32 dataIndex = GetFactionDataIndexForRaceAndClass(factionEntry);
@@ -210,7 +210,7 @@ std::string ReputationMgr::GetReputationRankName(FactionEntry const* factionEntr
     if (!factionEntry->FriendshipRepID)
         return sObjectMgr->GetTrinityString(ReputationRankStrIndex[GetRank(factionEntry)], _player->GetSession()->GetSessionDbcLocale());
 
-    if (DB2Manager::FriendshipRepReactionSet const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
+    if (DBCManager::FriendshipRepReactionSet const* friendshipReactions = sDBCManager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
     {
         auto itr = friendshipReactions->begin();
         std::advance(itr, uint32(rank));
@@ -451,7 +451,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
         {
             float spillOverRepOut = float(standing);
             // check for sub-factions that receive spillover
-            std::vector<uint32> const* flist = sDB2Manager.GetFactionTeamList(factionEntry->ID);
+            std::vector<uint32> const* flist = sDBCManager.GetFactionTeamList(factionEntry->ID);
             // if has no sub-factions, check for factions with same parent
             if (!flist && factionEntry->ParentFactionID && factionEntry->ParentFactionMod[1] != 0.0f)
             {
@@ -466,7 +466,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
                     }
                     else    // spill to "sister" factions
                     {
-                        flist = sDB2Manager.GetFactionTeamList(factionEntry->ParentFactionID);
+                        flist = sDBCManager.GetFactionTeamList(factionEntry->ParentFactionID);
                     }
                 }
             }

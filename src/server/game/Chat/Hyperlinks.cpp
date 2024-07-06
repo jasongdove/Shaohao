@@ -18,6 +18,7 @@
 #include "Hyperlinks.h"
 #include "Common.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Errors.h"
 #include "ItemTemplate.h"
 #include "ObjectMgr.h"
@@ -157,9 +158,8 @@ struct LinkValidator<LinkTags::achievement>
     {
         if (text.empty())
             return false;
-        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
-            if (text == data.Achievement->Title[i])
-                return true;
+        if (text == data.Achievement->Title)
+            return true;
         return false;
     }
 
@@ -280,9 +280,11 @@ struct LinkValidator<LinkTags::enchant>
 
         for (auto pair = bounds.first; pair != bounds.second; ++pair)
         {
-            SkillLineEntry const* skill = sSkillLineStore.LookupEntry(pair->second->SkillupSkillLineID
-                ? pair->second->SkillupSkillLineID
-                : pair->second->SkillLine);
+            // Shaohao: SkillLineEntry doesn't have SkillupSkillLineID
+//            SkillLineEntry const* skill = sSkillLineStore.LookupEntry(pair->second->SkillupSkillLineID
+//                ? pair->second->SkillupSkillLineID
+//                : pair->second->SkillLine);
+            SkillLineEntry const* skill = sSkillLineStore.LookupEntry(pair->second->SkillLine);
             if (!skill)
                 return false;
 
@@ -297,6 +299,7 @@ struct LinkValidator<LinkTags::enchant>
                     return true;
             }
         }
+
         return false;
     }
 
@@ -361,7 +364,7 @@ struct LinkValidator<LinkTags::instancelock>
     static bool IsTextValid(InstanceLockLinkData const& data, std::string_view text)
     {
         for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
-            if (data.Map->MapName[i] == text)
+            if (data.Map->MapName(i) == text)
                 return true;
         return false;
     }
@@ -611,9 +614,10 @@ struct LinkValidator<LinkTags::transmogillusion>
         for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
             if (enchantment->Name[i] == text)
                 return true;
-        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
-            if (enchantment->HordeName[i] == text)
-                return true;
+        // Shaohao: SpellItemEnchantmentEntry doesn't have HordeName
+//        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
+//            if (enchantment->HordeName[i] == text)
+//                return true;
         return false;
     }
 

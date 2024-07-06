@@ -18,6 +18,7 @@
 #include "Position.h"
 #include "ByteBuffer.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GridDefines.h"
 #include "World.h"
 #include <G3D/g3dmath.h>
@@ -275,6 +276,6 @@ std::string WorldLocation::GetDebugInfo() const
 {
     std::stringstream sstr;
     MapEntry const* mapEntry = sMapStore.LookupEntry(m_mapId);
-    sstr << "MapID: " << m_mapId << " Map name: '" << (mapEntry ? mapEntry->MapName[sWorld->GetDefaultDbcLocale()] : "<not found>") <<"' " << Position::ToString();
+    sstr << "MapID: " << m_mapId << " Map name: '" << (mapEntry ? mapEntry->MapName(sWorld->GetDefaultDbcLocale()) : "<not found>") <<"' " << Position::ToString();
     return sstr.str();
 }

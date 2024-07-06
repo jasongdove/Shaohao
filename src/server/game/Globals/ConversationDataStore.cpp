@@ -18,7 +18,7 @@
 #include "ConversationDataStore.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Timer.h"

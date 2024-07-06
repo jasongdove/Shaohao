@@ -23,7 +23,7 @@
 #include "Chat.h"
 #include "ChatCommand.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DisableMgr.h"
 #include "GridNotifiers.h"
 #include "Group.h"
@@ -251,7 +251,7 @@ public:
         float zoneX = object->GetPositionX();
         float zoneY = object->GetPositionY();
 
-        sDB2Manager.Map2ZoneCoordinates(zoneId, zoneX, zoneY);
+        sDBCManager.Map2ZoneCoordinates(zoneId, zoneX, zoneY);
 
         Map* map = object->GetMap();
         float groundZ = object->GetMapHeight(object->GetPositionX(), object->GetPositionY(), MAX_HEIGHT);
@@ -279,9 +279,9 @@ public:
         char const* unknown = handler->GetTrinityString(LANG_UNKNOWN);
 
         handler->PSendSysMessage(LANG_MAP_POSITION,
-            mapId, (mapEntry ? mapEntry->MapName[handler->GetSessionDbcLocale()] : unknown),
-            zoneId, (zoneEntry ? zoneEntry->AreaName[handler->GetSessionDbcLocale()] : unknown),
-            areaId, (areaEntry ? areaEntry->AreaName[handler->GetSessionDbcLocale()] : unknown),
+            mapId, (mapEntry ? mapEntry->MapName(handler->GetSessionDbcLocale()) : unknown),
+            zoneId, (zoneEntry ? zoneEntry->AreaName(handler->GetSessionDbcLocale()) : unknown),
+            areaId, (areaEntry ? areaEntry->AreaName(handler->GetSessionDbcLocale()) : unknown),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation());
         if (Transport* transport = dynamic_cast<Transport*>(object->GetTransport()))
             handler->PSendSysMessage(LANG_TRANSPORT_POSITION,
@@ -1917,8 +1917,8 @@ public:
             handler->PSendSysMessage(LANG_PINFO_CHR_LEVEL_HIGH, level);
 
         // Output XI. LANG_PINFO_CHR_RACE
-        raceStr  = DB2Manager::GetChrRaceName(raceid, locale);
-        classStr = DB2Manager::GetClassName(classid, locale);
+        raceStr  = DBCManager::GetChrRaceName(raceid, locale);
+        classStr = DBCManager::GetClassName(classid, locale);
         handler->PSendSysMessage(LANG_PINFO_CHR_RACE, (gender == 0 ? handler->GetTrinityString(LANG_CHARACTER_GENDER_MALE) : handler->GetTrinityString(LANG_CHARACTER_GENDER_FEMALE)), raceStr.c_str(), classStr.c_str());
 
         // Output XII. LANG_PINFO_CHR_ALIVE
@@ -1939,7 +1939,7 @@ public:
         AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId);
         if (area)
         {
-            zoneName = area->AreaName[locale];
+            zoneName = area->AreaName(locale);
 
             if (area->GetFlags().HasFlag(AreaFlags::IsSubzone))
             {
@@ -1947,7 +1947,7 @@ public:
                 if (zone)
                 {
                     areaName = zoneName;
-                    zoneName = zone->AreaName[locale];
+                    zoneName = zone->AreaName(locale);
                 }
             }
         }
@@ -1956,9 +1956,9 @@ public:
             zoneName = handler->GetTrinityString(LANG_UNKNOWN);
 
         if (areaName)
-            handler->PSendSysMessage(LANG_PINFO_CHR_MAP_WITH_AREA, map->MapName[locale], zoneName, areaName);
+            handler->PSendSysMessage(LANG_PINFO_CHR_MAP_WITH_AREA, map->MapName(locale), zoneName, areaName);
         else
-            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->MapName[locale], zoneName);
+            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->MapName(locale), zoneName);
 
         // Output XVII. - XVIX. if they are not empty
         if (!guildName.empty())

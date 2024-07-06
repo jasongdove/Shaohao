@@ -20,6 +20,7 @@
 #include "Corpse.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GameTime.h"
 #include "Log.h"
 #include "Loot.h"

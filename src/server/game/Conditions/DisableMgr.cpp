@@ -19,6 +19,7 @@
 #include "CriteriaHandler.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Log.h"
 #include "Map.h"
 #include "ObjectMgr.h"
@@ -152,11 +153,11 @@ void LoadDisables()
                         break;
                     case MAP_INSTANCE:
                     case MAP_RAID:
-                        if (flags & DUNGEON_STATUSFLAG_HEROIC && !sDB2Manager.GetMapDifficultyData(entry, DIFFICULTY_HEROIC))
+                        if (flags & DUNGEON_STATUSFLAG_HEROIC && !sDBCManager.GetMapDifficultyData(entry, DIFFICULTY_HEROIC))
                             flags -= DUNGEON_STATUSFLAG_HEROIC;
-                        if (flags & RAID_STATUSFLAG_10MAN_HEROIC && !sDB2Manager.GetMapDifficultyData(entry, DIFFICULTY_10_HC))
+                        if (flags & RAID_STATUSFLAG_10MAN_HEROIC && !sDBCManager.GetMapDifficultyData(entry, DIFFICULTY_10_HC))
                             flags -= RAID_STATUSFLAG_10MAN_HEROIC;
-                        if (flags & RAID_STATUSFLAG_25MAN_HEROIC && !sDB2Manager.GetMapDifficultyData(entry, DIFFICULTY_25_HC))
+                        if (flags & RAID_STATUSFLAG_25MAN_HEROIC && !sDBCManager.GetMapDifficultyData(entry, DIFFICULTY_25_HC))
                             flags -= RAID_STATUSFLAG_25MAN_HEROIC;
                         if (!flags)
                             isFlagInvalid = true;
@@ -369,7 +370,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, WorldObject const* ref, uint8
                 {
                     uint8 disabledModes = itr->second.flags;
                     Difficulty targetDifficulty = player->GetDifficultyID(mapEntry);
-                    sDB2Manager.GetDownscaledMapDifficultyData(entry, targetDifficulty);
+                    sDBCManager.GetDownscaledMapDifficultyData(entry, targetDifficulty);
                     switch (targetDifficulty)
                     {
                         case DIFFICULTY_NORMAL:

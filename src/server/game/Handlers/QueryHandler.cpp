@@ -19,7 +19,7 @@
 #include "Common.h"
 #include "Corpse.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GameTime.h"
 #include "Item.h"
 #include "Log.h"

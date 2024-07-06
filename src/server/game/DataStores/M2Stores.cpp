@@ -18,6 +18,7 @@
 #include "M2Stores.h"
 #include "Containers.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Log.h"
 #include "M2Structure.h"
 #include "Timer.h"

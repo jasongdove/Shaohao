@@ -1,6 +1,9 @@
 /*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
- *
+ * Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2016 MaNGOS <http://getmangos.com/>
+
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
@@ -15,69 +18,87 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Banner.h"
-#include "CascHandles.h"
-#include "Common.h"
-#include "DB2CascFileSource.h"
-#include "DB2Meta.h"
-#include "DBFilesClientList.h"
-#include "ExtractorDB2LoadInfo.h"
-#include "IteratorPair.h"
-#include "Locales.h"
-#include "MapDefines.h"
 #include "StringFormat.h"
 #include "Util.h"
-#include "adt.h"
-#include "wdt.h"
-#include <CascLib.h>
-#include <boost/filesystem/directory.hpp>
-#include <boost/filesystem/operations.hpp>
+#include "MapDefines.h"
 #include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <bitset>
+#include <cstdio>
 #include <deque>
 #include <fstream>
 #include <set>
 #include <unordered_map>
-#include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-#include <io.h>
-#else
-#include <unistd.h>
+
+#include "Common.h"
+#ifdef PLATFORM_WINDOWS
+#undef PLATFORM_WINDOWS
 #endif
 
-std::shared_ptr<CASC::Storage> CascStorage;
+#ifdef _WIN32
+#include "direct.h"
+#else
+#include <sys/stat.h>
+#include <unistd.h>
+#define ERROR_PATH_NOT_FOUND ERROR_FILE_NOT_FOUND
+#endif
 
-struct MapEntry
+#include "StormLib.h"
+#include "dbcfile.h"
+#include "Banner.h"
+#include "adt.h"
+#include "wdt.h"
+#include <fcntl.h>
+
+#if defined( __GNUC__ )
+    #define _open   open
+    #define _close close
+    #ifndef O_BINARY
+        #define O_BINARY 0
+    #endif
+#else
+    #include <io.h>
+#endif
+
+#ifdef O_LARGEFILE
+    #define OPEN_FLAGS (O_RDONLY | O_BINARY | O_LARGEFILE)
+#else
+    #define OPEN_FLAGS (O_RDONLY | O_BINARY)
+#endif
+
+#include <G3D/Plane.h>
+
+HANDLE WorldMpq = nullptr;
+HANDLE LocaleMpq = nullptr;
+
+typedef struct
 {
-    uint32 Id = 0;
-    int32 WdtFileDataId = 0;
-    std::string Name;
-    std::string Directory;
-};
+    char name[64];
+    uint32 id;
+} map_id;
 
 struct LiquidMaterialEntry
 {
-    int8 LVF = 0;
+    int8 LVF;
 };
 
 struct LiquidObjectEntry
 {
-    int16 LiquidTypeID = 0;
+    int16 LiquidTypeID;
 };
 
 struct LiquidTypeEntry
 {
-    uint8 SoundBank = 0;
-    uint8 MaterialID = 0;
+    uint8 SoundBank;
+    uint8 MaterialID;
 };
 
-std::vector<MapEntry> map_ids;
+std::vector<map_id> map_ids;
 std::unordered_map<uint32, LiquidMaterialEntry> LiquidMaterials;
 std::unordered_map<uint32, LiquidObjectEntry> LiquidObjects;
 std::unordered_map<uint32, LiquidTypeEntry> LiquidTypes;
-std::set<uint32> CameraFileDataIds;
 bool PrintProgress = true;
 boost::filesystem::path input_path;
 boost::filesystem::path output_path;
@@ -90,13 +111,12 @@ enum Extract : uint8
     EXTRACT_MAP     = 0x1,
     EXTRACT_DBC     = 0x2,
     EXTRACT_CAMERA  = 0x4,
-    EXTRACT_GT      = 0x8,
 
-    EXTRACT_ALL = EXTRACT_MAP | EXTRACT_DBC | EXTRACT_CAMERA | EXTRACT_GT
+    EXTRACT_ALL = EXTRACT_MAP | EXTRACT_DBC | EXTRACT_CAMERA
 };
 
 // Select data for extract
-int   CONF_extract = EXTRACT_ALL;
+int   CONF_extract = EXTRACT_MAP | EXTRACT_DBC | EXTRACT_CAMERA;
 
 // This option allow limit minimum height to some value (Allow save some memory)
 bool  CONF_allow_height_limit = true;
@@ -109,41 +129,56 @@ float CONF_float_to_int16_limit = 2048.0f;   // Max accuracy = val/65536
 float CONF_flat_height_delta_limit = 0.005f; // If max - min less this value - surface is flat
 float CONF_flat_liquid_delta_limit = 0.001f; // If max - min less this value - liquid surface is flat
 
-uint32 CONF_Locale = 0;
-
-char const* CONF_Product = "wow";
-char const* CONF_Region = "eu";
-bool CONF_UseRemoteCasc = false;
-
-#define CASC_LOCALES_COUNT 17
-
-char const* CascLocaleNames[CASC_LOCALES_COUNT] =
+// List MPQ for extract maps from
+char const* CONF_mpq_list[]=
 {
-    "none", "enUS",
-    "koKR", "unknown",
-    "frFR", "deDE",
-    "zhCN", "esES",
-    "zhTW", "enGB",
-    "enCN", "enTW",
-    "esMX", "ruRU",
-    "ptBR", "itIT",
-    "ptPT"
+    "world.MPQ",
+    "art.MPQ",
+    "model.MPQ",
+    "world2.MPQ",
+    "misc.MPQ",
+    "expansion1.MPQ",
+    "expansion2.MPQ",
+    "expansion3.MPQ",
+    "expansion4.MPQ"
 };
 
-uint32 WowLocaleToCascLocaleFlags[12] =
+uint32 const Builds[] = {16016, 16048, 16057, 16309, 16357, 16516, 16650, 16844, 16965, 17116, 17266, 17325, 17345, 17538, 17645, 17688, 17898, 18273};
+//#define LAST_DBC_IN_DATA_BUILD 13623    // after this build mpqs with dbc are back to locale folder
+#define NEW_BASE_SET_BUILD  15211
+#define CLIENT_BUILD 18273 // 5.4.8 18273 -- current build is 18414, but Blizz didnt rename the MPQ files
+
+#define LOCALES_COUNT 15
+
+char const* Locales[LOCALES_COUNT] =
 {
-    CASC_LOCALE_ENUS | CASC_LOCALE_ENGB,
-    CASC_LOCALE_KOKR,
-    CASC_LOCALE_FRFR,
-    CASC_LOCALE_DEDE,
-    CASC_LOCALE_ZHCN,
-    CASC_LOCALE_ZHTW,
-    CASC_LOCALE_ESES,
-    CASC_LOCALE_ESMX,
-    CASC_LOCALE_RURU,
-    0,
-    CASC_LOCALE_PTBR | CASC_LOCALE_PTPT,
-    CASC_LOCALE_ITIT,
+    "enGB", "enUS",
+    "deDE", "esES",
+    "frFR", "koKR",
+    "zhCN", "zhTW",
+    "enCN", "enTW",
+    "esMX", "ruRU",
+    "ptBR", "ptPT",
+    "itIT"
+};
+
+uint8 const MpqToWowLocale[LOCALES_COUNT] =
+{
+    LOCALE_enUS,
+    LOCALE_enUS,
+    LOCALE_deDE,
+    LOCALE_esES,
+    LOCALE_frFR,
+    LOCALE_koKR,
+    LOCALE_zhCN,
+    LOCALE_zhTW,
+    LOCALE_zhCN,
+    LOCALE_zhTW,
+    LOCALE_esMX,
+    LOCALE_ruRU,
+    LOCALE_ptBR,
+    LOCALE_ptBR,
+    LOCALE_itIT
 };
 
 void CreateDir(boost::filesystem::path const& path)
@@ -164,13 +199,9 @@ void Usage(char const* prg)
         "%s -[var] [value]\n"\
         "-i set input path\n"\
         "-o set output path\n"\
-        "-e extract only MAP(1)/DBC(2)/Camera(4)/gt(8) - standard: all(15)\n"\
+        "-e extract only MAP(1)/DBC(2)/Camera(4) - standard: all(7)\n"\
         "-f height stored as int (less map size but lost some accuracy) 1 by default\n"\
-        "-l dbc locale\n"\
-        "-p which installed product to open (wow/wowt/wow_beta)\n"\
-        "-c use remote casc\n"\
-        "-r set remote casc region - standard: eu\n"\
-        "Example: %s -f 0 -i \"c:\\games\\game\"\n", prg, prg);
+        "Example: %s -f 0 -i \"c:\\games\\game\"", prg, prg);
     exit(1);
 }
 
@@ -180,12 +211,10 @@ void HandleArgs(int argc, char* arg[])
     {
         // i - input path
         // o - output path
-        // e - extract only MAP(1)/DBC(2)/Camera(4)/gt(8) - standard: all(11)
+        // e - extract only MAP(1)/DBC(2)/Camera(4) - standard: all(7)
         // f - use float to int conversion
         // h - limit minimum height
-        // l - dbc locale
-        // c - use remote casc
-        // r - set casc remote region - standard: eu
+        // b - target client build
         if (arg[c][0] != '-')
             Usage(arg[0]);
 
@@ -219,195 +248,168 @@ void HandleArgs(int argc, char* arg[])
                 else
                     Usage(arg[0]);
                 break;
-            case 'l':
-                if (c + 1 < argc)                            // all ok
-                {
-                    for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
-                        if (!strcmp(arg[c + 1], localeNames[i]))
-                            CONF_Locale = 1 << i;
-                    ++c;
-                }
-                else
-                    Usage(arg[0]);
-                break;
-            case 'p':
-                if (c + 1 < argc && strlen(arg[c + 1]))      // all ok
-                    CONF_Product = arg[++c];
-                else
-                    Usage(arg[0]);
-                break;
-            case 'c':
-                if (c + 1 < argc)                            // all ok
-                    CONF_UseRemoteCasc = atoi(arg[c++ + 1]) != 0;
-                else
-                    Usage(arg[0]);
-                break;
-            case 'r':
-                if (c + 1 < argc && strlen(arg[c + 1]))      // all ok
-                    CONF_Region = arg[c++ + 1];
-                else
-                    Usage(arg[0]);
-                break;
-            case 'h':
-                Usage(arg[0]);
-                break;
             default:
                 break;
         }
     }
 }
 
-void TryLoadDB2(char const* name, DB2CascFileSource* source, DB2FileLoader* db2, DB2FileLoadInfo const* loadInfo)
+uint32 ReadBuild(int locale)
 {
-    try
+    // include build info file also
+    std::string filename  = std::string("component.wow-") + Locales[locale] + ".txt";
+    //printf("Read %s file... ", filename.c_str());
+
+    HANDLE dbcFile;
+    if (!SFileOpenFileEx(LocaleMpq, filename.c_str(), SFILE_OPEN_PATCHED_FILE, &dbcFile))
     {
-        db2->Load(source, loadInfo);
-    }
-    catch (std::exception const& e)
-    {
-        printf("Fatal error: Invalid %s file format! %s\n%s\n", name, CASC::HumanReadableCASCError(GetCascError()), e.what());
+        printf("Fatal error: Not found %s file!\n", filename.c_str());
         exit(1);
     }
+
+    char buff[512];
+    DWORD readBytes = 0;
+    SFileReadFile(dbcFile, buff, 512, &readBytes, nullptr);
+    if (!readBytes)
+    {
+        printf("Fatal error: Not found %s file!\n", filename.c_str());
+        exit(1);
+    }
+
+    std::string text = buff;
+    SFileCloseFile(dbcFile);
+
+    size_t pos = text.find("version=\"");
+    size_t pos1 = pos + strlen("version=\"");
+    size_t pos2 = text.find("\"", pos1);
+    if (pos == text.npos || pos2 == text.npos || pos1 >= pos2)
+    {
+        printf("Fatal error: Invalid  %s file format!\n", filename.c_str());
+        exit(1);
+    }
+
+    std::string build_str = text.substr(pos1,pos2-pos1);
+
+    int build = atoi(build_str.c_str());
+    if (build <= 0)
+    {
+        printf("Fatal error: Invalid  %s file format!\n", filename.c_str());
+        exit(1);
+    }
+
+    return build;
 }
 
 void ReadMapDBC()
 {
-    printf("Read Map.db2 file...\n");
+    printf("Read Map.dbc file... ");
 
-    DB2CascFileSource source(CascStorage, MapLoadInfo::Instance.Meta->FileDataId);
-    DB2FileLoader db2;
-    TryLoadDB2("Map.db2", &source, &db2, &MapLoadInfo::Instance);
-
-    map_ids.reserve(db2.GetRecordCount());
-    std::unordered_map<uint32, std::size_t> idToIndex;
-    for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
+    HANDLE dbcFile;
+    if (!SFileOpenFileEx(LocaleMpq, "DBFilesClient\\Map.dbc", SFILE_OPEN_PATCHED_FILE, &dbcFile))
     {
-        DB2Record record = db2.GetRecord(x);
-        if (!record)
-            continue;
-
-        MapEntry map;
-        map.Id = record.GetId();
-        map.WdtFileDataId = record.GetInt32("WdtFileDataID");
-        map.Name = record.GetString("MapName");
-        map.Directory = record.GetString("Directory");
-        idToIndex[map.Id] = map_ids.size();
-        map_ids.push_back(map);
+        printf("Fatal error: Cannot find Map.dbc in archive!\n");
+        exit(1);
     }
 
-    for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
+    DBCFile dbc(dbcFile);
+    if (!dbc.open())
     {
-        DB2RecordCopy copy = db2.GetRecordCopy(x);
-        auto itr = idToIndex.find(copy.SourceRowId);
-        if (itr != idToIndex.end())
-        {
-            MapEntry map;
-            map.Id = copy.NewRowId;
-            map.WdtFileDataId = map_ids[itr->second].WdtFileDataId;
-            map.Name = map_ids[itr->second].Name;
-            map.Directory = map_ids[itr->second].Directory;
-            map_ids.push_back(map);
-        }
+        printf("Fatal error: Invalid Map.dbc file format!\n");
+        exit(1);
     }
 
-    std::erase_if(map_ids, [](MapEntry const& map) { return !map.WdtFileDataId; });
+    size_t map_count = dbc.getRecordCount();
+    map_ids.resize(map_count);
+    for(uint32 x = 0; x < map_count; ++x)
+    {
+        map_ids[x].id = dbc.getRecord(x).getUInt(0);
+        strcpy(map_ids[x].name, dbc.getRecord(x).getString(1));
+    }
 
-    printf("Done! (" SZFMTD " maps loaded)\n", map_ids.size());
+    SFileCloseFile(dbcFile);
+    printf("Done! (%u maps loaded)\n", uint32(map_count));
 }
 
 void ReadLiquidMaterialTable()
 {
-    printf("Read LiquidMaterial.db2 file...\n");
+    printf("Read LiquidMaterial.dbc file...\n");
 
-    DB2CascFileSource source(CascStorage, LiquidMaterialLoadInfo::Instance.Meta->FileDataId);
-    DB2FileLoader db2;
-    TryLoadDB2("LiquidMaterial.db2", &source, &db2, &LiquidMaterialLoadInfo::Instance);
-
-    for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
+    HANDLE dbcFile;
+    if (!SFileOpenFileEx(LocaleMpq, "DBFilesClient\\LiquidMaterial.dbc", SFILE_OPEN_PATCHED_FILE, &dbcFile))
     {
-        DB2Record record = db2.GetRecord(x);
-        if (!record)
-            continue;
-
-        LiquidMaterialEntry& liquidType = LiquidMaterials[record.GetId()];
-        liquidType.LVF = record.GetUInt8("LVF");
+        printf("Fatal error: Cannot find LiquidMaterial.dbc in archive!\n");
+        exit(1);
     }
 
-    for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
-        LiquidMaterials[db2.GetRecordCopy(x).NewRowId] = LiquidMaterials[db2.GetRecordCopy(x).SourceRowId];
+    DBCFile dbc(dbcFile);
+    if (!dbc.open())
+    {
+        printf("Fatal error: Invalid LiquidMaterial.dbc file format!\n");
+        exit(1);
+    }
+
+    for (uint32 x = 0; x < dbc.getRecordCount(); ++x)
+    {
+        LiquidMaterialEntry& liquidType = LiquidMaterials[dbc.getRecord(x).getUInt(0)];
+        liquidType.LVF = dbc.getRecord(x).getUInt(1);
+    }
 
     printf("Done! (" SZFMTD " LiquidMaterials loaded)\n", LiquidMaterials.size());
 }
 
 void ReadLiquidObjectTable()
 {
-    printf("Read LiquidObject.db2 file...\n");
+    printf("Read LiquidObject.dbc file...\n");
 
-    DB2CascFileSource source(CascStorage, LiquidObjectLoadInfo::Instance.Meta->FileDataId);
-    DB2FileLoader db2;
-    TryLoadDB2("LiquidObject.db2", &source, &db2, &LiquidObjectLoadInfo::Instance);
-
-    for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
+    HANDLE dbcFile;
+    if (!SFileOpenFileEx(LocaleMpq, "DBFilesClient\\LiquidObject.dbc", SFILE_OPEN_PATCHED_FILE, &dbcFile))
     {
-        DB2Record record = db2.GetRecord(x);
-        if (!record)
-            continue;
-
-        LiquidObjectEntry& liquidType = LiquidObjects[record.GetId()];
-        liquidType.LiquidTypeID = record.GetUInt16("LiquidTypeID");
+        printf("Fatal error: Cannot find LiquidObject.dbc in archive!\n");
+        exit(1);
     }
 
-    for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
-        LiquidObjects[db2.GetRecordCopy(x).NewRowId] = LiquidObjects[db2.GetRecordCopy(x).SourceRowId];
+    DBCFile dbc(dbcFile);
+    if (!dbc.open())
+    {
+        printf("Fatal error: Invalid LiquidObject.dbc file format!\n");
+        exit(1);
+    }
+
+    for (uint32 x = 0; x < dbc.getRecordCount(); ++x)
+    {
+        LiquidObjectEntry& liquidType = LiquidObjects[dbc.getRecord(x).getUInt(0)];
+        liquidType.LiquidTypeID = dbc.getRecord(x).getUInt(3);
+    }
 
     printf("Done! (" SZFMTD " LiquidObjects loaded)\n", LiquidObjects.size());
 }
 
 void ReadLiquidTypeTable()
 {
-    printf("Read LiquidType.db2 file...\n");
-
-    DB2CascFileSource source(CascStorage, LiquidTypeLoadInfo::Instance.Meta->FileDataId);
-    DB2FileLoader db2;
-    TryLoadDB2("LiquidType.db2", &source, &db2, &LiquidTypeLoadInfo::Instance);
-
-    for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
+    printf("Read LiquidType.dbc file...");
+    HANDLE dbcFile;
+    if (!SFileOpenFileEx(LocaleMpq, "DBFilesClient\\LiquidType.dbc", SFILE_OPEN_PATCHED_FILE, &dbcFile))
     {
-        DB2Record record = db2.GetRecord(x);
-        if (!record)
-            continue;
-
-        LiquidTypeEntry& liquidType = LiquidTypes[record.GetId()];
-        liquidType.SoundBank = record.GetUInt8("SoundBank");
-        liquidType.MaterialID = record.GetUInt8("MaterialID");
+        printf("Fatal error: Cannot find LiquidType.dbc in archive!\n");
+        exit(1);
     }
 
-    for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
-        LiquidTypes[db2.GetRecordCopy(x).NewRowId] = LiquidTypes[db2.GetRecordCopy(x).SourceRowId];
+    DBCFile dbc(dbcFile);
+    if (!dbc.open())
+    {
+        printf("Fatal error: Invalid LiquidType.dbc file format!\n");
+        exit(1);
+    }
 
+    for (uint32 x = 0; x < dbc.getRecordCount(); ++x)
+    {
+        LiquidTypeEntry& liquidType = LiquidTypes[dbc.getRecord(x).getUInt(0)];
+        liquidType.SoundBank = dbc.getRecord(x).getUInt(3);
+        liquidType.MaterialID = dbc.getRecord(x).getUInt(14);
+    }
+
+    SFileCloseFile(dbcFile);
     printf("Done! (" SZFMTD " LiquidTypes loaded)\n", LiquidTypes.size());
-}
-
-bool ReadCinematicCameraDBC()
-{
-    printf("Read CinematicCamera.db2 file...\n");
-
-    DB2CascFileSource source(CascStorage, CinematicCameraLoadInfo::Instance.Meta->FileDataId);
-    DB2FileLoader db2;
-    TryLoadDB2("CinematicCamera.db2", &source, &db2, &CinematicCameraLoadInfo::Instance);
-
-    // get camera file list from DB2
-    for (size_t i = 0; i < db2.GetRecordCount(); ++i)
-    {
-        DB2Record record = db2.GetRecord(i);
-        if (!record)
-            continue;
-
-        CameraFileDataIds.insert(record.GetUInt32("FileDataID"));
-    }
-
-    printf("Done! (" SZFMTD " CinematicCameras loaded)\n", CameraFileDataIds.size());
-    return true;
 }
 
 //
@@ -437,7 +439,7 @@ uint16 liquid_entry[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
 map_liquidHeaderTypeFlags liquid_flags[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
 bool  liquid_show[ADT_GRID_SIZE][ADT_GRID_SIZE];
 float liquid_height[ADT_GRID_SIZE+1][ADT_GRID_SIZE+1];
-uint8 holes[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID][8];
+uint16 holes[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
 
 int16 flight_box_max[3][3];
 int16 flight_box_min[3][3];
@@ -461,25 +463,15 @@ LiquidVertexFormatType adt_MH2O::GetLiquidVertexFormat(adt_liquid_instance const
     return static_cast<LiquidVertexFormatType>(-1);
 }
 
-bool TransformToHighRes(uint16 lowResHoles, uint8 hiResHoles[8])
+bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int /*cell_y*/, int /*cell_x*/, uint32 build, bool ignoreDeepWater)
 {
-    for (uint8 i = 0; i < 8; i++)
-    {
-        for (uint8 j = 0; j < 8; j++)
-        {
-            int32 holeIdxL = (i / 2) * 4 + (j / 2);
-            if (((lowResHoles >> holeIdxL) & 1) == 1)
-                hiResHoles[i] |= (1 << j);
-        }
-    }
+    ChunkedFile adt;
 
-    return *((uint64*)hiResHoles) != 0;
-}
+    if (!adt.loadFile(WorldMpq, inputPath))
+        return false;
 
-bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const& outputPath, int gx, int gy, uint32 build, bool ignoreDeepWater)
-{
     // Prepare map header
-    map_fileheader map{};
+    map_fileheader map{ };
     map.mapMagic = MapMagic;
     map.versionMagic = MapVersionMagic;
     map.buildMagic = build;
@@ -498,9 +490,9 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
     bool hasHoles = false;
     bool hasFlightBox = false;
 
-    for (auto const& [_, rawChunk] : Trinity::Containers::MapEqualRange(adt.chunks, "MCNK"))
+    for (std::multimap<std::string, FileChunk*>::const_iterator itr = adt.chunks.lower_bound("MCNK"); itr != adt.chunks.upper_bound("MCNK"); ++itr)
     {
-        adt_MCNK* mcnk = rawChunk->As<adt_MCNK>();
+        adt_MCNK* mcnk = itr->second->As<adt_MCNK>();
 
         // Area data
         area_ids[mcnk->iy][mcnk->ix] = mcnk->areaid;
@@ -525,7 +517,6 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
         // Set map height as grid height
         for (int y = 0; y <= ADT_CELL_SIZE; y++)
         {
-            // edge V9s are overlapping between cells (i * ADT_CELL_SIZE is correct, otherwise we would be missing a row/column of V8s between)
             int cy = mcnk->iy * ADT_CELL_SIZE + y;
             for (int x = 0; x <= ADT_CELL_SIZE; x++)
             {
@@ -545,18 +536,17 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
         }
 
         // Get custom height
-        if (FileChunk* chunk = rawChunk->GetSubChunk("MCVT"))
+        if (FileChunk* chunk = itr->second->GetSubChunk("MCVT"))
         {
             adt_MCVT* mcvt = chunk->As<adt_MCVT>();
             // get V9 height map
             for (int y = 0; y <= ADT_CELL_SIZE; y++)
             {
-                // edge V9s are overlapping between cells (i * ADT_CELL_SIZE is correct, otherwise we would be missing a row/column of V8s between)
                 int cy = mcnk->iy * ADT_CELL_SIZE + y;
                 for (int x = 0; x <= ADT_CELL_SIZE; x++)
                 {
                     int cx = mcnk->ix * ADT_CELL_SIZE + x;
-                    V9[cy][cx] += mcvt->height_map[y*(ADT_CELL_SIZE * 2 + 1) + x];
+                    V9[cy][cx] += mcvt->height_map[y * (ADT_CELL_SIZE * 2 + 1) + x];
                 }
             }
             // get V8 height map
@@ -566,7 +556,7 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
                 for (int x = 0; x < ADT_CELL_SIZE; x++)
                 {
                     int cx = mcnk->ix * ADT_CELL_SIZE + x;
-                    V8[cy][cx] += mcvt->height_map[y*(ADT_CELL_SIZE * 2 + 1) + ADT_CELL_SIZE + 1 + x];
+                    V8[cy][cx] += mcvt->height_map[y * (ADT_CELL_SIZE * 2 + 1) + ADT_CELL_SIZE + 1 + x];
                 }
             }
         }
@@ -574,7 +564,7 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
         // Liquid data
         if (mcnk->sizeMCLQ > 8)
         {
-            if (FileChunk* chunk = rawChunk->GetSubChunk("MCLQ"))
+            if (FileChunk* chunk = itr->second->GetSubChunk("MCLQ"))
             {
                 adt_MCLQ* liquid = chunk->As<adt_MCLQ>();
                 int count = 0;
@@ -588,7 +578,7 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
                         {
                             liquid_show[cy][cx] = true;
                             if (!ignoreDeepWater && liquid->flags[y][x] & (1 << 7))
-                                liquid_flags[mcnk->iy][mcnk->ix] |= map_liquidHeaderTypeFlags::DarkWater;
+                                liquid_flags[mcnk->iy][mcnk->ix] |= map_liquidHeaderTypeFlags::DarkWater;;
                             ++count;
                         }
                     }
@@ -627,18 +617,9 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
         }
 
         // Hole data
-        if (!(mcnk->flags & 0x10000))
-        {
-            if (uint16 hole = mcnk->holes)
-                if (TransformToHighRes(hole, holes[mcnk->iy][mcnk->ix]))
-                    hasHoles = true;
-        }
-        else
-        {
-            memcpy(holes[mcnk->iy][mcnk->ix], mcnk->union_5_3_0.HighResHoles, sizeof(uint64));
-            if (*((uint64*)holes[mcnk->iy][mcnk->ix]) != 0)
-                hasHoles = true;
-        }
+        holes[mcnk->iy][mcnk->ix] = mcnk->holes;
+        if (!hasHoles && mcnk->holes != 0)
+            hasHoles = true;
     }
 
     // Get liquid map for grid (in WOTLK used MH2O chunk)
@@ -680,7 +661,7 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
                     case LIQUID_TYPE_MAGMA: liquid_flags[i][j] |= map_liquidHeaderTypeFlags::Magma; break;
                     case LIQUID_TYPE_SLIME: liquid_flags[i][j] |= map_liquidHeaderTypeFlags::Slime; break;
                     default:
-                        printf("\nCan't find Liquid type %u for map %s [%u,%u]\nchunk %d,%d\n", h->LiquidType, mapName.c_str(), gx, gy, i, j);
+                        printf("\nCan't find Liquid type %u for map %s\nchunk %d,%d\n", h->LiquidType, inputPath.c_str(), i, j);
                         break;
                 }
 
@@ -728,7 +709,7 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
     }
 
     map.areaMapOffset = sizeof(map);
-    map.areaMapSize   = sizeof(map_areaHeader);
+    map.areaMapSize = sizeof(map_areaHeader);
 
     map_areaHeader areaHeader;
     areaHeader.areaMagic = MapAreaMagic;
@@ -743,6 +724,7 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
         areaHeader.flags |= map_areaHeaderFlags::NoArea;
         areaHeader.gridArea = static_cast<uint16>(areaId);
     }
+
 
     //============================================
     // Try pack height data
@@ -791,7 +773,7 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
     map_heightHeader heightHeader;
     heightHeader.heightMagic = MapHeightMagic;
     heightHeader.flags = map_heightHeaderFlags::None;
-    heightHeader.gridHeight    = minHeight;
+    heightHeader.gridHeight = minHeight;
     heightHeader.gridMaxHeight = maxHeight;
 
     if (maxHeight == minHeight)
@@ -807,7 +789,7 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
         map.heightMapSize += sizeof(flight_box_max) + sizeof(flight_box_min);
     }
 
-    // Try store as packed in uint16 or uint8 values
+        // Try store as packed in uint16 or uint8 values
     if (!heightHeader.flags.HasFlag(map_heightHeaderFlags::NoHeight))
     {
         float step = 0;
@@ -820,7 +802,7 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
                 heightHeader.flags |= map_heightHeaderFlags::HeightAsInt8;
                 step = selectUInt8StepStore(diff);
             }
-            else if (diff < CONF_float_to_int16_limit)  // As uint16 (max accuracy = CONF_float_to_int16_limit/65536)
+            else if (diff<CONF_float_to_int16_limit)  // As uint16 (max accuracy = CONF_float_to_int16_limit/65536)
             {
                 heightHeader.flags |= map_heightHeaderFlags::HeightAsInt16;
                 step = selectUInt16StepStore(diff);
@@ -963,30 +945,30 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
         return false;
     }
 
-    outFile.write(reinterpret_cast<char const*>(&map), sizeof(map));
+    outFile.write(reinterpret_cast<const char*>(&map), sizeof(map));
     // Store area data
-    outFile.write(reinterpret_cast<char const*>(&areaHeader), sizeof(areaHeader));
+    outFile.write(reinterpret_cast<const char*>(&areaHeader), sizeof(areaHeader));
     if (!areaHeader.flags.HasFlag(map_areaHeaderFlags::NoArea))
-        outFile.write(reinterpret_cast<char const*>(area_ids), sizeof(area_ids));
+        outFile.write(reinterpret_cast<const char*>(area_ids), sizeof(area_ids));
 
     // Store height data
-    outFile.write(reinterpret_cast<char const*>(&heightHeader), sizeof(heightHeader));
+    outFile.write(reinterpret_cast<const char*>(&heightHeader), sizeof(heightHeader));
     if (!heightHeader.flags.HasFlag(map_heightHeaderFlags::NoHeight))
     {
         if (heightHeader.flags.HasFlag(map_heightHeaderFlags::HeightAsInt16))
         {
-            outFile.write(reinterpret_cast<char const*>(uint16_V9), sizeof(uint16_V9));
-            outFile.write(reinterpret_cast<char const*>(uint16_V8), sizeof(uint16_V8));
+            outFile.write(reinterpret_cast<const char*>(uint16_V9), sizeof(uint16_V9));
+            outFile.write(reinterpret_cast<const char*>(uint16_V8), sizeof(uint16_V8));
         }
         else if (heightHeader.flags.HasFlag(map_heightHeaderFlags::HeightAsInt8))
         {
-            outFile.write(reinterpret_cast<char const*>(uint8_V9), sizeof(uint8_V9));
-            outFile.write(reinterpret_cast<char const*>(uint8_V8), sizeof(uint8_V8));
+            outFile.write(reinterpret_cast<const char*>(uint8_V9), sizeof(uint8_V9));
+            outFile.write(reinterpret_cast<const char*>(uint8_V8), sizeof(uint8_V8));
         }
         else
         {
-            outFile.write(reinterpret_cast<char const*>(V9), sizeof(V9));
-            outFile.write(reinterpret_cast<char const*>(V8), sizeof(V8));
+            outFile.write(reinterpret_cast<const char*>(V9), sizeof(V9));
+            outFile.write(reinterpret_cast<const char*>(V8), sizeof(V8));
         }
     }
 
@@ -999,47 +981,27 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
     // Store liquid data if need
     if (map.liquidMapOffset)
     {
-        outFile.write(reinterpret_cast<char const*>(&liquidHeader), sizeof(liquidHeader));
+        outFile.write(reinterpret_cast<const char*>(&liquidHeader), sizeof(liquidHeader));
         if (!liquidHeader.flags.HasFlag(map_liquidHeaderFlags::NoType))
         {
-            outFile.write(reinterpret_cast<char const*>(liquid_entry), sizeof(liquid_entry));
-            outFile.write(reinterpret_cast<char const*>(liquid_flags), sizeof(liquid_flags));
+            outFile.write(reinterpret_cast<const char*>(liquid_entry), sizeof(liquid_entry));
+            outFile.write(reinterpret_cast<const char*>(liquid_flags), sizeof(liquid_flags));
         }
 
         if (!liquidHeader.flags.HasFlag(map_liquidHeaderFlags::NoHeight))
         {
             for (int y = 0; y < liquidHeader.height; y++)
-                outFile.write(reinterpret_cast<char const*>(&liquid_height[y + liquidHeader.offsetY][liquidHeader.offsetX]), sizeof(float) * liquidHeader.width);
+                outFile.write(reinterpret_cast<const char*>(&liquid_height[y + liquidHeader.offsetY][liquidHeader.offsetX]), sizeof(float) * liquidHeader.width);
         }
     }
 
     // store hole data
     if (hasHoles)
-        outFile.write(reinterpret_cast<char const*>(holes), map.holesSize);
+        outFile.write(reinterpret_cast<const char*>(holes), map.holesSize);
 
     outFile.close();
 
     return true;
-}
-
-bool ConvertADT(std::string const& fileName, std::string const& mapName, std::string const& outputPath, int gx, int gy, uint32 build, bool ignoreDeepWater)
-{
-    ChunkedFile adt;
-
-    if (!adt.loadFile(CascStorage, fileName))
-        return false;
-
-    return ConvertADT(adt, mapName, outputPath, gx, gy, build, ignoreDeepWater);
-}
-
-bool ConvertADT(uint32 fileDataId, std::string const& mapName, std::string const& outputPath, int gx, int gy, uint32 build, bool ignoreDeepWater)
-{
-    ChunkedFile adt;
-
-    if (!adt.loadFile(CascStorage, fileDataId, Trinity::StringFormat("Map {} grid [{},{}]", mapName, gx, gy)))
-        return false;
-
-    return ConvertADT(adt, mapName, outputPath, gx, gy, build, ignoreDeepWater);
 }
 
 bool IsDeepWaterIgnored(uint32 mapId, uint32 x, uint32 y)
@@ -1069,14 +1031,15 @@ bool IsDeepWaterIgnored(uint32 mapId, uint32 x, uint32 y)
     return false;
 }
 
-void ExtractMaps(uint32 build)
+void ExtractMapsFromMpq(uint32 build)
 {
+    std::string mpqFileName;
+    std::string mpqMapName;
     std::string outputFileName;
 
     printf("Extracting maps...\n");
 
     ReadMapDBC();
-
     ReadLiquidMaterialTable();
     ReadLiquidObjectTable();
     ReadLiquidTypeTable();
@@ -1086,15 +1049,13 @@ void ExtractMaps(uint32 build)
     printf("Convert map files\n");
     for (std::size_t z = 0; z < map_ids.size(); ++z)
     {
-        printf("Extract %s (" SZFMTD "/" SZFMTD ")                  \n", map_ids[z].Name.c_str(), z + 1, map_ids.size());
-        // Loadup map grid data
+        printf("Extract %s (" SZFMTD "/" SZFMTD ")                  \n", map_ids[z].name, z + 1, map_ids.size());
+        mpqMapName = Trinity::StringFormat("World\\Maps\\{}\\{}.wdt", map_ids[z].name, map_ids[z].name);
         ChunkedFile wdt;
-        std::bitset<(WDT_MAP_SIZE) * (WDT_MAP_SIZE)> existingTiles;
-        if (wdt.loadFile(CascStorage, map_ids[z].WdtFileDataId, Trinity::StringFormat("WDT for map {}", map_ids[z].Id), false))
+        std::bitset<(WDT_MAP_SIZE)* (WDT_MAP_SIZE)> existingTiles;
+        if (wdt.loadFile(WorldMpq, mpqMapName, false))
         {
-            FileChunk* mphd = wdt.GetChunk("MPHD");
             FileChunk* main = wdt.GetChunk("MAIN");
-            FileChunk* maid = wdt.GetChunk("MAID");
             for (uint32 y = 0; y < WDT_MAP_SIZE; ++y)
             {
                 for (uint32 x = 0; x < WDT_MAP_SIZE; ++x)
@@ -1102,17 +1063,10 @@ void ExtractMaps(uint32 build)
                     if (!(main->As<wdt_MAIN>()->adt_list[y][x].flag & 0x1))
                         continue;
 
-                    outputFileName = Trinity::StringFormat("{}/maps/{:04}_{:02}_{:02}.map", output_path.string(), map_ids[z].Id, y, x);
-                    bool ignoreDeepWater = IsDeepWaterIgnored(map_ids[z].Id, y, x);
-                    if (mphd && mphd->As<wdt_MPHD>()->flags & 0x200)
-                    {
-                        existingTiles[y * WDT_MAP_SIZE + x] = ConvertADT(maid->As<wdt_MAID>()->adt_files[y][x].rootADT, map_ids[z].Name, outputFileName, y, x, build, ignoreDeepWater);
-                    }
-                    else
-                    {
-                        std::string storagePath = Trinity::StringFormat(R"(World\Maps\{}\{}_{}_{}.adt)", map_ids[z].Directory, map_ids[z].Directory, x, y);
-                        existingTiles[y * WDT_MAP_SIZE + x] = ConvertADT(storagePath, map_ids[z].Name, outputFileName, y, x, build, ignoreDeepWater);
-                    }
+                    mpqFileName = Trinity::StringFormat("World\\Maps\\{}\\{}_{}_{}.adt", map_ids[z].name, map_ids[z].name, x, y);
+                    outputFileName = Trinity::StringFormat("{}/maps/{:04}_{:02}_{:02}.map", output_path.string(), map_ids[z].id, y, x);
+                    bool ignoreDeepWater = IsDeepWaterIgnored(map_ids[z].id, y, x);
+                    existingTiles[y * WDT_MAP_SIZE + x] = ConvertADT(mpqFileName, outputFileName, y, x, build, ignoreDeepWater);
                 }
 
                 // draw progress bar
@@ -1121,7 +1075,7 @@ void ExtractMaps(uint32 build)
             }
         }
 
-        if (FILE* tileList = fopen(Trinity::StringFormat("{}/maps/{:04}.tilelist", output_path.string(), map_ids[z].Id).c_str(), "wb"))
+        if (FILE* tileList = fopen(Trinity::StringFormat("{}/maps/{:04}.tilelist", output_path.string(), map_ids[z].id).c_str(), "wb"))
         {
             fwrite(MapMagic.data(), 1, MapMagic.size(), tileList);
             fwrite(&MapVersionMagic, 1, sizeof(MapVersionMagic), tileList);
@@ -1134,172 +1088,150 @@ void ExtractMaps(uint32 build)
     printf("\n");
 }
 
-bool ExtractFile(CASC::File* fileInArchive, std::string const& filename)
+bool ExtractFile(HANDLE fileInArchive, std::string const& fileName)
 {
-    int64 fileSize = fileInArchive->GetSize();
-    if (fileSize == -1)
-    {
-        printf("Can't read file size of '%s'\n", filename.c_str());
-        return false;
-    }
-
-    FILE* output = fopen(filename.c_str(), "wb");
+    FILE* output = fopen(fileName.c_str(), "wb");
     if (!output)
     {
-        printf("Can't create the output file '%s'\n", filename.c_str());
+        printf("Can't create the output file '%s'\n", fileName.c_str());
         return false;
     }
 
     char  buffer[0x10000];
-    uint32 readBytes;
+    DWORD readBytes = 1;
 
-    do
+    while (readBytes > 0)
     {
-        readBytes = 0;
-        if (!fileInArchive->ReadFile(buffer, std::min<uint32>(fileSize, sizeof(buffer)), &readBytes))
-        {
-            printf("Can't read file '%s'\n", filename.c_str());
-            fclose(output);
-            boost::filesystem::remove(filename);
-            return false;
-        }
-
-        if (!readBytes)
-            break;
-
-        fwrite(buffer, 1, readBytes, output);
-        fileSize -= readBytes;
-        if (!fileSize) // now we have read entire file
-            break;
-
-    } while (true);
+        SFileReadFile(fileInArchive, buffer, sizeof(buffer), &readBytes, nullptr);
+        if (readBytes > 0)
+            fwrite(buffer, 1, readBytes, output);
+    }
 
     fclose(output);
     return true;
 }
 
-bool ExtractDB2File(uint32 fileDataId, char const* cascFileName, int locale, boost::filesystem::path const& outputPath)
+void ExtractDBCFiles(int locale)
 {
-    DB2CascFileSource source(CascStorage, fileDataId, false);
-    if (!source.IsOpen())
-    {
-        printf("Unable to open file %s in the archive for locale %s: %s\n", cascFileName, localeNames[locale], CASC::HumanReadableCASCError(GetCascError()));
-        return false;
-    }
+    printf("Extracting dbc files...\n");
 
-    int64 fileSize = source.GetFileSize();
-    if (fileSize == -1)
-    {
-        printf("Can't read file size of '%s'\n", cascFileName);
-        return false;
-    }
-
-    DB2FileLoader db2;
-    try
-    {
-        db2.LoadHeaders(&source, nullptr);
-    }
-    catch (std::exception const& e)
-    {
-        printf("Can't read DB2 headers of '%s': %s\n", cascFileName, e.what());
-        return false;
-    }
-
-    std::string outputFileName = outputPath.string();
-    FILE* output = fopen(outputFileName.c_str(), "wb");
-    if (!output)
-    {
-        printf("Can't create the output file '%s'\n", outputFileName.c_str());
-        return false;
-    }
-
-    DB2Header header = db2.GetHeader();
-
-    int64 posAfterHeaders = 0;
-    posAfterHeaders += fwrite(&header, 1, sizeof(header), output);
-
-    // erase TactId from header if key is known
-    for (uint32 i = 0; i < header.SectionCount; ++i)
-    {
-        DB2SectionHeader sectionHeader = db2.GetSectionHeader(i);
-        if (sectionHeader.TactId && CascStorage->HasTactKey(sectionHeader.TactId))
-            sectionHeader.TactId = DUMMY_KNOWN_TACT_ID;
-
-        posAfterHeaders += fwrite(&sectionHeader, 1, sizeof(sectionHeader), output);
-    }
-
-    char buffer[0x10000];
-    uint32 readBatchSize = 0x10000;
-    uint32 readBytes;
-    source.SetPosition(posAfterHeaders);
-
-    do
-    {
-        readBytes = 0;
-        if (!source.GetNativeHandle()->ReadFile(buffer, std::min<uint32>(fileSize, readBatchSize), &readBytes))
-        {
-            printf("Can't read file '%s'\n", outputFileName.c_str());
-            fclose(output);
-            boost::filesystem::remove(outputPath);
-            return false;
-        }
-
-        if (!readBytes)
-            break;
-
-        fwrite(buffer, 1, readBytes, output);
-        fileSize -= readBytes;
-        readBatchSize = 0x10000;
-        if (!fileSize) // now we have read entire file
-            break;
-
-    } while (true);
-
-    fclose(output);
-    return true;
-}
-
-char const* GetCascFilenamePart(char const* cascPath)
-{
-    if (char const* lastSep = strrchr(cascPath, '\\'))
-        return lastSep + 1;
-
-    return cascPath;
-}
-
-void ExtractDBFilesClient(int l)
-{
-    printf("Extracting dbc/db2 files...\n");
-
-    boost::filesystem::path localePath = output_path / "dbc" / localeNames[l];
-
-    CreateDir(output_path / "dbc");
-    CreateDir(localePath);
-
-    printf("locale %s output path %s\n", localeNames[l], localePath.string().c_str());
-
+    SFILE_FIND_DATA foundFile;
+    memset(&foundFile, 0, sizeof(foundFile));
+    HANDLE listFile = SFileFindFirstFile(LocaleMpq, "DBFilesClient\\*dbc", &foundFile, nullptr);
+    HANDLE dbcFile = nullptr;
     uint32 count = 0;
-    for (DB2FileInfo const& db2 : DBFilesClientList)
+    if (listFile)
     {
-        boost::filesystem::path filePath = localePath / db2.Name;
+        boost::filesystem::path localePath = output_path / "dbc" / localeNames[MpqToWowLocale[locale]];
 
-        if (!boost::filesystem::exists(filePath))
-            if (ExtractDB2File(db2.FileDataId, db2.Name, l, filePath.string()))
+        CreateDir(output_path / "dbc");
+        CreateDir(localePath);
+
+        printf("locale %s output path %s\n", localeNames[MpqToWowLocale[locale]], localePath.string().c_str());
+
+        std::string fileName;
+        do
+        {
+            if (!SFileOpenFileEx(LocaleMpq, foundFile.cFileName, SFILE_OPEN_PATCHED_FILE, &dbcFile))
+            {
+                printf("Unable to open file %s in the archive\n", foundFile.cFileName);
+                continue;
+            }
+
+            fileName = foundFile.cFileName;
+            fileName = fileName.substr(fileName.rfind('\\') + 1);
+
+            boost::filesystem::path filePath = localePath / boost::filesystem::path(fileName).filename();
+
+            if (!boost::filesystem::exists(filePath))
+                if (ExtractFile(dbcFile, filePath.string()))
+                    ++count;
+
+            SFileCloseFile(dbcFile);
+        } while (SFileFindNextFile(listFile, &foundFile));
+
+        SFileFindClose(listFile);
+    }
+
+    printf("Extracted %u DBC files\n\n", count);
+}
+
+void ExtractDB2Files(int locale)
+{
+    printf("Extracting db2 files...\n");
+
+    SFILE_FIND_DATA foundFile;
+    memset(&foundFile, 0, sizeof(foundFile));
+    HANDLE listFile = SFileFindFirstFile(LocaleMpq, "DBFilesClient\\*db2", &foundFile, nullptr);
+    HANDLE dbcFile = nullptr;
+    uint32 count = 0;
+    if (listFile)
+    {
+        boost::filesystem::path localePath = output_path / "dbc" / localeNames[MpqToWowLocale[locale]];
+
+        printf("locale %s output path %s\n", localeNames[MpqToWowLocale[locale]], localePath.string().c_str());
+
+        std::string fileName;
+        do
+        {
+            if (!SFileOpenFileEx(LocaleMpq, foundFile.cFileName, SFILE_OPEN_PATCHED_FILE, &dbcFile))
+            {
+                printf("Unable to open file %s in the archive\n", foundFile.cFileName);
+                continue;
+            }
+
+            fileName = foundFile.cFileName;
+            fileName = fileName.substr(fileName.rfind('\\') + 1);
+
+            boost::filesystem::path filePath = localePath / boost::filesystem::path(fileName).filename();
+
+            if (!boost::filesystem::exists(filePath))
+                if (ExtractFile(dbcFile, filePath.string()))
                 ++count;
 
+            SFileCloseFile(dbcFile);
+        } while (SFileFindNextFile(listFile, &foundFile));
+
+        SFileFindClose(listFile);
     }
 
-    printf("Extracted %u files\n\n", count);
+    printf("Extracted %u DB2 files\n\n", count);
 }
 
 void ExtractCameraFiles()
 {
     printf("Extracting camera files...\n");
 
-    if (!ReadCinematicCameraDBC())
-        return;
+    HANDLE dbcFile;
+    if (!SFileOpenFileEx(LocaleMpq, "DBFilesClient\\CinematicCamera.dbc", SFILE_OPEN_PATCHED_FILE, &dbcFile))
+    {
+        printf("Fatal error: Cannot find Map.dbc in archive!\n");
+        exit(1);
+    }
 
-    boost::filesystem::path outputPath = output_path / "cameras";
+    DBCFile camdbc(dbcFile);
+
+    if (!camdbc.open())
+    {
+        printf("Unable to open CinematicCamera.dbc. Camera extract aborted.\n");
+        return;
+    }
+
+    // get camera file list from DBC
+    std::vector<std::string> camerafiles;
+    size_t cam_count = camdbc.getRecordCount();
+
+    for (size_t i = 0; i < cam_count; ++i)
+    {
+        std::string camFile(camdbc.getRecord(i).getString(1));
+        size_t loc = camFile.find(".mdx");
+        if (loc != std::string::npos)
+            camFile.replace(loc, 4, ".m2");
+        camerafiles.push_back(std::string(camFile));
+    }
+    SFileCloseFile(dbcFile);
+
+    boost::filesystem::path outputPath = output_path / "Cameras";
 
     CreateDir(outputPath);
 
@@ -1307,174 +1239,200 @@ void ExtractCameraFiles()
 
     // extract M2s
     uint32 count = 0;
-    for (uint32 cameraFileDataId : CameraFileDataIds)
+    for (std::string const& thisFile : camerafiles)
     {
-        std::unique_ptr<CASC::File> cameraFile(CascStorage->OpenFile(cameraFileDataId, CASC_LOCALE_NONE));
-        if (cameraFile)
+        boost::filesystem::path filePath = outputPath / (thisFile.c_str() + strlen("Cameras\\"));
+
+        if (boost::filesystem::exists(filePath))
+            continue;
+
+        HANDLE dbcFile = nullptr;
+
+        if (!SFileOpenFileEx(WorldMpq, thisFile.c_str(), SFILE_OPEN_PATCHED_FILE, &dbcFile))
         {
-            boost::filesystem::path filePath = outputPath / Trinity::StringFormat("FILE{:08X}.xxx", cameraFileDataId);
-
-            if (!boost::filesystem::exists(filePath))
-                if (ExtractFile(cameraFile.get(), filePath.string()))
-                    ++count;
+            printf("Unable to open file %s in the archive\n", thisFile.c_str());
+            continue;
         }
-        else
-            printf("Unable to open file %u in the archive: %s\n", cameraFileDataId, CASC::HumanReadableCASCError(GetCascError()));
-    }
 
+        if (ExtractFile(dbcFile, filePath.string()))
+            ++count;
+
+        SFileCloseFile(dbcFile);
+    }
     printf("Extracted %u camera files\n", count);
 }
 
-void ExtractGameTables()
+bool LoadLocaleMPQFile(int locale)
 {
-    printf("Extracting game tables...\n");
-
-    boost::filesystem::path outputPath = output_path / "gt";
-
-    CreateDir(outputPath);
-
-    printf("output path %s\n", outputPath.string().c_str());
-
-    DB2FileInfo GameTables[] =
+    std::string fileName = Trinity::StringFormat("{}/Data/misc.MPQ", input_path.string(), Locales[locale], Locales[locale]);
+    if (!SFileOpenArchive(fileName.c_str(), 0, MPQ_OPEN_READ_ONLY, &LocaleMpq))
     {
-        { 1582086, "ArtifactKnowledgeMultiplier.txt" },
-        { 1391662, "ArtifactLevelXP.txt" },
-        { 1391663, "BarberShopCostBase.txt" },
-        { 1391664, "BaseMp.txt" },
-        { 4494528, "BaseProfessionRatings.txt" },
-        { 1391665, "BattlePetTypeDamageMod.txt" },
-        { 1391666, "BattlePetXP.txt" },
-        { 1391669, "CombatRatings.txt" },
-        { 1391670, "CombatRatingsMultByILvl.txt" },
-        { 1391671, "HonorLevel.txt" },
-        { 1391642, "HpPerSta.txt" },
-        { 2012881, "ItemLevelByLevel.txt" },
-        { 1726830, "ItemLevelSquish.txt" },
-        { 1391643, "ItemSocketCostPerLevel.txt" },
-        { 1391651, "NPCManaCostScaler.txt" },
-        { 4492239, "ProfessionRatings.txt" },
-        { 1391659, "SandboxScaling.txt" },
-        { 1391660, "SpellScaling.txt" },
-        { 1980632, "StaminaMultByILvl.txt" },
-        { 1391661, "xp.txt" }
-    };
-
-    uint32 count = 0;
-    for (DB2FileInfo const& gt : GameTables)
-    {
-        std::unique_ptr<CASC::File> dbcFile(CascStorage->OpenFile(gt.FileDataId, CASC_LOCALE_NONE));
-        if (dbcFile)
+        if (GetLastError() != ERROR_PATH_NOT_FOUND)
         {
-            boost::filesystem::path filePath = outputPath / gt.Name;
-
-            if (!boost::filesystem::exists(filePath))
-                if (ExtractFile(dbcFile.get(), filePath.string()))
-                    ++count;
+            printf("\nLoading %s locale MPQs\n", Locales[locale]);
+            printf("Cannot open archive %s\n", fileName.c_str());
         }
-        else
-            printf("Unable to open file %s in the archive: %s\n", gt.Name, CASC::HumanReadableCASCError(GetCascError()));
-    }
-
-    printf("Extracted %u files\n\n", count);
-}
-
-bool OpenCascStorage(int locale)
-{
-    try
-    {
-        if (CONF_UseRemoteCasc)
-        {
-            boost::filesystem::path const cache_dir(boost::filesystem::canonical(input_path) / "CascCache");
-            CascStorage.reset(CASC::Storage::OpenRemote(cache_dir, WowLocaleToCascLocaleFlags[locale], CONF_Product, CONF_Region));
-            if (CascStorage)
-                return true;
-
-            printf("Unable to open remote casc fallback to local casc\n");
-        }
-
-        boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
-        CascStorage.reset(CASC::Storage::Open(storage_dir, WowLocaleToCascLocaleFlags[locale], CONF_Product));
-        if (!CascStorage)
-        {
-            printf("error opening casc storage '%s' locale %s\n", storage_dir.string().c_str(), localeNames[locale]);
-            return false;
-        }
-
-        return true;
-    }
-    catch (std::exception const& error)
-    {
-        printf("Error opening CASC storage: %s\n", error.what());
         return false;
     }
-}
 
-uint32 GetInstalledLocalesMask()
-{
-    try
+    fileName = Trinity::StringFormat("{}/Data/{}/locale-{}.MPQ", input_path.string(), Locales[locale], Locales[locale]);
+    char const* prefix = "";
+    if (!SFileOpenPatchArchive(LocaleMpq, fileName.c_str(), prefix, 0))
     {
-        if (CONF_UseRemoteCasc)
+        if (GetLastError() != ERROR_PATH_NOT_FOUND)
         {
-            boost::filesystem::path const cache_dir(boost::filesystem::canonical(input_path) / "CascCache");
-            std::unique_ptr<CASC::Storage> storage(CASC::Storage::OpenRemote(cache_dir, CASC_LOCALE_ALL_WOW, CONF_Product, CONF_Region));
-            if (storage)
-                return CASC_LOCALE_ALL_WOW;
-
-            printf("Unable to open remote casc fallback to local casc\n");
+            printf("\nLoading %s locale MPQs\n", Locales[locale]);
+            printf("Cannot open archive %s\n", fileName.c_str());
         }
-
-        boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
-        std::unique_ptr<CASC::Storage> storage(CASC::Storage::Open(storage_dir, CASC_LOCALE_ALL_WOW, CONF_Product));
-        if (!storage)
-            return false;
-
-        return storage->GetInstalledLocalesMask();
-    }
-    catch (std::exception const& error)
-    {
-        printf("Unable to determine installed locales mask: %s\n", error.what());
+        return false;
     }
 
-    return 0;
-}
-
-static bool RetardCheck()
-{
-    if (CONF_UseRemoteCasc)
-        return true;
-
-    try
+    printf("\nLoading %s locale MPQs\n", Locales[locale]);
+    for (int i = 0; Builds[i] && Builds[i] <= CLIENT_BUILD; ++i)
     {
-        boost::filesystem::path storageDir(boost::filesystem::canonical(input_path) / "Data");
-        boost::filesystem::directory_iterator end;
-        for (boost::filesystem::directory_iterator itr(storageDir); itr != end; ++itr)
+        fileName.clear();
+
+        prefix = "";
+        fileName = Trinity::StringFormat("{}/Data/wow-update-base-{}.MPQ", input_path.string(), Builds[i]);
+
+        if (!SFileOpenPatchArchive(LocaleMpq, fileName.c_str(), prefix, 0))
         {
-            if (itr->path().extension() == ".MPQ")
-            {
-                printf("MPQ files found in Data directory!\n");
-                printf("This tool works only with World of Warcraft: Battle for Azeroth\n");
-                printf("\n");
-                printf("To extract maps for Wrath of the Lich King, rebuild tools using 3.3.5 branch!\n");
-                printf("\n");
-                printf("Press ENTER to exit...\n");
-                getchar();
-                return false;
-            }
+            if (GetLastError() != ERROR_FILE_NOT_FOUND)
+                printf("Cannot open patch archive %s\n", fileName.c_str());
+            continue;
         }
-    }
-    catch (std::exception const& error)
-    {
-        printf("Error checking client version: %s\n", error.what());
+        else
+            printf("Loaded %s\n", fileName.c_str());
     }
 
+    for (int i = 0; Builds[i] && Builds[i] <= CLIENT_BUILD; ++i)
+    {
+        fileName.clear();
+
+        prefix = "";
+        fileName = Trinity::StringFormat("{}/Data/{}/wow-update-{}-{}.MPQ", input_path.string(), Locales[locale], Locales[locale], Builds[i]);
+
+        if (!SFileOpenPatchArchive(LocaleMpq, fileName.c_str(), prefix, 0))
+        {
+            if (GetLastError() != ERROR_FILE_NOT_FOUND)
+                printf("Cannot open patch archive %s\n", fileName.c_str());
+            continue;
+        }
+        else
+            printf("Loaded %s\n", fileName.c_str());
+    }
+
+    for (int i = 0; Builds[i] && Builds[i] <= CLIENT_BUILD; ++i)
+    {
+        fileName.clear();
+
+        prefix = "";
+        fileName = Trinity::StringFormat("{}/Data/Cache/patch-base-{}.MPQ", input_path.string(), Builds[i]);
+
+        if (!SFileOpenPatchArchive(LocaleMpq, fileName.c_str(), prefix, 0))
+        {
+            if (GetLastError() != ERROR_FILE_NOT_FOUND)
+                printf("Cannot open patch archive %s\n", fileName.c_str());
+            continue;
+        }
+        else
+            printf("Loaded %s\n", fileName.c_str());
+    }
+
+    for (int i = 0; Builds[i] && Builds[i] <= CLIENT_BUILD; ++i)
+    {
+        fileName.clear();
+
+        prefix = "";
+        fileName = Trinity::StringFormat("{}/Data/Cache/{}/patch-{}-{}.MPQ", input_path.string(), Locales[locale], Locales[locale], Builds[i]);
+
+        if (!SFileOpenPatchArchive(LocaleMpq, fileName.c_str(), prefix, 0))
+        {
+            if (GetLastError() != ERROR_FILE_NOT_FOUND)
+                printf("Cannot open patch archive %s\n", fileName.c_str());
+            continue;
+        }
+        else
+            printf("Loaded %s\n", fileName.c_str());
+    }
+
+    printf("\n");
     return true;
+}
+
+void LoadCommonMPQFiles(uint32 build)
+{
+    std::string filename = Trinity::StringFormat("{}/Data/world.MPQ", input_path.string());
+    printf("Loading common MPQ files\n");
+    if (!SFileOpenArchive(filename.c_str(), 0, MPQ_OPEN_READ_ONLY, &WorldMpq))
+    {
+        if (GetLastError() != ERROR_PATH_NOT_FOUND)
+            printf("Cannot open archive %s\n", filename.c_str());
+        return;
+    }
+
+    int count = sizeof(CONF_mpq_list) / sizeof(char*);
+    for (int i = 1; i < count; ++i)
+    {
+        if (build < NEW_BASE_SET_BUILD)   // 4.3.2 and higher MPQ
+            continue;
+
+        filename = Trinity::StringFormat("{}/Data/{}", input_path.string(), CONF_mpq_list[i]);
+        if (!SFileOpenPatchArchive(WorldMpq, filename.c_str(), "", 0))
+        {
+            if (GetLastError() != ERROR_PATH_NOT_FOUND)
+                printf("Cannot open archive %s\n", filename.c_str());
+            else
+                printf("Not found %s\n", filename.c_str());
+        }
+        else
+            printf("Loaded %s\n", filename.c_str());
+
+    }
+
+    char const* prefix = nullptr;
+    for (int i = 0; Builds[i] && Builds[i] <= CLIENT_BUILD; ++i)
+    {
+        filename.clear();
+        prefix = "";
+        filename = Trinity::StringFormat("{}/Data/wow-update-base-{}.MPQ", input_path.string(), Builds[i]);
+
+        if (!SFileOpenPatchArchive(WorldMpq, filename.c_str(), prefix, 0))
+        {
+            if (GetLastError() != ERROR_PATH_NOT_FOUND)
+                printf("Cannot open patch archive %s\n", filename.c_str());
+            else
+                printf("Not found %s\n", filename.c_str());
+            continue;
+        }
+        else
+            printf("Loaded %s\n", filename.c_str());
+    }
+
+    for (int i = 0; Builds[i] && Builds[i] <= CLIENT_BUILD; ++i)
+    {
+        filename.clear();
+        prefix = "";
+        filename = Trinity::StringFormat("{}/Data/Cache/patch-base-{}.MPQ", input_path.string(), Builds[i]);
+
+        if (!SFileOpenPatchArchive(WorldMpq, filename.c_str(), prefix, 0))
+        {
+            if (GetLastError() != ERROR_PATH_NOT_FOUND)
+                printf("Cannot open patch archive %s\n", filename.c_str());
+            else
+                printf("Not found %s\n", filename.c_str());
+            continue;
+        }
+        else
+            printf("Loaded %s\n", filename.c_str());
+    }
+
+    printf("\n");
 }
 
 int main(int argc, char * arg[])
 {
     Trinity::VerifyOsVersion();
-
-    Trinity::Locale::Init();
 
     Trinity::Banner::Show("Map & DBC Extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
@@ -1484,58 +1442,60 @@ int main(int argc, char * arg[])
 
     HandleArgs(argc, arg);
 
-    if (!RetardCheck())
-        return 1;
-
-    uint32 installedLocalesMask = GetInstalledLocalesMask();
     int32 firstInstalledLocale = -1;
     uint32 build = 0;
 
-    for (int i = 0; i < TOTAL_LOCALES; ++i)
+    for (int i = 0; i < LOCALES_COUNT; ++i)
     {
-        if (CONF_Locale && !(CONF_Locale & (1 << i)))
-            continue;
-
-        if (i == LOCALE_none)
-            continue;
-
-        if (!(installedLocalesMask & WowLocaleToCascLocaleFlags[i]))
-            continue;
-
-        if (!OpenCascStorage(i))
-            continue;
-
-        if ((CONF_extract & EXTRACT_DBC) == 0)
+        std::string filename = Trinity::StringFormat("{}/Data/{}/locale-{}.MPQ", input_path.string(), Locales[i], Locales[i]);
+        if (boost::filesystem::exists(filename))
         {
-            firstInstalledLocale = i;
-            build = CascStorage->GetBuildNumber();
-            if (!build)
+            printf("Detected locale: %s\n", Locales[i]);
+
+            //Open MPQs
+            if (!LoadLocaleMPQFile(i))
             {
-                CascStorage.reset();
+                if (GetLastError() != ERROR_PATH_NOT_FOUND)
+                    printf("Unable to load %s locale archives!\n", Locales[i]);
                 continue;
             }
 
-            printf("Detected client build: %u\n\n", build);
-            break;
+            if ((CONF_extract & EXTRACT_DBC) == 0)
+            {
+                firstInstalledLocale = i;
+                build = ReadBuild(i);
+                if (build > CLIENT_BUILD)
+                {
+                    printf("Base locale-%s.MPQ has build higher than target build (%u > %u), nothing extracted!\n", Locales[i], build, uint32(CLIENT_BUILD));
+                    return 0;
+                }
+
+                printf("Detected client build: %u\n", build);
+                break;
+            }
+
+            uint32 tempBuild = ReadBuild(i);
+            printf("Detected client build %u for locale %s\n", tempBuild, Locales[i]);
+            if (tempBuild > CLIENT_BUILD)
+            {
+                SFileCloseArchive(LocaleMpq);
+                printf("Base locale-%s.MPQ has build higher than target build (%u > %u), nothing extracted!\n", Locales[i], build, uint32(CLIENT_BUILD));
+                return 0;
+            }
+
+            ExtractDBCFiles(i);
+            ExtractDB2Files(i);
+
+            if (firstInstalledLocale < 0)
+            {
+                firstInstalledLocale = i;
+                build = tempBuild;
+            }
+
+            //Close MPQs
+            SFileCloseArchive(LocaleMpq);
         }
 
-        //Extract DBC files
-        uint32 tempBuild = CascStorage->GetBuildNumber();
-        if (!tempBuild)
-        {
-            CascStorage.reset();
-            continue;
-        }
-
-        printf("Detected client build %u for locale %s\n\n", tempBuild, localeNames[i]);
-        ExtractDBFilesClient(i);
-        CascStorage.reset();
-
-        if (firstInstalledLocale < 0)
-        {
-            firstInstalledLocale = i;
-            build = tempBuild;
-        }
     }
 
     if (firstInstalledLocale < 0)
@@ -1546,23 +1506,34 @@ int main(int argc, char * arg[])
 
     if (CONF_extract & EXTRACT_CAMERA)
     {
-        OpenCascStorage(firstInstalledLocale);
-        ExtractCameraFiles();
-        CascStorage.reset();
-    }
+        printf("Using locale: %s\n", Locales[firstInstalledLocale]);
 
-    if (CONF_extract & EXTRACT_GT)
-    {
-        OpenCascStorage(firstInstalledLocale);
-        ExtractGameTables();
-        CascStorage.reset();
+        // Open MPQs
+        LoadLocaleMPQFile(firstInstalledLocale);
+        LoadCommonMPQFiles(build);
+
+        // Extract cameras
+        ExtractCameraFiles();
+
+        // Close MPQs
+        SFileCloseArchive(WorldMpq);
+        SFileCloseArchive(LocaleMpq);
     }
 
     if (CONF_extract & EXTRACT_MAP)
     {
-        OpenCascStorage(firstInstalledLocale);
-        ExtractMaps(build);
-        CascStorage.reset();
+        printf("Using locale: %s\n", Locales[firstInstalledLocale]);
+
+        // Open MPQs
+        LoadLocaleMPQFile(firstInstalledLocale);
+        LoadCommonMPQFiles(build);
+
+        // Extract maps
+        ExtractMapsFromMpq(build);
+
+        // Close MPQs
+        SFileCloseArchive(WorldMpq);
+        SFileCloseArchive(LocaleMpq);
     }
 
     return 0;

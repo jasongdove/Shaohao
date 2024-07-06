@@ -18,7 +18,7 @@
 #include "WorldSession.h"
 #include "Battleground.h"
 #include "Corpse.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "FlightPathMovementGenerator.h"
 #include "GameTime.h"
 #include "Garrison.h"

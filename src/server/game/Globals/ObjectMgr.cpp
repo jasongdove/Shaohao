@@ -27,6 +27,7 @@
 #include "CriteriaHandler.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DisableMgr.h"
 #include "GameObject.h"
 #include "GameObjectAIFactory.h"
@@ -2316,7 +2317,7 @@ void ObjectMgr::LoadCreatures()
 
         if (data.phaseGroup)
         {
-            if (!sDB2Manager.GetPhasesForGroup(data.phaseGroup))
+            if (!sDBCManager.GetPhasesForGroup(data.phaseGroup))
             {
                 TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: {} Entry: {}) with `phasegroup` {} does not exist, set to 0", guid, data.id, data.phaseGroup);
                 data.phaseGroup = 0;
@@ -2628,7 +2629,7 @@ void ObjectMgr::LoadGameObjects()
 
         if (data.phaseGroup)
         {
-            if (!sDB2Manager.GetPhasesForGroup(data.phaseGroup))
+            if (!sDBCManager.GetPhasesForGroup(data.phaseGroup))
             {
                 TC_LOG_ERROR("sql.sql", "Table `gameobject` have gameobject (GUID: {} Entry: {}) with `phaseGroup` {} does not exist, set to 0", guid, data.id, data.phaseGroup);
                 data.phaseGroup = 0;
@@ -3278,7 +3279,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.ItemSpecClassMask = 0;
         itemTemplate.QuestLogItemId = 0;
 
-        if (std::vector<ItemSpecOverrideEntry const*> const* itemSpecOverrides = sDB2Manager.GetItemSpecOverrides(sparse->ID))
+        if (std::vector<ItemSpecOverrideEntry const*> const* itemSpecOverrides = sDBCManager.GetItemSpecOverrides(sparse->ID))
         {
             for (ItemSpecOverrideEntry const* itemSpecOverride : *itemSpecOverrides)
             {
@@ -4325,7 +4326,9 @@ void ObjectMgr::LoadPlayerInfo()
     {
         uint32 oldMSTime = getMSTime();
 
-        _playerXPperLevel.resize(sXpGameTable.GetTableRowCount(), 0);
+        // Shaohao: MOP doesn't have sXpGameTable
+        uint32 levelCount = std::max(sXpGameTable.GetTableRowCount(), sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
+        _playerXPperLevel.resize(levelCount, 0);
 
         //                                               0      1
         QueryResult result = WorldDatabase.Query("SELECT Level, Experience FROM player_xp_for_level");
@@ -6709,7 +6712,7 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
 
 void ObjectMgr::GetTaxiPath(uint32 source, uint32 destination, uint32 &path, uint32 &cost)
 {
-    TaxiPathEntry const* taxiPath = sDB2Manager.GetTaxiPath(source, destination);
+    TaxiPathEntry const* taxiPath = sDBCManager.GetTaxiPath(source, destination);
     if (taxiPath)
     {
         path = taxiPath->ID;
@@ -7246,7 +7249,7 @@ void ObjectMgr::LoadAccessRequirements()
         }
 
         uint32 difficulty = fields[1].GetUInt8();
-        if (!sDB2Manager.GetMapDifficultyData(mapid, Difficulty(difficulty)))
+        if (!sDBCManager.GetMapDifficultyData(mapid, Difficulty(difficulty)))
         {
             TC_LOG_ERROR("sql.sql", "Map {} referenced in `access_requirement` does not have difficulty {}, skipped", mapid, difficulty);
             continue;
@@ -8093,7 +8096,7 @@ std::string ObjectMgr::GeneratePetName(uint32 entry)
         if (!cinfo)
             return std::string();
 
-        char const* petname = DB2Manager::GetCreatureFamilyPetName(cinfo->family, sWorld->GetDefaultDbcLocale());
+        char const* petname = DBCManager::GetCreatureFamilyPetName(cinfo->family, sWorld->GetDefaultDbcLocale());
         if (petname)
             return std::string(petname);
         else
@@ -8797,7 +8800,7 @@ ResponseCodes ObjectMgr::CheckPlayerName(std::string_view name, LocaleConstant l
         if (wname[i] == wname[i-1] && wname[i] == wname[i-2])
             return CHAR_NAME_THREE_CONSECUTIVE;
 
-    return sDB2Manager.ValidateName(wname, locale);
+    return sDBCManager.ValidateName(wname, locale);
 }
 
 bool ObjectMgr::IsValidCharterName(std::string_view name)
@@ -10526,7 +10529,7 @@ bool PhaseInfoStruct::IsAllowedInArea(uint32 areaId) const
 {
     return std::any_of(Areas.begin(), Areas.end(), [areaId](uint32 areaToCheck)
     {
-        return DB2Manager::IsInArea(areaId, areaToCheck);
+        return DBCManager::IsInArea(areaId, areaToCheck);
     });
 }
 

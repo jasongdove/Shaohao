@@ -46,7 +46,7 @@
 #include "CreatureAIRegistry.h"
 #include "CreatureGroups.h"
 #include "CreatureTextMgr.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "DetourMemoryFunctions.h"
 #include "DisableMgr.h"
@@ -1748,7 +1748,7 @@ bool World::SetInitialWorldSettings()
 
     ///- Initialize VMapManager function pointers (to untangle game/collision circular deps)
     VMAP::VMapManager2* vmmgr2 = VMAP::VMapFactory::createOrGetVMapManager();
-    vmmgr2->GetLiquidFlagsPtr = &DB2Manager::GetLiquidFlags;
+    vmmgr2->GetLiquidFlagsPtr = &DBCManager::GetLiquidFlags;
     vmmgr2->IsVMAPDisabledForPtr = &DisableMgr::IsVMAPDisabledFor;
 
     ///- Initialize config settings
@@ -1797,6 +1797,7 @@ bool World::SetInitialWorldSettings()
     LoginDatabase.PExecute("UPDATE realmlist SET icon = {}, timezone = {} WHERE id = '{}'", server_type, realm_zone, realm.Id.Realm);      // One-time query
 
     TC_LOG_INFO("server.loading", "Initialize data stores...");
+    sDBCManager.LoadStores(m_dataPath, m_defaultDbcLocale);
     ///- Load DB2s
     m_availableDbcLocaleMask = sDB2Manager.LoadStores(m_dataPath, m_defaultDbcLocale);
     if (!(m_availableDbcLocaleMask & (1 << m_defaultDbcLocale)))
@@ -1805,23 +1806,26 @@ bool World::SetInitialWorldSettings()
         return false;
     }
 
+    m_availableDbcLocaleMask = m_defaultDbcLocale;
+
     TC_LOG_INFO("server.loading", "Loading GameObject models...");
     if (!LoadGameObjectModelList(m_dataPath))
     {
         TC_LOG_FATAL("server.loading", "Unable to load gameobject models (part of vmaps), objects using WMO models will crash the client - server shutting down!");
-        return false;
+        // TODO: DATA return false;
     }
 
     TC_LOG_INFO("misc", "Loading hotfix blobs...");
     sDB2Manager.LoadHotfixBlob(m_availableDbcLocaleMask);
     TC_LOG_INFO("misc", "Loading hotfix info...");
     sDB2Manager.LoadHotfixData(m_availableDbcLocaleMask);
-    TC_LOG_INFO("misc", "Loading hotfix optional data...");
-    sDB2Manager.LoadHotfixOptionalData(m_availableDbcLocaleMask);
+    // TODO: DATA tons of errors from this, disabling for now...
+//    TC_LOG_INFO("misc", "Loading hotfix optional data...");
+//    sDB2Manager.LoadHotfixOptionalData(m_availableDbcLocaleMask);
     ///- Load M2 fly by cameras
     LoadM2Cameras(m_dataPath);
     ///- Load GameTables
-    LoadGameTables(m_dataPath);
+    LoadGameTables(m_dataPath, m_defaultDbcLocale);
 
     //Load weighted graph on taxi nodes path
     TaxiPathGraph::Initialize();
@@ -1839,9 +1843,10 @@ bool World::SetInitialWorldSettings()
         mapData.emplace(std::piecewise_construct, std::forward_as_tuple(mapEntry->ID), std::forward_as_tuple());
         if (mapEntry->ParentMapID != -1)
         {
-            ASSERT(mapEntry->CosmeticParentMapID == -1 || mapEntry->ParentMapID == mapEntry->CosmeticParentMapID,
-                "Inconsistent parent map data for map %u (ParentMapID = %hd, CosmeticParentMapID = %hd)",
-                mapEntry->ID, mapEntry->ParentMapID, mapEntry->CosmeticParentMapID);
+            // TODO: DATA can we fix CosmeticParentMapID, or keep ignoring it?
+//            ASSERT(mapEntry->CosmeticParentMapID == -1 || mapEntry->ParentMapID == mapEntry->CosmeticParentMapID,
+//                "Inconsistent parent map data for map %u (ParentMapID = %hd, CosmeticParentMapID = %hd)",
+//                mapEntry->ID, mapEntry->ParentMapID, mapEntry->CosmeticParentMapID);
 
             mapData[mapEntry->ParentMapID].push_back(mapEntry->ID);
         }

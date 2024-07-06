@@ -26,6 +26,7 @@
 #include "CreatureAISelector.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "G3DPosition.hpp"
 #include "GameEventSender.h"
 #include "GameObjectAI.h"
@@ -1062,7 +1063,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     SetGoState(goState);
     SetGoArtKit(artKit);
 
-    SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::SpawnTrackingStateAnimID), sDB2Manager.GetEmptyAnimStateID());
+    SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::SpawnTrackingStateAnimID), sDBCManager.GetEmptyAnimStateID());
 
     switch (goInfo->type)
     {

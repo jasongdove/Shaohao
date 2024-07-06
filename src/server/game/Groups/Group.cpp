@@ -20,7 +20,7 @@
 #include "BattlegroundMgr.h"
 #include "CharacterCache.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Formulas.h"
 #include "GameObject.h"
 #include "GameTime.h"
@@ -1360,7 +1360,7 @@ Difficulty Group::GetDifficultyID(MapEntry const* mapEntry) const
     if (!mapEntry->IsRaid())
         return m_dungeonDifficulty;
 
-    MapDifficultyEntry const* defaultDifficulty = sDB2Manager.GetDefaultMapDifficulty(mapEntry->ID);
+    MapDifficultyEntry const* defaultDifficulty = sDBCManager.GetDefaultMapDifficulty(mapEntry->ID);
     if (!defaultDifficulty)
         return m_legacyRaidDifficulty;
 

@@ -29,7 +29,7 @@
 #include "ConditionMgr.h"
 #include "Containers.h"
 #include "CreatureAI.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "DynamicObject.h"

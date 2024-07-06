@@ -20,7 +20,7 @@
 #include "AreaTriggerTemplate.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Log.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"

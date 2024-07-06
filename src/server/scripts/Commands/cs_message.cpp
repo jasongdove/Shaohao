@@ -29,7 +29,7 @@ EndScriptData */
 #include "Channel.h"
 #include "ChannelMgr.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Language.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -84,7 +84,7 @@ public:
             if (!entry)
                 continue;
 
-            if (StringContainsStringI(entry->AreaName[handler->GetSessionDbcLocale()], channelName))
+            if (StringContainsStringI(entry->AreaName(handler->GetSessionDbcLocale()), channelName))
             {
                 zoneEntry = entry;
                 break;

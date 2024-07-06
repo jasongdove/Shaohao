@@ -17,6 +17,7 @@
 
 #include "Hyperlinks.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Item.h"
 #include "ItemBonusMgr.h"
 #include "ObjectMgr.h"
@@ -266,7 +267,7 @@ bool Trinity::Hyperlinks::LinkTags::instancelock::StoreTo(InstanceLockLinkData& 
     if (!t.TryConsumeTo(mapId))
         return false;
     return !!(val.Map = sMapStore.LookupEntry(mapId))
-        && t.TryConsumeTo(val.Difficulty) && sDB2Manager.GetMapDifficultyData(mapId, Difficulty(val.Difficulty))
+        && t.TryConsumeTo(val.Difficulty) && sDBCManager.GetMapDifficultyData(mapId, Difficulty(val.Difficulty))
         && t.TryConsumeTo(val.CompletedEncountersMask) && t.IsEmpty();
 }
 
@@ -374,7 +375,7 @@ bool Trinity::Hyperlinks::LinkTags::journal::StoreTo(JournalLinkData& val, std::
         }
         case JournalLinkData::Types::Tier:
         {
-            JournalTierEntry const* tier = sDB2Manager.GetJournalTier(id);
+            JournalTierEntry const* tier = sDBCManager.GetJournalTier(id);
             if (!tier)
                 return false;
             val.ExpectedText = &tier->Name;

@@ -28,7 +28,7 @@ EndScriptData */
 #include "Chat.h"
 #include "ChatCommand.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -536,7 +536,7 @@ public:
         {
             FactionState const& faction = itr->second;
             FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction.ID);
-            char const* factionName = factionEntry ? factionEntry->Name[loc] : "#Not found#";
+            char const* factionName = factionEntry ? factionEntry->Name(loc) : "#Not found#";
             std::string rankName = target->GetReputationMgr().GetReputationRankName(factionEntry);
             std::ostringstream ss;
             if (handler->GetSession())

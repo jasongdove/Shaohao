@@ -21,6 +21,7 @@
 #include "ConversationDataStore.h"
 #include "CreatureTextMgr.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "GameEventMgr.h"
 #include "InstanceScript.h"
@@ -2130,7 +2131,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             }
 
-            if (!sDB2Manager.GetPhasesForGroup(phaseGroup))
+            if (!sDBCManager.GetPhasesForGroup(phaseGroup))
             {
                 TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SET_INGAME_PHASE_GROUP uses invalid phase group id {} for creature {}, skipped", phaseGroup, e.entryOrGuid);
                 return false;

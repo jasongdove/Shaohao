@@ -38,7 +38,7 @@
 #include "CreatureAIImpl.h"
 #include "CreatureAIFactory.h"
 #include "CreatureGroups.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Formulas.h"
 #include "GameObjectAI.h"
 #include "GameTime.h"
@@ -8168,7 +8168,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
             GetMap()->GetEntry()->ParentMapID != mountCapability->ReqMapID)
             continue;
 
-        if (mountCapability->ReqAreaID && !DB2Manager::IsInArea(areaId, mountCapability->ReqAreaID))
+        if (mountCapability->ReqAreaID && !DBCManager::IsInArea(areaId, mountCapability->ReqAreaID))
             continue;
 
         if (mountCapability->ReqSpellAuraID && !HasAura(mountCapability->ReqSpellAuraID))
@@ -12133,9 +12133,10 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
         }
     }
 
+    // TODO: DATA fix this? only one CreatureDisplayID on master, 4 on MOP
     SpellShapeshiftFormEntry const* formEntry = sSpellShapeshiftFormStore.LookupEntry(form);
-    if (formEntry && formEntry->CreatureDisplayID)
-        return formEntry->CreatureDisplayID;
+    if (formEntry && formEntry->CreatureDisplayID[0])
+        return formEntry->CreatureDisplayID[0];
 
     return 0;
 }
@@ -13798,7 +13799,7 @@ void Unit::ClearBossEmotes(Optional<uint32> zoneId, Player const* target) const
     }
 
     for (MapReference const& ref : GetMap()->GetPlayers())
-        if (!zoneId || DB2Manager::IsInArea(ref.GetSource()->GetAreaId(), *zoneId))
+        if (!zoneId || DBCManager::IsInArea(ref.GetSource()->GetAreaId(), *zoneId))
             ref.GetSource()->SendDirectMessage(clearBossEmotes.GetRawPacket());
 }
 

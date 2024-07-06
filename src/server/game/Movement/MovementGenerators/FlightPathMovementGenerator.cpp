@@ -16,7 +16,7 @@
  */
 
 #include "FlightPathMovementGenerator.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GameEventSender.h"
 #include "Log.h"
 #include "Map.h"

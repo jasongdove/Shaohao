@@ -22,6 +22,7 @@
 #include "Bag.h"
 #include "BattlePetMgr.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "CharacterCache.h"
 #include "CollectionMgr.h"
 #include "Common.h"

@@ -16,6 +16,7 @@
  */
 
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "World.h"
 #include "ItemTemplate.h"
 #include "Player.h"
@@ -188,7 +189,7 @@ uint32 ItemTemplate::GetArmor(uint32 itemLevel) const
                 break;
         }
 
-        return uint32(armorQuality->Qualitymod[quality] * total * locationModifier + 0.5f);
+        return uint32(armorQuality->QualityMod[quality] * total * locationModifier + 0.5f);
     }
 
     // shields

@@ -21,7 +21,7 @@
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GameEventSender.h"
 #include "GameObject.h"
 #include "Group.h"

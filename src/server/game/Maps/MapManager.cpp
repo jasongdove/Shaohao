@@ -21,7 +21,7 @@
 #include "CharacterCache.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GarrisonMap.h"
 #include "Group.h"
 #include "InstanceLockMgr.h"
@@ -97,10 +97,10 @@ InstanceMap* MapManager::CreateInstance(uint32 mapId, uint32 instanceId, Instanc
     }
 
     // some instances only have one difficulty
-    sDB2Manager.GetDownscaledMapDifficultyData(mapId, difficulty);
+    sDBCManager.GetDownscaledMapDifficultyData(mapId, difficulty);
 
     TC_LOG_DEBUG("maps", "MapInstanced::CreateInstance: {}map instance {} for {} created with difficulty {}",
-        instanceLock && instanceLock->IsNew() ? "" : "new ", instanceId, mapId, sDifficultyStore.AssertEntry(difficulty)->Name[sWorld->GetDefaultDbcLocale()]);
+        instanceLock && instanceLock->IsNew() ? "" : "new ", instanceId, mapId, sDifficultyStore.AssertEntry(difficulty)->Name(sWorld->GetDefaultDbcLocale()));
 
     InstanceMap* map = new InstanceMap(mapId, i_gridCleanUpDelay, instanceId, difficulty, team, instanceLock);
     ASSERT(map->IsDungeon());
@@ -188,7 +188,7 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player)
     {
         Group* group = player->GetGroup();
         Difficulty difficulty = group ? group->GetDifficultyID(entry) : player->GetDifficultyID(entry);
-        MapDb2Entries entries{ entry, sDB2Manager.GetDownscaledMapDifficultyData(mapId, difficulty) };
+        MapDb2Entries entries{ entry, sDBCManager.GetDownscaledMapDifficultyData(mapId, difficulty) };
         ObjectGuid instanceOwnerGuid = group ? group->GetRecentInstanceOwner(mapId) : player->GetGUID();
         InstanceLock* instanceLock = sInstanceLockMgr.FindActiveInstanceLock(instanceOwnerGuid, entries);
         if (instanceLock)
@@ -285,7 +285,7 @@ uint32 MapManager::FindInstanceIdForPlayer(uint32 mapId, Player const* player) c
     {
         Group const* group = player->GetGroup();
         Difficulty difficulty = group ? group->GetDifficultyID(entry) : player->GetDifficultyID(entry);
-        MapDb2Entries entries{ entry, sDB2Manager.GetDownscaledMapDifficultyData(mapId, difficulty) };
+        MapDb2Entries entries{ entry, sDBCManager.GetDownscaledMapDifficultyData(mapId, difficulty) };
         ObjectGuid instanceOwnerGuid = group ? group->GetRecentInstanceOwner(mapId) : player->GetGUID();
         InstanceLock* instanceLock = sInstanceLockMgr.FindActiveInstanceLock(instanceOwnerGuid, entries);
         uint32 newInstanceId = 0;

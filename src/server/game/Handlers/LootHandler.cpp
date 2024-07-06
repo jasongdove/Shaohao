@@ -21,7 +21,7 @@
 #include "Containers.h"
 #include "Corpse.h"
 #include "Creature.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GameObject.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"

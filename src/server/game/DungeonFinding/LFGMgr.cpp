@@ -18,6 +18,7 @@
 #include "LFGMgr.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
 #include "GameTime.h"
@@ -200,7 +201,7 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
         if (!dungeon)
             continue;
 
-        if (!sDB2Manager.GetMapDifficultyData(dungeon->MapID, Difficulty(dungeon->DifficultyID)))
+        if (!sDBCManager.GetMapDifficultyData(dungeon->MapID, Difficulty(dungeon->DifficultyID)))
             continue;
 
         switch (dungeon->TypeID)
@@ -1937,7 +1938,7 @@ uint8 LFGMgr::FilterClassRoles(Player* player, uint8 roles)
 {
     uint8 allowedRoles = PLAYER_ROLE_LEADER;
     for (uint32 i = 0; i < MAX_SPECIALIZATIONS; ++i)
-        if (ChrSpecializationEntry const* specialization = sDB2Manager.GetChrSpecializationByIndex(player->GetClass(), i))
+        if (ChrSpecializationEntry const* specialization = sDBCManager.GetChrSpecializationByIndex(player->GetClass(), i))
             allowedRoles |= 1 << (specialization->Role + 1);
 
     return roles & allowedRoles;

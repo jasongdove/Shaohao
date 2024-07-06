@@ -23,7 +23,7 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Item.h"
 #include "Log.h"
 #include "ObjectAccessor.h"

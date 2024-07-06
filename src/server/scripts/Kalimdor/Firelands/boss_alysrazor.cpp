@@ -18,7 +18,7 @@
 #include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "Containers.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "firelands.h"
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"

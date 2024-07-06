@@ -16,7 +16,7 @@
  */
 
 #include "TaxiPathGraph.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -65,8 +65,8 @@ std::unordered_map<uint32, vertex_descriptor> m_verticesByNode;
 
 void GetTaxiMapPosition(DBCPosition3D const& position, int32 mapId, DBCPosition2D* uiMapPosition, int32* uiMapId)
 {
-    if (!DB2Manager::GetUiMapPosition(position.X, position.Y, position.Z, mapId, 0, 0, 0, UI_MAP_SYSTEM_ADVENTURE, false, uiMapId, uiMapPosition))
-        DB2Manager::GetUiMapPosition(position.X, position.Y, position.Z, mapId, 0, 0, 0, UI_MAP_SYSTEM_TAXI, false, uiMapId, uiMapPosition);
+    if (!DBCManager::GetUiMapPosition(position.X, position.Y, position.Z, mapId, 0, 0, 0, UI_MAP_SYSTEM_ADVENTURE, false, uiMapId, uiMapPosition))
+        DBCManager::GetUiMapPosition(position.X, position.Y, position.Z, mapId, 0, 0, 0, UI_MAP_SYSTEM_TAXI, false, uiMapId, uiMapPosition);
 }
 
 vertex_descriptor CreateVertexFromFromNodeInfoIfNeeded(TaxiNodesEntry const* node)

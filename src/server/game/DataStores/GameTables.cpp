@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "DBCfmt.h"
+#include "DBCStores.h"
 #include "GameTables.h"
 #include "ItemTemplate.h"
 #include "Timer.h"
@@ -25,124 +27,136 @@
 #include <fstream>
 #include <sstream>
 
-GameTable<GtArtifactKnowledgeMultiplierEntry>   sArtifactKnowledgeMultiplierGameTable;
-GameTable<GtArtifactLevelXPEntry>               sArtifactLevelXPGameTable;
-GameTable<GtBarberShopCostBaseEntry>            sBarberShopCostBaseGameTable;
-GameTable<GtBaseMPEntry>                        sBaseMPGameTable;
-GameTable<GtBattlePetXPEntry>                   sBattlePetXPGameTable;
-GameTable<GtCombatRatingsEntry>                 sCombatRatingsGameTable;
-GameTable<GtCombatRatingsMultByILvl>            sCombatRatingsMultByILvlGameTable;
-GameTable<GtHpPerStaEntry>                      sHpPerStaGameTable;
-GameTable<GtItemSocketCostPerLevelEntry>        sItemSocketCostPerLevelGameTable;
-GameTable<GtNpcManaCostScalerEntry>             sNpcManaCostScalerGameTable;
-GameTable<GtSpellScalingEntry>                  sSpellScalingGameTable;
-GameTable<GtStaminaMultByILvl>                  sStaminaMultByILvlGameTable;
-GameTable<GtXpEntry>                            sXpGameTable;
+
+// TODO: DATA UNAVAILABLE IN MOP
+GameTable<GtArtifactKnowledgeMultiplierEntry>    sArtifactKnowledgeMultiplierGameTable("");
+GameTable<GtArtifactLevelXPEntry>                sArtifactLevelXPGameTable("");
+GameTable<GtBaseMPEntry>                         sBaseMPGameTable("");
+GameTable<GtCombatRatingsMultByILvl>             sCombatRatingsMultByILvlGameTable("");
+GameTable<GtHpPerStaEntry>                       sHpPerStaGameTable("");
+GameTable<GtStaminaMultByILvl>                   sStaminaMultByILvlGameTable("");
+GameTable<GtXpEntry>                             sXpGameTable("");
+
+
+
+GameTable<GtBarberShopCostBaseEntry>             sBarberShopCostBaseGameTable(GtBarberShopCostBasefmt);
+GameTable<GtBattlePetXPEntry>                    sBattlePetXPGameTable("");
+GameTable<GtChanceToMeleeCritBaseEntry>          sChanceToMeleeCritBaseGameTable(GtChanceToMeleeCritBasefmt);
+GameTable<GtChanceToMeleeCritEntry>              sChanceToMeleeCritGameTable(GtChanceToMeleeCritfmt);
+GameTable<GtChanceToSpellCritBaseEntry>          sChanceToSpellCritBaseGameTable(GtChanceToSpellCritBasefmt);
+GameTable<GtChanceToSpellCritEntry>              sChanceToSpellCritGameTable(GtChanceToSpellCritfmt);
+GameTable<GtCombatRatingsEntry>                  sCombatRatingsGameTable(GtCombatRatingsfmt);
+GameTable<GtItemSocketCostPerLevelEntry>         sItemSocketCostPerLevelGameTable(GtItemSocketCostPerLevelfmt);
+GameTable<GtNpcManaCostScalerEntry>              sNpcManaCostScalerGameTable(GtNPCManaCostScalerfmt);
+GameTable<GtRegenMPPerSptEntry>                  sRegenMPPerSptGameTable(GtRegenMPPerSptfmt);
+GameTable<GtSpellScalingEntry>                   sSpellScalingGameTable(GtSpellScalingfmt);
+
+typedef std::list<std::string> StoreProblemList;
+uint32 GameTableCount = 0;
 
 template<class T>
-inline uint32 LoadGameTable(std::vector<std::string>& errors, GameTable<T>& storage, boost::filesystem::path const& path)
+inline void LoadGameTable(StoreProblemList& errors, std::string const& tableName, GameTable<T>& storage, std::string const& dbcPath, std::string const& filename)
 {
-    std::ifstream stream(path.string());
-    if (!stream)
+    // compatibility format and C++ structure sizes
+    ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T),
+           "Size of '%s' set by format string (%u) not equal size of C++ structure (%u).",
+           filename.c_str(), DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), uint32(sizeof(T)));
+
+    ++GameTableCount;
+    std::string dbcFilename = dbcPath + filename;
+
+    if (storage.Load(dbcFilename.c_str()))
     {
-        errors.push_back(Trinity::StringFormat("GameTable file {} cannot be opened.", path.string()));
-        return 0;
-    }
+        bool found = false;
+        // Find table definition in GameTables.dbc
+        for (uint32 i = 0; i < sGameTablesStore.GetNumRows(); ++i)
+        {
+            GameTablesEntry const* gt = sGameTablesStore.LookupEntry(i);
+            if (!gt)
+                continue;
 
-    std::string headers;
-    if (!std::getline(stream, headers))
+            if (tableName == gt->Name)
+            {
+                found = true;
+                storage.SetGameTableEntry(gt);
+                break;
+            }
+        }
+
+        ASSERT(found, "Game table %s definition not found in GameTables.dbc", tableName.c_str());
+    }
+    else
     {
-        errors.push_back(Trinity::StringFormat("GameTable file {} is empty.", path.string()));
-        return 0;
+        // sort problematic dbc to (1) non compatible and (2) non-existed
+        if (FILE* f = fopen(dbcFilename.c_str(), "rb"))
+        {
+            std::ostringstream stream;
+            stream << dbcFilename << " exists, and has " << storage.GetFieldCount() << " field(s) (expected " << strlen(storage.GetFormat()) << "). Extracted file might be from wrong client version or a database-update has been forgotten.";
+            std::string buf = stream.str();
+            errors.push_back(buf);
+            fclose(f);
+        }
+        else
+            errors.push_back(dbcFilename);
     }
-
-    std::vector<std::string_view> columnDefs = Trinity::Tokenize(headers, '\t', false);
-
-    ASSERT(columnDefs.size() - 1 == sizeof(T) / sizeof(float),
-        "GameTable '%s' has different count of columns " SZFMTD " than expected by size of C++ structure (" SZFMTD ").",
-        path.string().c_str(), columnDefs.size() - 1, sizeof(T) / sizeof(float));
-
-    std::vector<T> data;
-    data.emplace_back(); // row id 0, unused
-
-    std::string line;
-    while (std::getline(stream, line))
-    {
-        RemoveCRLF(line); // file extracted from client will always have CRLF line endings, on linux opening file in text mode will not work, manually erase \r
-        std::vector<std::string_view> values = Trinity::Tokenize(line, '\t', true);
-        if (values.empty())
-            break;
-
-        // make end point just after last nonempty token
-        auto end = values.begin() + values.size() - 1;
-        while (end->empty() && end != values.begin())
-            --end;
-
-        if (values.begin() == end)
-            break;
-
-        ++end;
-
-        ASSERT(std::size_t(std::distance(values.begin(), end)) == columnDefs.size(), SZFMTD " == " SZFMTD, std::size_t(std::distance(values.begin(), end)), columnDefs.size());
-
-        // client ignores id column - CombatRatings has copypasted rows for levels > 110
-        //ASSERT(Trinity::StringTo<int32>(values[0], 10) == data.size(),
-        //    "Unexpected row identifier %d at row " SZFMTD " (expected " SZFMTD ")",
-        //    Trinity::StringTo<int32>(values[0], 10).value_or(0), data.size(), data.size());
-
-        data.emplace_back();
-        float* row = reinterpret_cast<float*>(&data.back());
-        for (auto itr = values.begin() + 1; itr != end; ++itr)
-            *row++ = Trinity::StringTo<float>(*itr, 10).value_or(0.0f);
-    }
-
-    storage.SetData(std::move(data));
-    return 1;
 }
 
-void LoadGameTables(std::string const& dataPath)
+void LoadGameTables(std::string const& dataPath, uint32 defaultLocale)
 {
     uint32 oldMSTime = getMSTime();
 
-    boost::filesystem::path gtPath(dataPath);
-    gtPath /= "gt";
+    std::string gtPath = dataPath + "dbc/" + localeNames[defaultLocale] + '/';
 
-    std::vector<std::string> bad_gt_files;
-    uint32 gameTableCount = 0, expectedGameTableCount = 0;
+    StoreProblemList bad_gt_files;
 
-    auto LOAD_GT = [&]<typename T>(GameTable<T>& gameTable, char const* file)
-    {
-        gameTableCount += LoadGameTable(bad_gt_files, gameTable, gtPath / file);
-        ++expectedGameTableCount;
-    };
+#define LOAD_GT(tableName, store, file) LoadGameTable(bad_gt_files, tableName, store, gtPath, file)
 
-    LOAD_GT(sArtifactKnowledgeMultiplierGameTable, "ArtifactKnowledgeMultiplier.txt");
-    LOAD_GT(sArtifactLevelXPGameTable, "ArtifactLevelXP.txt");
-    LOAD_GT(sBarberShopCostBaseGameTable, "BarberShopCostBase.txt");
-    LOAD_GT(sBaseMPGameTable, "BaseMp.txt");
-    LOAD_GT(sBattlePetXPGameTable, "BattlePetXP.txt");
-    LOAD_GT(sCombatRatingsGameTable, "CombatRatings.txt");
-    LOAD_GT(sCombatRatingsMultByILvlGameTable, "CombatRatingsMultByILvl.txt");
-    LOAD_GT(sItemSocketCostPerLevelGameTable, "ItemSocketCostPerLevel.txt");
-    LOAD_GT(sHpPerStaGameTable, "HpPerSta.txt");
-    LOAD_GT(sNpcManaCostScalerGameTable, "NPCManaCostScaler.txt");
-    LOAD_GT(sSpellScalingGameTable, "SpellScaling.txt");
-    LOAD_GT(sStaminaMultByILvlGameTable, "StaminaMultByILvl.txt");
-    LOAD_GT(sXpGameTable, "xp.txt");
+//    LOAD_GT(sArtifactKnowledgeMultiplierGameTable, "ArtifactKnowledgeMultiplier.txt");
+//    LOAD_GT(sArtifactLevelXPGameTable, "ArtifactLevelXP.txt");
+//    LOAD_GT(sBarberShopCostBaseGameTable, "BarberShopCostBase.txt");
+//    LOAD_GT(sBaseMPGameTable, "BaseMp.txt");
+//    LOAD_GT(sBattlePetXPGameTable, "BattlePetXP.txt");
+//    LOAD_GT(sCombatRatingsGameTable, "CombatRatings.txt");
+//    LOAD_GT(sCombatRatingsMultByILvlGameTable, "CombatRatingsMultByILvl.txt");
+//    LOAD_GT(sItemSocketCostPerLevelGameTable, "ItemSocketCostPerLevel.txt");
+//    LOAD_GT(sHpPerStaGameTable, "HpPerSta.txt");
+//    LOAD_GT(sNpcManaCostScalerGameTable, "NPCManaCostScaler.txt");
+//    LOAD_GT(sSpellScalingGameTable, "SpellScaling.txt");
+//    LOAD_GT(sStaminaMultByILvlGameTable, "StaminaMultByILvl.txt");
+//    LOAD_GT(sXpGameTable, "xp.txt");
+//
+//    GameTable<GtBarberShopCostBaseEntry>             sBarberShopCostBaseGameTable(GtBarberShopCostBasefmt);
+//    GameTable<GtBattlePetXPEntry>                    sBattlePetXPGameTable("");
+//    GameTable<GtChanceToMeleeCritBaseEntry>          sChanceToMeleeCritBaseGameTable(GtChanceToMeleeCritBasefmt);
+//    GameTable<GtChanceToMeleeCritEntry>              sChanceToMeleeCritGameTable(GtChanceToMeleeCritfmt);
+//    GameTable<GtChanceToSpellCritBaseEntry>          sChanceToSpellCritBaseGameTable(GtChanceToSpellCritBasefmt);
+//    GameTable<GtChanceToSpellCritEntry>              sChanceToSpellCritGameTable(GtChanceToSpellCritfmt);
+//    GameTable<GtCombatRatingsEntry>                  sCombatRatingsGameTable(GtCombatRatingsfmt);
+//    GameTable<GtItemSocketCostPerLevelEntry>         sItemSocketCostPerLevelGameTable(GtItemSocketCostPerLevelfmt);
+//    GameTable<GtNpcManaCostScalerEntry>              sNpcManaCostScalerGameTable(GtNPCManaCostScalerfmt);
+//    GameTable<GtRegenMPPerSptEntry>                  sRegenMPPerSptGameTable(GtRegenMPPerSptfmt);
+//    GameTable<GtSpellScalingEntry>                   sSpellScalingGameTable(GtSpellScalingfmt);
+    LOAD_GT("BarberShopCostBase", sBarberShopCostBaseGameTable, "gtBarberShopCostBase.dbc");
 
 #undef LOAD_GT
 
     // error checks
-    if (gameTableCount != expectedGameTableCount)
+    if (bad_gt_files.size() >= GameTableCount)
     {
-        std::ostringstream str;
-        for (std::string const& err  : bad_gt_files)
-            str << err << std::endl;
+        TC_LOG_ERROR("misc", "Incorrect DataDir value in worldserver.conf or ALL required *.dbc GameTable files ({}) not found by path: {}dbc/{}/", GameTableCount, dataPath.c_str(), localeNames[defaultLocale]);
+        exit(1);
+    }
+    else if (!bad_gt_files.empty())
+    {
+        std::string str;
+        for (auto i = bad_gt_files.begin(); i != bad_gt_files.end(); ++i)
+            str += *i + "\n";
 
-        WPFatal(false, "Some required *.txt GameTable files (" SZFMTD ") not found or not compatible:\n%s", bad_gt_files.size(), str.str().c_str());
+        TC_LOG_ERROR("misc", "Some required *.dbc GameTable files ({} from {}) not found or not compatible:\n{}", (uint32)bad_gt_files.size(), GameTableCount, str.c_str());
+        exit(1);
     }
 
-    TC_LOG_INFO("server.loading", ">> Initialized {} GameTables in {} ms", gameTableCount, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Initialized {} GameTables in {} ms", GameTableCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
 template<class T>

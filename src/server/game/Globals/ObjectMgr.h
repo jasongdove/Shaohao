@@ -22,6 +22,7 @@
 #include "ConditionMgr.h"
 #include "CreatureData.h"
 #include "DatabaseEnvFwd.h"
+#include "DBCStructure.h"
 #include "GameObjectData.h"
 #include "ItemTemplate.h"
 #include "IteratorPair.h"
@@ -838,10 +839,25 @@ typedef std::unordered_map<uint32, QuestPOIData> QuestPOIContainer;
 typedef std::array<std::unordered_map<uint32, QuestGreeting>, 2> QuestGreetingContainer;
 typedef std::array<std::unordered_map<uint32, QuestGreetingLocale>, 2> QuestGreetingLocaleContainer;
 
+//struct WorldSafeLocsEntry
+//{
+//    uint32 ID = 0;
+//    WorldLocation Loc;
+//    Optional<ObjectGuid::LowType> TransportSpawnId = {};
+//};
+
 struct WorldSafeLocsEntry
 {
-    uint32 ID = 0;
+    uint32          ID;                                     // 0
+//    uint32          MapID;                                  // 1
+//    DBCPosition3D   Loc;                                    // 2-4
+//    float           Facing;                                 // 5 values are in degrees
+    //char*         AreaName_lang;                          // 6
+
+    // TODO: DATA fix this
     WorldLocation Loc;
+
+    // TODO: DATA this is from DB, not DBC
     Optional<ObjectGuid::LowType> TransportSpawnId = {};
 };
 

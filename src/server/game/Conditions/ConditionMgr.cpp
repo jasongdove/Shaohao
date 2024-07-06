@@ -24,6 +24,7 @@
 #include "Containers.h"
 #include "ConversationDataStore.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
@@ -396,7 +397,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             break;
         }
         case CONDITION_AREAID:
-            condMeets = DB2Manager::IsInArea(object->GetAreaId(), ConditionValue1);
+            condMeets = DBCManager::IsInArea(object->GetAreaId(), ConditionValue1);
             break;
         case CONDITION_SPELL:
         {
@@ -3082,7 +3083,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         std::array<bool, std::tuple_size_v<decltype(condition->PrevQuestID)>> results;
         results.fill(true);
         for (std::size_t i = 0; i < condition->PrevQuestID.size(); ++i)
-            if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(condition->PrevQuestID[i]))
+            if (uint32 questBit = sDBCManager.GetQuestUniqueBitFlag(condition->PrevQuestID[i]))
                 results[i] = (player->m_activePlayerData->QuestCompleted[((questBit - 1) >> 6)] & (UI64LIT(1) << ((questBit - 1) & 63))) != 0;
 
         if (!PlayerConditionLogic(condition->PrevQuestLogic, results))
@@ -3245,7 +3246,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         results.fill(true);
         for (std::size_t i = 0; i < condition->AreaID.size(); ++i)
             if (condition->AreaID[i])
-                results[i] = DB2Manager::IsInArea(player->GetAreaId(), condition->AreaID[i]);
+                results[i] = DBCManager::IsInArea(player->GetAreaId(), condition->AreaID[i]);
 
         if (!PlayerConditionLogic(condition->AreaLogic, results))
             return false;

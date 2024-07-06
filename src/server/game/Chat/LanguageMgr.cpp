@@ -18,6 +18,7 @@
 #include "LanguageMgr.h"
 #include "Containers.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Log.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"

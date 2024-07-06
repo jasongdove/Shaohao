@@ -27,7 +27,7 @@ EndScriptData */
 #include "ChatCommand.h"
 #include "CriteriaHandler.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DisableMgr.h"
 #include "Language.h"
 #include "ObjectMgr.h"

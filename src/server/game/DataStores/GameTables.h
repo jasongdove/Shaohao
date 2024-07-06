@@ -20,6 +20,7 @@
 
 #include "SharedDefines.h"
 #include "Common.h"
+#include "DBCStore.h"
 #include <vector>
 
 enum InventoryType : uint8;
@@ -62,6 +63,28 @@ struct GtBattlePetXPEntry
 {
     float Wins = 0.0f;
     float Xp = 0.0f;
+};
+
+struct GtChanceToMeleeCritBaseEntry
+{
+    //uint32 level;
+    float    base;
+};
+
+struct GtChanceToMeleeCritEntry
+{
+    //uint32 level;
+    float    ratio;
+};
+
+struct GtChanceToSpellCritBaseEntry
+{
+    float    base;
+};
+
+struct GtChanceToSpellCritEntry
+{
+    float    ratio;
 };
 
 struct GtCombatRatingsEntry
@@ -123,6 +146,11 @@ struct GtNpcManaCostScalerEntry
     float Scaler = 0.0f;
 };
 
+struct GtRegenMPPerSptEntry
+{
+    float    ratio;
+};
+
 struct GtSpellScalingEntry
 {
     float Rogue = 0.0f;
@@ -171,37 +199,64 @@ template<class T>
 class GameTable
 {
 public:
-    T const* GetRow(uint32 row) const
-    {
-        if (row >= _data.size())
-            return nullptr;
+    explicit GameTable(char const* format) : _storage(format), _gtEntry(nullptr) { }
 
-        return &_data[row];
+    void SetGameTableEntry(GameTablesEntry const* gtEntry) { _gtEntry = gtEntry; }
+
+    T const* EvaluateTable(uint32 row, uint32 column) const
+    {
+        ASSERT(row < _gtEntry->NumRows, "Requested row %u from GameTable %s but there are only %u rows!", row, _gtEntry->Name, _gtEntry->NumRows);
+        ASSERT(column < _gtEntry->NumColumns, "Requested column %u from GameTable %s but there are only %u columns!", column, _gtEntry->Name, _gtEntry->NumColumns);
+
+        return _storage.LookupEntry(_gtEntry->NumRows * column + row);
     }
 
-    std::size_t GetTableRowCount() const { return _data.size(); }
+    T const* GetRow(uint32 row) const
+    {
+        // TODO DATA this might be a bad idea
+        if (row >= GetTableRowCount())
+            return nullptr;
 
-    void SetData(std::vector<T> data) { _data = std::move(data); }
+        // TODO DATA this might be a bad idea
+        return EvaluateTable(row, 0);
+    }
+
+    char const* GetFormat() const { return _storage.GetFormat(); }
+    uint32 GetFieldCount() const { return _storage.GetFieldCount(); }
+    bool Load(char const* fileName) { return _storage.Load(fileName, nullptr); }
+
+    uint32 GetTableRowCount() const { if (_gtEntry) return _gtEntry->NumRows; else return 0; }
+    uint32 GetTableColumnCount() const { return _gtEntry->NumColumns; }
 
 private:
-    std::vector<T> _data;
+    DBCStorage<T> _storage;
+    GameTablesEntry const* _gtEntry;
 };
 
+// TODO: DATA UNAVAILABLE IN MOP
 TC_GAME_API extern GameTable<GtArtifactKnowledgeMultiplierEntry>    sArtifactKnowledgeMultiplierGameTable;
 TC_GAME_API extern GameTable<GtArtifactLevelXPEntry>                sArtifactLevelXPGameTable;
-TC_GAME_API extern GameTable<GtBarberShopCostBaseEntry>             sBarberShopCostBaseGameTable;
 TC_GAME_API extern GameTable<GtBaseMPEntry>                         sBaseMPGameTable;
-TC_GAME_API extern GameTable<GtBattlePetXPEntry>                    sBattlePetXPGameTable;
-TC_GAME_API extern GameTable<GtCombatRatingsEntry>                  sCombatRatingsGameTable;
 TC_GAME_API extern GameTable<GtCombatRatingsMultByILvl>             sCombatRatingsMultByILvlGameTable;
 TC_GAME_API extern GameTable<GtHpPerStaEntry>                       sHpPerStaGameTable;
-TC_GAME_API extern GameTable<GtItemSocketCostPerLevelEntry>         sItemSocketCostPerLevelGameTable;
-TC_GAME_API extern GameTable<GtNpcManaCostScalerEntry>              sNpcManaCostScalerGameTable;
-TC_GAME_API extern GameTable<GtSpellScalingEntry>                   sSpellScalingGameTable;
 TC_GAME_API extern GameTable<GtStaminaMultByILvl>                   sStaminaMultByILvlGameTable;
 TC_GAME_API extern GameTable<GtXpEntry>                             sXpGameTable;
 
-TC_GAME_API void LoadGameTables(std::string const& dataPath);
+
+
+TC_GAME_API extern GameTable<GtBarberShopCostBaseEntry>             sBarberShopCostBaseGameTable;
+TC_GAME_API extern GameTable<GtBattlePetXPEntry>                    sBattlePetXPGameTable;
+TC_GAME_API extern GameTable<GtChanceToMeleeCritBaseEntry>          sChanceToMeleeCritBaseGameTable;
+TC_GAME_API extern GameTable<GtChanceToMeleeCritEntry>              sChanceToMeleeCritGameTable;
+TC_GAME_API extern GameTable<GtChanceToSpellCritBaseEntry>          sChanceToSpellCritBaseGameTable;
+TC_GAME_API extern GameTable<GtChanceToSpellCritEntry>              sChanceToSpellCritGameTable;
+TC_GAME_API extern GameTable<GtCombatRatingsEntry>                  sCombatRatingsGameTable;
+TC_GAME_API extern GameTable<GtItemSocketCostPerLevelEntry>         sItemSocketCostPerLevelGameTable;
+TC_GAME_API extern GameTable<GtNpcManaCostScalerEntry>              sNpcManaCostScalerGameTable;
+TC_GAME_API extern GameTable<GtRegenMPPerSptEntry>                  sRegenMPPerSptGameTable;
+TC_GAME_API extern GameTable<GtSpellScalingEntry>                   sSpellScalingGameTable;
+
+TC_GAME_API void LoadGameTables(std::string const& dataPath, uint32 defaultLocale);
 
 template<class T>
 inline float GetGameTableColumnForClass(T const* row, int32 class_)

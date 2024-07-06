@@ -29,7 +29,7 @@
 #include "CommonPredicates.h"
 #include "Containers.h"
 #include "CreatureAI.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Item.h"
@@ -508,12 +508,12 @@ class spell_gen_battleground_mercenary_shapeshift : public AuraScript
 
         for (uint32 racialSkillId : RacialSkills)
         {
-            if (sDB2Manager.GetSkillRaceClassInfo(racialSkillId, oldRace, player->GetClass()))
+            if (sDBCManager.GetSkillRaceClassInfo(racialSkillId, oldRace, player->GetClass()))
                 if (std::vector<SkillLineAbilityEntry const*> const* skillLineAbilities = sDB2Manager.GetSkillLineAbilitiesBySkill(racialSkillId))
                     for (SkillLineAbilityEntry const* ability : *skillLineAbilities)
                         player->RemoveSpell(ability->Spell, false, false);
 
-            if (sDB2Manager.GetSkillRaceClassInfo(racialSkillId, newRace, player->GetClass()))
+            if (sDBCManager.GetSkillRaceClassInfo(racialSkillId, newRace, player->GetClass()))
                 player->LearnSkillRewardedSpells(racialSkillId, player->GetMaxSkillValueForLevel(), newRace);
         }
     }

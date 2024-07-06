@@ -32,7 +32,7 @@
 #include "Common.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "EquipmentSetPackets.h"
 #include "GameObject.h"
 #include "GameTime.h"
@@ -2669,7 +2669,7 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPackets::Character::Genera
 
     WorldPackets::Character::GenerateRandomCharacterNameResult result;
     result.Success = true;
-    result.Name = sDB2Manager.GetNameGenEntry(packet.Race, packet.Sex);
+    result.Name = sDBCManager.GetNameGenEntry(packet.Race, packet.Sex);
 
     SendPacket(result.Write());
 }

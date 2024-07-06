@@ -21,7 +21,7 @@
 #include "BattlePetMgr.h"
 #include "Chat.h"
 #include "Containers.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "LanguageMgr.h"
 #include "Log.h"
@@ -1571,7 +1571,7 @@ void SpellMgr::LoadSpellProcs()
                 // validate data
                 if (procEntry.SchoolMask & ~SPELL_SCHOOL_MASK_ALL)
                     TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId {} has wrong `SchoolMask` set: {}", spellInfo->Id, procEntry.SchoolMask);
-                if (procEntry.SpellFamilyName && !DB2Manager::IsValidSpellFamiliyName(SpellFamilyNames(procEntry.SpellFamilyName)))
+                if (procEntry.SpellFamilyName && !DBCManager::IsValidSpellFamilyName(SpellFamilyNames(procEntry.SpellFamilyName)))
                     TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId {} has wrong `SpellFamilyName` set: {}", spellInfo->Id, procEntry.SpellFamilyName);
                 if (procEntry.Chance < 0)
                 {
@@ -2598,11 +2598,12 @@ void SpellMgr::LoadSpellInfoStore()
     for (SpellReagentsCurrencyEntry const* reagentsCurrency : sSpellReagentsCurrencyStore)
         loadData[{ reagentsCurrency->SpellID, DIFFICULTY_NONE }].ReagentsCurrency.push_back(reagentsCurrency);
 
-    for (SpellScalingEntry const* scaling : sSpellScalingStore)
-        loadData[{ scaling->SpellID, DIFFICULTY_NONE }].Scaling = scaling;
-
-    for (SpellShapeshiftEntry const* shapeshift : sSpellShapeshiftStore)
-        loadData[{ shapeshift->SpellID, DIFFICULTY_NONE }].Shapeshift = shapeshift;
+    // TODO: DATA MOP doesn't have SpellID on SpellScaling or SpellShapeshift
+//    for (SpellScalingEntry const* scaling : sSpellScalingStore)
+//        loadData[{ scaling->SpellID, DIFFICULTY_NONE }].Scaling = scaling;
+//
+//    for (SpellShapeshiftEntry const* shapeshift : sSpellShapeshiftStore)
+//        loadData[{ shapeshift->SpellID, DIFFICULTY_NONE }].Shapeshift = shapeshift;
 
     for (SpellTargetRestrictionsEntry const* targetRestrictions : sSpellTargetRestrictionsStore)
         loadData[{ targetRestrictions->SpellID, Difficulty(targetRestrictions->DifficultyID) }].TargetRestrictions = targetRestrictions;

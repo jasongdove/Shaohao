@@ -25,7 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "ChatCommand.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GameTime.h"
 #include "Group.h"
 #include "InstanceLockMgr.h"
@@ -79,8 +79,8 @@ public:
             MapDb2Entries entries{ instanceLock->GetMapId(), instanceLock->GetDifficultyId() };
             std::string timeleft = !instanceLock->IsExpired() ? secsToTimeString(std::chrono::duration_cast<Seconds>(instanceLock->GetEffectiveExpiryTime() - now).count()) : "-";
             handler->PSendSysMessage(LANG_COMMAND_LIST_BIND_INFO,
-                entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
-                uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
+                entries.Map->ID, entries.Map->MapName(sWorld->GetDefaultDbcLocale()),
+                uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name(sWorld->GetDefaultDbcLocale()),
                 instanceLock->GetInstanceId(),
                 handler->GetTrinityString(instanceLock->IsExpired() ? LANG_YES : LANG_NO),
                 handler->GetTrinityString(instanceLock->IsExtended() ? LANG_YES : LANG_NO),
@@ -117,8 +117,8 @@ public:
             MapDb2Entries entries{ instanceLock->GetMapId(), instanceLock->GetDifficultyId() };
             std::string timeleft = !instanceLock->IsExpired() ? secsToTimeString(std::chrono::duration_cast<Seconds>(instanceLock->GetEffectiveExpiryTime() - now).count()) : "-";
             handler->PSendSysMessage(LANG_COMMAND_INST_UNBIND_UNBINDING,
-                entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
-                uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
+                entries.Map->ID, entries.Map->MapName(sWorld->GetDefaultDbcLocale()),
+                uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name(sWorld->GetDefaultDbcLocale()),
                 instanceLock->GetInstanceId(),
                 handler->GetTrinityString(instanceLock->IsExpired() ? LANG_YES : LANG_NO),
                 handler->GetTrinityString(instanceLock->IsExtended() ? LANG_YES : LANG_NO),
@@ -132,8 +132,8 @@ public:
             MapDb2Entries entries{ instanceLock->GetMapId(), instanceLock->GetDifficultyId() };
             std::string timeleft = !instanceLock->IsExpired() ? secsToTimeString(std::chrono::duration_cast<Seconds>(instanceLock->GetEffectiveExpiryTime() - now).count()) : "-";
             handler->PSendSysMessage(LANG_COMMAND_INST_UNBIND_FAILED,
-                entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
-                uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
+                entries.Map->ID, entries.Map->MapName(sWorld->GetDefaultDbcLocale()),
+                uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name(sWorld->GetDefaultDbcLocale()),
                 instanceLock->GetInstanceId(),
                 handler->GetTrinityString(instanceLock->IsExpired() ? LANG_YES : LANG_NO),
                 handler->GetTrinityString(instanceLock->IsExtended() ? LANG_YES : LANG_NO),

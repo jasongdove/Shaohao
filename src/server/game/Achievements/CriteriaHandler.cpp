@@ -25,6 +25,7 @@
 #include "Creature.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
 #include "GameTime.h"
@@ -1607,11 +1608,11 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
             break;
         case CriteriaType::PVPKillInArea:
         case CriteriaType::EnterArea:
-            if (!miscValue1 || !DB2Manager::IsInArea(uint32(miscValue1), uint32(criteria->Entry->Asset.AreaID)))
+            if (!miscValue1 || !DBCManager::IsInArea(uint32(miscValue1), uint32(criteria->Entry->Asset.AreaID)))
                 return false;
             break;
         case CriteriaType::LeaveArea:
-            if (!miscValue1 || DB2Manager::IsInArea(uint32(miscValue1), uint32(criteria->Entry->Asset.AreaID)))
+            if (!miscValue1 || DBCManager::IsInArea(uint32(miscValue1), uint32(criteria->Entry->Asset.AreaID)))
                 return false;
             break;
         case CriteriaType::CurrencyGained:
@@ -1794,7 +1795,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         case ModifierTreeType::PlayerIsInArea: // 17
         {
-            if (!DB2Manager::IsInArea(referencePlayer->GetAreaId(), reqValue))
+            if (!DBCManager::IsInArea(referencePlayer->GetAreaId(), reqValue))
                 return false;
             break;
         }
@@ -1802,7 +1803,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         {
             if (!ref)
                 return false;
-            if (!DB2Manager::IsInArea(ref->GetAreaId(), reqValue))
+            if (!DBCManager::IsInArea(ref->GetAreaId(), reqValue))
                 return false;
             break;
         }
@@ -2259,7 +2260,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         }
         case ModifierTreeType::PlayerHasCompletedQuest: // 110
-            if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(reqValue))
+            if (uint32 questBit = sDBCManager.GetQuestUniqueBitFlag(reqValue))
                 if (!(referencePlayer->m_activePlayerData->QuestCompleted[((questBit - 1) >> 6)] & (UI64LIT(1) << ((questBit - 1) & 63))))
                     return false;
             break;
@@ -3093,6 +3094,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             if (referencePlayer->GetReputationMgr().GetParagonLevel(faction->ParagonFactionID) < int32(reqValue))
                 return false;
             break;
+            return false;
         }
         case ModifierTreeType::PlayerHasItemWithBonusListFromTreeAndQuality: // 222
         {
@@ -3363,7 +3365,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             FriendshipReputationEntry const* friendshipReputation = sFriendshipReputationStore.LookupEntry(friendshipRepReaction->FriendshipRepID);
             if (!friendshipReputation)
                 return false;
-            DB2Manager::FriendshipRepReactionSet const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(reqValue);
+            DBCManager::FriendshipRepReactionSet const* friendshipReactions = sDBCManager.GetFriendshipRepReactions(reqValue);
             if (!friendshipReactions)
                 return false;
             uint32 rank = referencePlayer->GetReputationRank(friendshipReputation->FactionID);
@@ -3614,7 +3616,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         {
             std::vector<uint32> areas = sDB2Manager.GetAreasForGroup(reqValue);
             for (uint32 areaInGroup : areas)
-                if (DB2Manager::IsInArea(referencePlayer->GetAreaId(), areaInGroup))
+                if (DBCManager::IsInArea(referencePlayer->GetAreaId(), areaInGroup))
                     return true;
             return false;
         }
@@ -3624,7 +3626,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             std::vector<uint32> areas = sDB2Manager.GetAreasForGroup(reqValue);
             for (uint32 areaInGroup : areas)
-                if (DB2Manager::IsInArea(ref->GetAreaId(), areaInGroup))
+                if (DBCManager::IsInArea(ref->GetAreaId(), areaInGroup))
                     return true;
             return false;
         }
@@ -4677,7 +4679,7 @@ void CriteriaMgr::LoadCriteriaList()
         if (CriteriaTree* parent = Trinity::Containers::MapGetValuePtr(_criteriaTrees, criteriaTree.second->Entry->Parent))
             parent->Children.push_back(criteriaTree.second);
 
-        if (sCriteriaStore.HasRecord(criteriaTree.second->Entry->CriteriaID))
+        if (sCriteriaStore.LookupEntry(criteriaTree.second->Entry->CriteriaID))
             _criteriaTreeByCriteria[criteriaTree.second->Entry->CriteriaID].push_back(criteriaTree.second);
     }
 

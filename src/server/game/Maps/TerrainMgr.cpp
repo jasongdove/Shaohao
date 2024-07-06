@@ -16,7 +16,7 @@
  */
 
 #include "TerrainMgr.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DisableMgr.h"
 #include "DynamicTree.h"
 #include "GridMap.h"
@@ -44,7 +44,7 @@ TerrainInfo::~TerrainInfo()
 
 char const* TerrainInfo::GetMapName() const
 {
-    return sMapStore.AssertEntry(GetId())->MapName[sWorld->GetDefaultDbcLocale()];
+    return sMapStore.AssertEntry(GetId())->MapName(sWorld->GetDefaultDbcLocale());
 }
 
 void TerrainInfo::DiscoverGridMapFiles()
@@ -374,9 +374,9 @@ void TerrainInfo::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, 
         {
             data.wmoLocation.emplace(wmoData->areaInfo->groupId, wmoData->areaInfo->adtId, wmoData->areaInfo->rootId, wmoData->areaInfo->uniqueId);
             // wmo found
-            WMOAreaTableEntry const* wmoEntry = sDB2Manager.GetWMOAreaTable(wmoData->areaInfo->rootId, wmoData->areaInfo->adtId, wmoData->areaInfo->groupId);
+            WMOAreaTableEntry const* wmoEntry = sDBCManager.GetWMOAreaTable(wmoData->areaInfo->rootId, wmoData->areaInfo->adtId, wmoData->areaInfo->groupId);
             if (!wmoEntry)
-                wmoEntry = sDB2Manager.GetWMOAreaTable(wmoData->areaInfo->rootId, wmoData->areaInfo->adtId, -1);
+                wmoEntry = sDBCManager.GetWMOAreaTable(wmoData->areaInfo->rootId, wmoData->areaInfo->adtId, -1);
 
             data.outdoors = (wmoData->areaInfo->mogpFlags & 0x8) != 0;
             if (wmoEntry)
@@ -633,7 +633,7 @@ uint32 TerrainInfo::GetAreaId(PhaseShift const& phaseShift, uint32 mapId, float 
     if (hasVmapArea && G3D::fuzzyGe(z, vmapZ - GROUND_HEIGHT_TOLERANCE) && (G3D::fuzzyLt(z, gridMapHeight - GROUND_HEIGHT_TOLERANCE) || vmapZ > gridMapHeight))
     {
         // wmo found
-        if (WMOAreaTableEntry const* wmoEntry = sDB2Manager.GetWMOAreaTable(rootId, adtId, groupId))
+        if (WMOAreaTableEntry const* wmoEntry = sDBCManager.GetWMOAreaTable(rootId, adtId, groupId))
             areaId = wmoEntry->AreaTableID;
 
         if (!areaId)

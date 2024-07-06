@@ -26,7 +26,7 @@
 #include "Chat.h"
 #include "Common.h"
 #include "Creature.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DisableMgr.h"
 #include "Group.h"
 #include "Language.h"

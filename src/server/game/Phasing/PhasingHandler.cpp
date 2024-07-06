@@ -19,7 +19,7 @@
 #include "Chat.h"
 #include "ConditionMgr.h"
 #include "Creature.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "DisableMgr.h"
 #include "Language.h"
 #include "Map.h"
@@ -145,7 +145,7 @@ void PhasingHandler::RemovePhase(WorldObject* object, uint32 phaseId, bool updat
 
 void PhasingHandler::AddPhaseGroup(WorldObject* object, uint32 phaseGroupId, bool updateVisibility)
 {
-    std::vector<uint32> const* phasesInGroup = sDB2Manager.GetPhasesForGroup(phaseGroupId);
+    std::vector<uint32> const* phasesInGroup = sDBCManager.GetPhasesForGroup(phaseGroupId);
     if (!phasesInGroup)
         return;
 
@@ -177,7 +177,7 @@ void PhasingHandler::AddPhaseGroup(WorldObject* object, std::vector<uint32> cons
 
 void PhasingHandler::RemovePhaseGroup(WorldObject* object, uint32 phaseGroupId, bool updateVisibility)
 {
-    std::vector<uint32> const* phasesInGroup = sDB2Manager.GetPhasesForGroup(phaseGroupId);
+    std::vector<uint32> const* phasesInGroup = sDBCManager.GetPhasesForGroup(phaseGroupId);
     if (!phasesInGroup)
         return;
 
@@ -342,7 +342,7 @@ void PhasingHandler::OnAreaChange(WorldObject* object)
         }
 
         for (AuraEffect const* aurEff : unit->GetAuraEffectsByType(SPELL_AURA_PHASE_GROUP))
-            if (std::vector<uint32> const* phasesInGroup = sDB2Manager.GetPhasesForGroup(uint32(aurEff->GetMiscValueB())))
+            if (std::vector<uint32> const* phasesInGroup = sDBCManager.GetPhasesForGroup(uint32(aurEff->GetMiscValueB())))
                 for (uint32 phaseId : *phasesInGroup)
                     changed = phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), nullptr) || changed;
 
@@ -444,7 +444,7 @@ bool PhasingHandler::OnConditionChange(WorldObject* object, bool updateVisibilit
 
         for (AuraEffect const* aurEff : unit->GetAuraEffectsByType(SPELL_AURA_PHASE_GROUP))
         {
-            if (std::vector<uint32> const* phasesInGroup = sDB2Manager.GetPhasesForGroup(uint32(aurEff->GetMiscValueB())))
+            if (std::vector<uint32> const* phasesInGroup = sDBCManager.GetPhasesForGroup(uint32(aurEff->GetMiscValueB())))
             {
                 for (uint32 phaseId : *phasesInGroup)
                 {
@@ -543,7 +543,7 @@ void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlag
     if (phaseId)
         phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), nullptr);
     else if (phaseGroupId)
-        if (std::vector<uint32> const* phasesInGroup = sDB2Manager.GetPhasesForGroup(phaseGroupId))
+        if (std::vector<uint32> const* phasesInGroup = sDBCManager.GetPhasesForGroup(phaseGroupId))
             for (uint32 phaseInGroup : *phasesInGroup)
                 phaseShift.AddPhase(phaseInGroup, GetPhaseFlags(phaseInGroup), nullptr);
 

@@ -21,6 +21,7 @@
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Log.h"
 #include "Map.h"
 #include "Player.h"
@@ -152,10 +153,10 @@ static void LogCommandUsage(WorldSession const& session, uint32 permission, std:
     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId))
     {
         LocaleConstant locale = session.GetSessionDbcLocale();
-        areaName = area->AreaName[locale];
+        areaName = area->AreaName(locale);
         if (area->GetFlags().HasFlag(AreaFlags::IsSubzone))
             if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID))
-                zoneName = zone->AreaName[locale];
+                zoneName = zone->AreaName(locale);
     }
 
     sLog->OutCommand(session.GetAccountId(), "Command: {} [Player: {} ({}) (Account: {}) X: {} Y: {} Z: {} Map: {} ({}) Area: {} ({}) Zone: {} Selected: {} ({})]",

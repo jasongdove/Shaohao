@@ -20,6 +20,7 @@
 #include "ChannelPackets.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Log.h"
 #include "Player.h"
 #include "Realm.h"

@@ -36,7 +36,8 @@ if(SERVERS)
 endif()
 
 if(TOOLS)
-  add_subdirectory(CascLib)
+  add_subdirectory(StormLib)
+  add_subdirectory(bzip2)
 endif()
 
 if(BUILD_TESTING)

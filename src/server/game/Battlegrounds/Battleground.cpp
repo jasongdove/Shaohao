@@ -25,6 +25,7 @@
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Formulas.h"
 #include "GameEventSender.h"
 #include "GameTime.h"
