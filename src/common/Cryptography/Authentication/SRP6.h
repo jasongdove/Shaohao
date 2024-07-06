@@ -31,6 +31,8 @@ namespace SRP
 {
     static constexpr size_t SALT_LENGTH = 32;
     using Salt = std::array<uint8, SALT_LENGTH>;
+    static constexpr size_t EPHEMERAL_KEY_LENGTH = 32;
+    using EphemeralKey = std::array<uint8, EPHEMERAL_KEY_LENGTH>;
 
     using Verifier = std::vector<uint8>;
 

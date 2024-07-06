@@ -20,17 +20,19 @@
 #include "AuthCodes.h"
 #include "ByteBuffer.h"
 #include "Config.h"
+#include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
 #include "IPLocation.h"
 #include "GruntRealmList.h"
 #include "Log.h"
 #include "Realm.h"
-#include "SHA1.h"
+#include "CryptoHash.h"
 #include "TOTP.h"
 #include "Util.h"
 #include <boost/lexical_cast.hpp>
 #include <openssl/crypto.h>
+#include <openssl/sha.h>
 
 using boost::asio::ip::tcp;
 
@@ -68,45 +70,51 @@ typedef struct AUTH_LOGON_CHALLENGE_C
     uint8   I_len;
     uint8   I[1];
 } sAuthLogonChallenge_C;
+static_assert(sizeof(sAuthLogonChallenge_C) == (1 + 1 + 2 + 4 + 1 + 1 + 1 + 2 + 4 + 4 + 4 + 4 + 4 + 1 + 1));
 
 typedef struct AUTH_LOGON_PROOF_C
 {
     uint8   cmd;
-    uint8   A[32];
-    uint8   M1[20];
+    Trinity::Crypto::SRP::EphemeralKey A;
+    Trinity::Crypto::SHA1::Digest clientM;
     uint8   crc_hash[20];
     uint8   number_of_keys;
     uint8   securityFlags;
 } sAuthLogonProof_C;
+static_assert(sizeof(sAuthLogonProof_C) == (1 + 32 + 20 + 20 + 1 + 1));
 
 typedef struct AUTH_LOGON_PROOF_S
 {
     uint8   cmd;
     uint8   error;
-    uint8   M2[20];
+    Trinity::Crypto::SHA1::Digest M2;
     uint32  AccountFlags;
     uint32  SurveyId;
     uint16  unk3;
 } sAuthLogonProof_S;
+static_assert(sizeof(sAuthLogonProof_S) == (1 + 1 + 20 + 4 + 4 + 2));
 
 typedef struct AUTH_LOGON_PROOF_S_OLD
 {
     uint8   cmd;
     uint8   error;
-    uint8   M2[20];
+    Trinity::Crypto::SHA1::Digest M2;
     uint32  unk2;
 } sAuthLogonProof_S_Old;
+static_assert(sizeof(sAuthLogonProof_S_Old) == (1 + 1 + 20 + 4));
 
 typedef struct AUTH_RECONNECT_PROOF_C
 {
     uint8   cmd;
     uint8   R1[16];
-    uint8   R2[20];
-    uint8   R3[20];
+    Trinity::Crypto::SHA1::Digest R2, R3;
     uint8   number_of_keys;
 } sAuthReconnectProof_C;
+static_assert(sizeof(sAuthReconnectProof_C) == (1 + 16 + 20 + 20 + 1));
 
 #pragma pack(pop)
+
+std::array<uint8, 16> VersionChallenge = { { 0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B, 0x21, 0x57, 0xFC, 0x37, 0x3F, 0xB3, 0x69, 0xCD, 0xD2, 0xF1 } };
 
 enum class BufferSizes : uint32
 {
@@ -161,8 +169,6 @@ void AccountInfo::LoadResult(Field* fields)
 AuthSession::AuthSession(tcp::socket&& socket) : Socket(std::move(socket)),
 _status(STATUS_CHALLENGE), _build(0), _expversion(0)
 {
-    N.SetHexStr("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
-    g.SetDword(7);
 }
 
 void AuthSession::Start()
@@ -380,37 +386,27 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
         }
     }
 
-    // Get the password from the account table, upper it, and make the SRP6 calculation
-    std::string rI = fields[10].GetString();
-
     // Don't calculate (v, s) if there are already some in the database
     std::string databaseV = fields[11].GetString();
     std::string databaseS = fields[12].GetString();
-
-    TC_LOG_DEBUG("network", "database authentication values: v='{}' s='{}'", databaseV.c_str(), databaseS.c_str());
+    std::string rI = fields[10].GetString();
 
     // multiply with 2 since bytes are stored as hexstring
-    if (databaseV.size() != size_t(BufferSizes::SRP_6_V) * 2 || databaseS.size() != size_t(BufferSizes::SRP_6_S) * 2)
+    if (databaseV.size() != size_t(BufferSizes::SRP_6_V) * 2 || databaseS.size() != size_t(BufferSizes::SRP_6_V) * 2)
         SetVSFields(rI);
-    else
-    {
-        s.SetHexStr(databaseS.c_str());
-        v.SetHexStr(databaseV.c_str());
-    }
 
-    b.SetRand(19 * 8);
-    BigNumber gmod = g.ModExp(b, N);
-    B = ((v * 3) + gmod) % N;
+    Trinity::Crypto::SRP::Salt salt = HexStrToByteArray<Trinity::Crypto::SRP::SALT_LENGTH>(databaseS);
+    Trinity::Crypto::SRP::Verifier verifier = HexStrToByteVector(databaseV);
 
-    ASSERT(gmod.GetNumBytes() <= 32);
+    _srp6.emplace(_accountInfo.Login, salt, verifier);
 
-    BigNumber unk3;
-    unk3.SetRand(16 * 8);
+    // Shaohao: disable battle.net logins
+//    if (fields[13].GetUInt32() && AuthHelper::IsBuildSupportingBattlenet(_build))
+//        pkt << uint8(WOW_FAIL_USE_BATTLENET);
+//    else
 
     // Fill the response packet with the result
-    if (fields[13].GetUInt32() && AuthHelper::IsBuildSupportingBattlenet(_build))
-        pkt << uint8(WOW_FAIL_USE_BATTLENET);
-    else if (AuthHelper::IsAcceptedClientBuild(_build))
+    if (AuthHelper::IsAcceptedClientBuild(_build))
     {
         pkt << uint8(WOW_SUCCESS);
         _status = STATUS_LOGON_PROOF;
@@ -418,14 +414,13 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
     else
         pkt << uint8(WOW_FAIL_VERSION_INVALID);
 
-    // B may be calculated < 32B so we force minimal length to 32B
-    pkt.append(B.AsByteArray(32).get(), 32);      // 32 bytes
+    pkt.append(_srp6->B.ToByteArray<32>());
     pkt << uint8(1);
-    pkt.append(g.AsByteArray(1).get(), 1);
+    pkt.append(_srp6->g.ToByteArray<1>());
     pkt << uint8(32);
-    pkt.append(N.AsByteArray(32).get(), 32);
-    pkt.append(s.AsByteArray(int32(BufferSizes::SRP_6_S)).get(), size_t(BufferSizes::SRP_6_S));   // 32 bytes
-    pkt.append(unk3.AsByteArray(16).get(), 16);
+    pkt.append(_srp6->N.ToByteArray<32>());
+    pkt.append(_srp6->s);
+    pkt.append(VersionChallenge.data(), VersionChallenge.size());
     uint8 securityFlags = 0;
 
     // Check if token is used
@@ -453,7 +448,7 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
     if (securityFlags & 0x04)               // Security token input
         pkt << uint8(1);
 
-    TC_LOG_DEBUG("server.authserver", "'{}:{}' [AuthChallenge] account {} is using '{}' locale (%u)",
+    TC_LOG_DEBUG("server.authserver", "'{}:{}' [AuthChallenge] account {} is using '{}' locale ({})",
         ipAddress.c_str(), port, _accountInfo.Login.c_str(), _localizationName.c_str(), GetLocaleByName(_localizationName));
 
     SendPacket(pkt);
@@ -476,82 +471,14 @@ bool AuthSession::HandleLogonProof()
         return false;
     }
 
-    // Continue the SRP6 calculation based on data received from the client
-    BigNumber A;
-
+    BigNumber A, clientM;
     A.SetBinary(logonProof->A, 32);
+    clientM.SetBinary(logonProof->clientM, 20);
 
-    // SRP safeguard: abort if A == 0
-    if ((A % N).IsZero())
-        return false;
-
-    SHA1Hash sha;
-    sha.UpdateBigNumbers(&A, &B, nullptr);
-    sha.Finalize();
-    BigNumber u;
-    u.SetBinary(sha.GetDigest(), 20);
-    BigNumber S = (A * (v.ModExp(u, N))).ModExp(b, N);
-
-    uint8 t[32];
-    uint8 t1[16];
-    uint8 vK[40];
-    memcpy(t, S.AsByteArray(32).get(), 32);
-
-    for (int i = 0; i < 16; ++i)
-        t1[i] = t[i * 2];
-
-    sha.Initialize();
-    sha.UpdateData(t1, 16);
-    sha.Finalize();
-
-    for (int i = 0; i < 20; ++i)
-        vK[i * 2] = sha.GetDigest()[i];
-
-    for (int i = 0; i < 16; ++i)
-        t1[i] = t[i * 2 + 1];
-
-    sha.Initialize();
-    sha.UpdateData(t1, 16);
-    sha.Finalize();
-
-    for (int i = 0; i < 20; ++i)
-        vK[i * 2 + 1] = sha.GetDigest()[i];
-
-    K.SetBinary(vK, 40);
-
-    uint8 hash[20];
-
-    sha.Initialize();
-    sha.UpdateBigNumbers(&N, nullptr);
-    sha.Finalize();
-    memcpy(hash, sha.GetDigest(), 20);
-    sha.Initialize();
-    sha.UpdateBigNumbers(&g, nullptr);
-    sha.Finalize();
-
-    for (int i = 0; i < 20; ++i)
-        hash[i] ^= sha.GetDigest()[i];
-
-    BigNumber t3;
-    t3.SetBinary(hash, 20);
-
-    sha.Initialize();
-    sha.UpdateData(_accountInfo.Login);
-    sha.Finalize();
-    uint8 t4[SHA_DIGEST_LENGTH];
-    memcpy(t4, sha.GetDigest(), SHA_DIGEST_LENGTH);
-
-    sha.Initialize();
-    sha.UpdateBigNumbers(&t3, nullptr);
-    sha.UpdateData(t4, SHA_DIGEST_LENGTH);
-    sha.UpdateBigNumbers(&s, &A, &B, &K, nullptr);
-    sha.Finalize();
-    BigNumber M;
-    M.SetBinary(sha.GetDigest(), sha.GetLength());
-
-    // Check if SRP6 results match (password is correct), else send an error
-    if (!memcmp(M.AsByteArray(sha.GetLength()).get(), logonProof->M1, 20))
+    if (Optional<BigNumber> k = _srp6->VerifyClientEvidence(A, clientM))
     {
+        _sessionKey = (*k).ToByteArray<40>();
+
         // Check auth token
         if ((logonProof->securityFlags & 0x04) || !_tokenKey.empty())
         {
@@ -579,7 +506,7 @@ bool AuthSession::HandleLogonProof()
         // No SQL injection (escaped user name) and IP address as received by socket
 
         auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
-        stmt->setString(0, K.AsHexStr());
+        stmt->setString(0, ByteArrayToHexStr(_sessionKey));
         stmt->setString(1, GetRemoteIpAddress().to_string());
         stmt->setUInt32(2, GetLocaleByName(_localizationName));
         stmt->setString(3, _os);
@@ -587,15 +514,13 @@ bool AuthSession::HandleLogonProof()
         LoginDatabase.DirectExecute(stmt);
 
         // Finish SRP6 and send the final result to the client
-        sha.Initialize();
-        sha.UpdateBigNumbers(&A, &M, &K, nullptr);
-        sha.Finalize();
+        Trinity::Crypto::SHA1::Digest M2 = Trinity::Crypto::SHA1::GetDigestOf(logonProof->A, logonProof->clientM, _sessionKey);
 
         ByteBuffer packet;
         if (_expversion & POST_BC_EXP_FLAG)                 // 2.x and 3.x clients
         {
             sAuthLogonProof_S proof;
-            memcpy(proof.M2, sha.GetDigest(), 20);
+            proof.M2 = M2;
             proof.cmd = AUTH_LOGON_PROOF;
             proof.error = 0;
             proof.AccountFlags = GAMEACCOUNT_FLAG_PROPASS_LOCK;
@@ -608,7 +533,7 @@ bool AuthSession::HandleLogonProof()
         else
         {
             sAuthLogonProof_S_Old proof;
-            memcpy(proof.M2, sha.GetDigest(), 20);
+            proof.M2 = M2;
             proof.cmd = AUTH_LOGON_PROOF;
             proof.error = 0;
             proof.unk2 = 0x00;
@@ -732,13 +657,13 @@ void AuthSession::ReconnectChallengeCallback(PreparedQueryResult result)
     Field* fields = result->Fetch();
 
     _accountInfo.LoadResult(fields);
-    K.SetHexStr(fields[9].GetCString());
-    _reconnectProof.SetRand(16 * 8);
+    _sessionKey = HexStrToByteArray<SESSION_KEY_LENGTH>(std::string_view(fields[12].GetString()));
+    Trinity::Crypto::GetRandomBytes(_reconnectProof);
     _status = STATUS_RECONNECT_PROOF;
 
     pkt << uint8(WOW_SUCCESS);
-    pkt.append(_reconnectProof.AsByteArray(16).get(), 16);  // 16 bytes random
-    pkt << uint64(0x00) << uint64(0x00);                    // 16 bytes zeros
+    pkt.append(_reconnectProof);  // 16 bytes random
+    pkt.append(VersionChallenge.data(), VersionChallenge.size());
 
     SendPacket(pkt);
 }
@@ -750,19 +675,20 @@ bool AuthSession::HandleReconnectProof()
 
     sAuthReconnectProof_C *reconnectProof = reinterpret_cast<sAuthReconnectProof_C*>(GetReadBuffer().GetReadPointer());
 
-    if (_accountInfo.Login.empty() || !_reconnectProof.GetNumBytes() || !K.GetNumBytes())
+    if (_accountInfo.Login.empty())
         return false;
 
     BigNumber t1;
     t1.SetBinary(reconnectProof->R1, 16);
 
-    SHA1Hash sha;
-    sha.Initialize();
+    Trinity::Crypto::SHA1 sha;
     sha.UpdateData(_accountInfo.Login);
-    sha.UpdateBigNumbers(&t1, &_reconnectProof, &K, nullptr);
+    sha.UpdateData(reconnectProof->R1, 16);
+    sha.UpdateData(_reconnectProof);
+    sha.UpdateData(_sessionKey);
     sha.Finalize();
 
-    if (!memcmp(sha.GetDigest(), reconnectProof->R2, SHA_DIGEST_LENGTH))
+    if (sha.GetDigest() == reconnectProof->R2)
     {
         // Sending response
         ByteBuffer pkt;
@@ -896,6 +822,9 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
 // Make the SRP6 calculation from hash in dB
 void AuthSession::SetVSFields(const std::string& rI)
 {
+    BigNumber s, v, g, N;
+    N.SetHexStr("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
+    g.SetDword(7);
     s.SetRand(int32(BufferSizes::SRP_6_S) * 8);
 
     BigNumber I;
@@ -907,15 +836,15 @@ void AuthSession::SetVSFields(const std::string& rI)
 
     std::reverse(mDigest, mDigest + SHA_DIGEST_LENGTH);
 
-    SHA1Hash sha;
-    sha.UpdateData(s.AsByteArray(uint32(BufferSizes::SRP_6_S)).get(), (uint32(BufferSizes::SRP_6_S)));
+    Trinity::Crypto::SHA1 sha;
+    sha.UpdateData(s.AsByteArray(uint32(BufferSizes::SRP_6_S)).get(), s.GetNumBytes());
     sha.UpdateData(mDigest, SHA_DIGEST_LENGTH);
     sha.Finalize();
+
     BigNumber x;
-    x.SetBinary(sha.GetDigest(), sha.GetLength());
+    x.SetBinary(sha.GetDigest(), SHA_DIGEST_LENGTH);
     v = g.ModExp(x, N);
 
-    // No SQL injection (username escaped)
     auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_VS);
     stmt->setString(0, v.AsHexStr());
     stmt->setString(1, s.AsHexStr());

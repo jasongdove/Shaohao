@@ -19,11 +19,13 @@
 #ifndef __AUTHSESSION_H__
 #define __AUTHSESSION_H__
 
+#include "AuthDefines.h"
 #include "AsyncCallbackProcessor.h"
 #include "Common.h"
 #include "BigNumber.h"
 #include "DatabaseEnvFwd.h"
 #include "Socket.h"
+#include "SRP6.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <memory>
 
@@ -90,10 +92,10 @@ private:
 
     void SetVSFields(const std::string& rI);
 
-    BigNumber N, s, g, v;
+    Optional<Trinity::Crypto::SRP::GruntSRP6> _srp6;
+    SessionKey _sessionKey;
     BigNumber b, B;
-    BigNumber K;
-    BigNumber _reconnectProof;
+    std::array<uint8, 16> _reconnectProof = {};
 
     AuthStatus _status;
     AccountInfo _accountInfo;
