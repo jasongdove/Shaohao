@@ -1170,7 +1170,7 @@ public:
                 auto itr = std::find_if(sItemSparseStore.begin(), sItemSparseStore.end(), [&itemName](ItemSparseEntry const* sparse)
                 {
                     for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
-                        if (itemName == sparse->Display[i])
+                        if (itemName == sparse->Display->Str[i])
                             return true;
                     return false;
                 });
@@ -1336,7 +1336,7 @@ public:
                 auto itr = std::find_if(sItemSparseStore.begin(), sItemSparseStore.end(), [&itemName](ItemSparseEntry const* sparse)
                 {
                     for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
-                        if (itemName == sparse->Display[i])
+                        if (itemName == sparse->Display->Str[i])
                             return true;
                     return false;
                 });
