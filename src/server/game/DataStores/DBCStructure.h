@@ -768,14 +768,14 @@ struct ItemSetEntry
     uint32 SetFlags = 0;
 };
 
-struct ItemSetSpellEntry
-{
-    uint32      ID;                                         // 0
-    uint32      ItemSetID;                                  // 1
-    uint32      SpellID;                                    // 2
-    uint32      Threshold;                                  // 3
-    uint32      ChrSpecID;                                  // 4
-};
+//struct ItemSetSpellEntry
+//{
+//    uint32      ID;                                         // 0
+//    uint32      ItemSetID;                                  // 1
+//    uint32      SpellID;                                    // 2
+//    uint32      Threshold;                                  // 3
+//    uint32      ChrSpecID;                                  // 4
+//};
 
 #define MAX_ITEM_ENCHANTMENT_EFFECTS 3
 

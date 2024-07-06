@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,21 +21,9 @@
 #include "DB2Store.h"
 #include "DB2Structure.h"
 #include "DBCStructure.h"
-#include "Optional.h"
 #include "SharedDefines.h"
-#include "advstd.h"
-#include <map>
-#include <set>
-#include <span>
-#include <vector>
-#include <unordered_set>
-
- // temporary hack until includes are sorted out (don't want to pull in Windows.h)
-#ifdef GetClassName
-#undef GetClassName
-#endif
-
-class DB2HotfixGeneratorBase;
+#include <boost/regex.hpp>
+#include <array>
 
 // TODO: DATA THESE ARE EMPTY STORES; DELETE EVENTUALLY
 TC_GAME_API extern DB2Storage<AdventureJournalEntry>                sAdventureJournalStore;
@@ -91,7 +79,6 @@ TC_GAME_API extern DB2Storage<ItemLevelSelectorQualitySetEntry>     sItemLevelSe
 TC_GAME_API extern DB2Storage<ItemModifiedAppearanceEntry>          sItemModifiedAppearanceStore;
 TC_GAME_API extern DB2Storage<ItemModifiedAppearanceExtraEntry>     sItemModifiedAppearanceExtraStore;
 TC_GAME_API extern DB2Storage<ItemSearchNameEntry>                  sItemSearchNameStore;
-TC_GAME_API extern DB2Storage<ItemSetSpellEntry>                    sItemSetSpellStore;
 TC_GAME_API extern DB2Storage<ItemXBonusTreeEntry>                  sItemXBonusTreeStore;
 TC_GAME_API extern DB2Storage<ItemXItemEffectEntry>                 sItemXItemEffectStore;
 TC_GAME_API extern DB2Storage<KeystoneAffixEntry>                   sKeystoneAffixStore;
@@ -181,6 +168,13 @@ TC_GAME_API extern DB2Storage<SpellVisualKitEntry>                  sSpellVisual
 TC_GAME_API extern DB2Storage<SpellVisualMissileEntry>              sSpellVisualMissileStore;
 TC_GAME_API extern DB2Storage<VignetteEntry>                        sVignetteStore;
 
+struct HotfixNotify
+{
+    uint32 TableHash;
+    uint32 Timestamp;
+    uint32 Entry;
+};
+
 struct ContentTuningLevels
 {
     int16 MinLevel = 0;
@@ -205,15 +199,6 @@ struct ShapeshiftFormModelData
     std::vector<ChrCustomizationDisplayInfoEntry const*> Displays;
 };
 
-struct TaxiPathBySourceAndDestination
-{
-    TaxiPathBySourceAndDestination() : ID(0), price(0) { }
-    TaxiPathBySourceAndDestination(uint32 _id, uint32 _price) : ID(_id), price(_price) { }
-
-    uint32 ID;
-    uint32 price;
-};
-
 using TaxiPathNodeList = std::vector<TaxiPathNodeEntry const*>;
 using TaxiPathNodesByPath = std::vector<TaxiPathNodeList>;
 
@@ -222,6 +207,7 @@ TC_GAME_API extern TaxiMask                                         sOldContinen
 TC_GAME_API extern TaxiMask                                         sHordeTaxiNodesMask;
 TC_GAME_API extern TaxiMask                                         sAllianceTaxiNodesMask;
 TC_GAME_API extern TaxiPathNodesByPath                              sTaxiPathNodesByPath;
+
 
 #define DEFINE_DB2_SET_COMPARATOR(structure) \
     struct structure ## Comparator \
@@ -233,7 +219,7 @@ TC_GAME_API extern TaxiPathNodesByPath                              sTaxiPathNod
 class TC_GAME_API DB2Manager
 {
 public:
-    DEFINE_DB2_SET_COMPARATOR(MountTypeXCapabilityEntry)
+    DEFINE_DB2_SET_COMPARATOR(MountTypeXCapabilityEntry);
 
     struct HotfixId
     {
@@ -293,12 +279,12 @@ public:
 
     static DB2Manager& Instance();
 
-    uint32 LoadStores(std::string const& dataPath, LocaleConstant defaultLocale);
+    uint32 LoadStores(std::string const& dataPath, uint32 defaultLocale);
     DB2StorageBase const* GetStorage(uint32 type) const;
 
     void LoadHotfixData(uint32 localeMask);
     void LoadHotfixBlob(uint32 localeMask);
-    void LoadHotfixOptionalData(uint32 localeMask);
+//    void LoadHotfixOptionalData(uint32 localeMask);
     uint32 GetHotfixCount() const;
     HotfixContainer const& GetHotfixData() const;
     std::vector<uint8> const* GetHotfixBlobData(uint32 tableHash, int32 recordId, LocaleConstant locale) const;
@@ -378,9 +364,8 @@ public:
     bool IsUiMapPhase(uint32 phaseId) const;
     std::unordered_set<uint32> const* GetPVPStatIDsForMap(uint32 mapId) const;
 
+
 private:
-    friend class DB2HotfixGeneratorBase;
-    void InsertNewHotfix(uint32 tableHash, uint32 recordId);
     int32 _maxHotfixId = 0;
 };
 

@@ -17,7 +17,6 @@
 
 #include "AchievementMgr.h"
 #include "AchievementPackets.h"
-#include "DB2HotfixGenerator.h"
 #include "DB2Stores.h"
 #include "DBCStores.h"
 #include "CellImpl.h"

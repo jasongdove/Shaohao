@@ -73,49 +73,6 @@ public:
     void Map2ZoneCoordinates(uint32 areaId, float& x, float& y) const;
 };
 
-class Whatever
-{
-// ItemSetSpells
-    typedef std::vector<ItemSetSpellEntry const *> ItemSetSpells;
-
-// MapDifficulty
-    typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry const *>> MapDifficultyMap;
-    TC_GAME_API MapDifficultyEntry const *GetDefaultMapDifficulty(uint32 mapId, Difficulty *difficulty = nullptr);
-
-    TC_GAME_API MapDifficultyEntry const *GetMapDifficultyData(uint32 mapId, Difficulty difficulty);
-
-    TC_GAME_API MapDifficultyEntry const *GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty);
-
-// PvpDifficulty
-    TC_GAME_API PvPDifficultyEntry const *GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
-
-    TC_GAME_API PvPDifficultyEntry const *GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
-
-// SkillRaceClassInfo
-    typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const *> SkillRaceClassInfoMap;
-    typedef std::pair<SkillRaceClassInfoMap::iterator, SkillRaceClassInfoMap::iterator> SkillRaceClassInfoBounds;
-
-// SpellEffectScaling
-    typedef std::unordered_map<uint32, uint32> SpellEffectScalingByEffectId;
-
-// Talent
-    typedef std::vector<TalentEntry const *> TalentsByPosition[MAX_CLASSES][MAX_TALENT_TIERS][MAX_TALENT_COLUMNS];
-
-// TotemCategory
-    TC_GAME_API bool IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId);
-
-// WorldMapArea
-    TC_GAME_API uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId);
-
-    TC_GAME_API void Map2ZoneCoordinates(float &x, float &y, uint32 worldMapAreaId);
-
-// WorldMapTransforms
-    TC_GAME_API void DeterminaAlternateMapPosition(uint32 mapId, float x, float y, float z, uint32 *newMapId = nullptr,
-                                                   DBCPosition2D *newPos = nullptr);
-
-    TC_GAME_API uint32 GetExpansionForLevel(uint32 level);
-};
-
 TC_GAME_API extern DBCStorage<Achievement_CategoryEntry>          sAchievementCategoryStore;
 TC_GAME_API extern DBCStorage<AchievementEntry>                   sAchievementStore;
 TC_GAME_API extern DBCStorage<AnimationDataEntry>                 sAnimationDataStore;

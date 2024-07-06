@@ -1990,17 +1990,16 @@ struct ImportPriceWeaponEntry
 struct ItemEntry
 {
     uint32 ID;
-    uint8 ClassID;
-    uint8 SubclassID;
-    uint8 Material;
-    int8 InventoryType;
-    uint8 SheatheType;
-    int8 SoundOverrideSubclassID;
-    int32 IconFileDataID;
-    uint8 ItemGroupSoundsID;
-    int32 ContentTuningID;
-    int32 ModifiedCraftingReagentItemID;
-    int32 CraftingQualityID;
+    uint32 ClassID;
+    uint32 SubclassID;
+    int32 SoundOverrideSubclassID;
+    uint32 Material;
+    uint32 DisplayInfoID;
+    uint32 InventoryType;
+    uint32 SheatheType;
+
+    // Shaohao: MOP doesn't have Item.ContentTuningID
+    static const int32 ContentTuningID = 0;
 };
 
 struct ItemAppearanceEntry
@@ -2317,14 +2316,14 @@ struct ItemSearchNameEntry
 //    std::array<uint32, MAX_ITEM_SET_ITEMS> ItemID;
 //};
 
-//struct ItemSetSpellEntry
-//{
-//    uint32 ID;
-//    uint16 ChrSpecID;
-//    uint32 SpellID;
-//    uint8 Threshold;
-//    uint32 ItemSetID;
-//};
+struct ItemSetSpellEntry
+{
+    uint32 ID;
+    uint16 ChrSpecID;
+    uint32 SpellID;
+    uint8 Threshold;
+    uint32 ItemSetID;
+};
 
 struct ItemSparseEntry
 {
