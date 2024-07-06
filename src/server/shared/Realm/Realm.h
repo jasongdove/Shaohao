@@ -90,6 +90,8 @@ struct TC_SHARED_API Realm
     uint8 Timezone;
     AccountTypes AllowedSecurityLevel;
     float PopulationLevel;
+    bool Updated;
+    bool Keep;
 
     void SetName(std::string name);
 

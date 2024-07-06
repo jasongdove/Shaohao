@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,25 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SslContext_h__
-#define SslContext_h__
+#ifndef _TOTP_H
+#define _TOTP_H
 
-#include <boost/asio/ssl/context.hpp>
+#include "openssl/hmac.h"
+#include "openssl/evp.h"
 
-namespace Battlenet
+namespace TOTP
 {
-    class SslContext
-    {
-    public:
-        static bool Initialize();
-
-        static boost::asio::ssl::context& instance();
-
-        static bool UsesDevWildcardCertificate() { return _usesDevWildcardCertificate; }
-
-    private:
-        static bool _usesDevWildcardCertificate;
-    };
+    unsigned int GenerateToken(char const* b32key);
 }
 
-#endif // SslContext_h__
+#endif

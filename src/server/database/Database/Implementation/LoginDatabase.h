@@ -28,6 +28,18 @@ enum LoginDatabaseStatements : uint32
         name for a suiting suffix.
     */
 
+    // -----------------------------
+    // Shaohao: from TCPP authserver
+    LOGIN_INS_ACCOUNT_AUTO_BANNED,
+    LOGIN_SEL_LOGONCHALLENGE,
+    LOGIN_SEL_RECONNECTCHALLENGE,
+    LOGIN_SEL_REALM_CHARACTER_COUNTS,
+    LOGIN_UPD_FAILEDLOGINS,
+    LOGIN_UPD_LOGONPROOF,
+    LOGIN_UPD_VS,
+    // -----------------------------
+
+
     LOGIN_SEL_REALMLIST,
     LOGIN_DEL_EXPIRED_IP_BANS,
     LOGIN_UPD_EXPIRED_ACCOUNT_BANS,

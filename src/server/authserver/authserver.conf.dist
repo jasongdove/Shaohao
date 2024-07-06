@@ -1,7 +1,7 @@
 ###############################################
 # Trinity Core Auth Server configuration file #
 ###############################################
-[bnetserver]
+[authserver]
 
 ###################################################################################################
 # SECTION INDEX
@@ -9,7 +9,6 @@
 #    EXAMPLE CONFIG
 #    AUTH SERVER SETTINGS
 #    MYSQL SETTINGS
-#    CRYPTOGRAPHY
 #    UPDATE SETTINGS
 #    LOGGING SYSTEM SETTINGS
 #
@@ -49,35 +48,11 @@ LogsDir = ""
 MaxPingTime = 30
 
 #
-#    BattlenetPort
-#        Description: TCP port to reach the auth server for battle.net connections.
-#        Default:     1119
+#    RealmServerPort
+#        Description: TCP port to reach the auth server.
+#        Default:     3724
 
-BattlenetPort = 1119
-
-#
-#    LoginREST.Port
-#        Description: TCP port to reach the REST login method.
-#        Default:     8081
-#
-#    LoginREST.ExternalAddress
-#        Description: IP address sent to clients connecting from outside the network where bnetserver runs
-#                     Set it to your external IP address
-#
-#    LoginREST.LocalAddress
-#        Description: IP address sent to clients connecting from inside the network where bnetserver runs
-#                     Set it to your local IP address (common 192.168.x.x network)
-#                     or leave it at default value 127.0.0.1 if connecting directly to the internet without a router
-#
-#    LoginREST.TicketDuration
-#        Description: Determines how long the login ticket is valid (in seconds)
-#                     When using client -launcherlogin feature it is recommended to set it to a high value (like a week)
-#
-
-LoginREST.Port = 8081
-LoginREST.ExternalAddress=127.0.0.1
-LoginREST.LocalAddress=127.0.0.1
-LoginREST.TicketDuration=3600
+RealmServerPort = 3724
 
 #
 #
@@ -90,34 +65,10 @@ BindIP = "0.0.0.0"
 #
 #    PidFile
 #        Description: Auth server PID file.
-#        Example:     "./bnetserver.pid"  - (Enabled)
+#        Example:     "./authserver.pid"  - (Enabled)
 #        Default:     ""                  - (Disabled)
 
 PidFile = ""
-
-#
-#    CertificatesFile
-#        Description: Certificates file. Both PEM (.crt) and PKCS#12 (.pfx) formats are supported
-#        Example:     "/etc/ssl/certs/bnetserver.cert.pem"
-#        Default:     "./bnetserver.cert.pem"
-
-CertificatesFile = "./bnetserver.cert.pem"
-
-#
-#    PrivateKeyFile
-#        Description: Private key file.
-#        Example:     "/etc/ssl/private/bnetserver.key.pem"
-#                     Leave empty if you have a certificate in PKCS#12 format
-#        Default:     "./bnetserver.key.pem"
-
-PrivateKeyFile = "./bnetserver.key.pem"
-
-#
-#    PrivateKeyPassword
-#        Description: Password used to encrypt private key.
-#        Default:     ""
-
-PrivateKeyPassword = ""
 
 #
 #    UseProcessors
@@ -141,14 +92,14 @@ ProcessPriority = 0
 #
 #    RealmsStateUpdateDelay
 #        Description: Time (in seconds) between realm list updates.
-#        Default:     10
+#        Default:     20 - (Enabled)
 #                     0  - (Disabled)
 
-RealmsStateUpdateDelay = 10
+RealmsStateUpdateDelay = 20
 
 #
 #    WrongPass.MaxCount
-#        Description: Number of login attempts with wrong password before the account or IP will be
+#        Description: Number of login attemps with wrong password before the account or IP will be
 #                     banned.
 #        Default:     0  - (Disabled)
 #                     1+ - (Enabled)
@@ -197,7 +148,7 @@ SourceDirectory  = ""
 
 #
 #    MySQLExecutable
-#        Description: The path to your MySQL CLI binary.
+#        Description: The path to your mysql cli binary.
 #                     If the path is left empty, built-in path from cmake is used.
 #        Example:     "C:/Program Files/MySQL/MySQL Server 5.6/bin/mysql.exe"
 #                     "mysql.exe"
@@ -216,15 +167,6 @@ MySQLExecutable = ""
 IPLocationFile = ""
 
 #
-#    AllowLoggingIPAddressesInDatabase
-#        Description: Specifies if IP addresses can be logged to the database
-#        Default:     1 - (Enabled)
-#                     0 - (Disabled)
-#
-
-AllowLoggingIPAddressesInDatabase = 1
-
-#
 ###################################################################################################
 
 ###################################################################################################
@@ -232,16 +174,13 @@ AllowLoggingIPAddressesInDatabase = 1
 #
 #    LoginDatabaseInfo
 #        Description: Database connection settings for the realm server.
-#        Example:     "hostname;port;username;password;database;ssl"
-#                     ".;some_number;username;password;database" - (Use named pipes on Windows
+#        Example:     "hostname;port;username;password;database"
+#                     ".;somenumber;username;password;database" - (Use named pipes on Windows
 #                                                                 "enable-named-pipe" to [mysqld]
 #                                                                 section my.ini)
 #                     ".;/path/to/unix_socket;username;password;database" - (use Unix sockets on
 #                                                                           Unix/Linux)
 #        Default:     "127.0.0.1;3306;trinity;trinity;auth"
-#
-#    The SSL option will enable TLS when connecting to the specified database. If not provided or
-#    any value other than 'ssl' is set, TLS will not be used.
 
 LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;auth"
 
@@ -257,27 +196,9 @@ LoginDatabase.WorkerThreads = 1
 #
 #    LoginDatabase.SynchThreads
 #        Description: The amount of MySQL connections spawned to handle.
-#        Default:     1 - (LoginDatabase.SynchThreads)
+#        Default:     1 - (LoginDatabase.WorkerThreads)
 
 LoginDatabase.SynchThreads  = 1
-
-#
-###################################################################################################
-
-###################################################################################################
-# CRYPTOGRAPHY
-#
-#    TOTPMasterSecret
-#        Description: The master key used to encrypt TOTP secrets for database storage.
-#                     If you want to change this, uncomment TOTPOldMasterSecret, then copy
-#                     your old secret there and startup authserver once. Afterwards, you can re-
-#                     comment that line and get rid of your old secret.
-#
-#        Default:     <blank> - (Store TOTP secrets unencrypted)
-#        Example:     000102030405060708090A0B0C0D0E0F
-
-TOTPMasterSecret =
-# TOTPOldMasterSecret =
 
 #
 ###################################################################################################
@@ -349,7 +270,7 @@ Updates.CleanDeadRefMaxCount = 3
 #
 #  LOGGING SYSTEM SETTINGS
 #
-#  Appender config values: Given an appender "name"
+#  Appender config values: Given a appender "name"
 #    Appender.name
 #        Description: Defines 'where to log'
 #        Format:      Type,LogLevel,Flags,optional1,optional2,optional3
@@ -406,13 +327,13 @@ Updates.CleanDeadRefMaxCount = 3
 #                     MaxFileSize: Maximum file size of the log file before creating a new log file
 #                     (read as optional3 if Type = File)
 #                         Size is measured in bytes expressed in a 64-bit unsigned integer.
-#                         Maximum value is 4294967295 (4 GB). Leave blank for no limit.
+#                         Maximum value is 4294967295 (4 gb). Leave blank for no limit.
 #                         NOTE: Does not work with dynamic filenames.
-#                         Example:  536870912 (512 MB)
+#                         Example:  536870912 (512 mb)
 #
 
 Appender.Console=1,2,0
-Appender.Bnet=2,2,0,Bnet.log,w
+Appender.Auth=2,2,0,Auth.log,w
 
 #  Logger config values: Given a logger "name"
 #    Logger.name
@@ -432,15 +353,7 @@ Appender.Bnet=2,2,0,Bnet.log,w
 #                     (Using spaces as separator).
 #
 
-Logger.root=3,Console Bnet
-Logger.realmlist=3,Console Bnet
-Logger.server.http=3,Console Bnet
-Logger.server.http.login=3,Console Bnet
-Logger.server.http.dispatcher.login=3,Console Bnet
-Logger.server.http.session.login=3,Console Bnet
-Logger.session=3,Console Bnet
-Logger.session.packets=3,Console Bnet
-Logger.sql.updates=3,Console Bnet
+Logger.root=3,Console Auth
 
 #
 ###################################################################################################

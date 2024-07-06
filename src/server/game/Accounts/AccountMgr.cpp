@@ -63,8 +63,8 @@ AccountOpResult AccountMgr::CreateAccount(std::string username, std::string pass
 
     stmt->setString(0, username);
     auto [salt, verifier] = Trinity::Crypto::SRP6::MakeRegistrationData<AccountSRP6>(username, password);
-    stmt->setBinary(1, salt);
-    stmt->setBinary(2, verifier);
+    stmt->setString(1, ByteArrayToHexStr(salt));
+    stmt->setString(2, ByteArrayToHexStr(verifier));
     stmt->setString(3, email);
     stmt->setString(4, email);
 
@@ -188,8 +188,8 @@ AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUser
 
     auto [salt, verifier] = Trinity::Crypto::SRP6::MakeRegistrationData<AccountSRP6>(newUsername, newPassword);
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
-    stmt->setBinary(0, salt);
-    stmt->setBinary(1, verifier);
+    stmt->setString(0, ByteArrayToHexStr(salt));
+    stmt->setString(1, ByteArrayToHexStr(verifier));
     stmt->setUInt32(2, accountId);
     LoginDatabase.Execute(stmt);
 
@@ -217,8 +217,8 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPass
     auto [salt, verifier] = Trinity::Crypto::SRP6::MakeRegistrationData<AccountSRP6>(username, newPassword);
 
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
-    stmt->setBinary(0, salt);
-    stmt->setBinary(1, verifier);
+    stmt->setString(0, ByteArrayToHexStr(salt));
+    stmt->setString(1, ByteArrayToHexStr(verifier));
     stmt->setUInt32(2, accountId);
     LoginDatabase.Execute(stmt);
 
