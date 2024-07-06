@@ -56,7 +56,7 @@ void GruntRealmList::Close()
 }
 
 void GruntRealmList::UpdateRealm(Battlenet::RealmHandle const& id, uint32 build, std::string const& name,
-    boost::asio::ip::address&& address, boost::asio::ip::address&& localAddr, boost::asio::ip::address&& localSubmask,
+    boost::asio::ip::address&& address, boost::asio::ip::address&& localAddr,
     uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population)
 {
     // Create new if not exist or update existed
@@ -74,12 +74,9 @@ void GruntRealmList::UpdateRealm(Battlenet::RealmHandle const& id, uint32 build,
     realm.Timezone = timezone;
     realm.AllowedSecurityLevel = allowedSecurityLevel;
     realm.PopulationLevel = population;
-    if (!realm.ExternalAddress || *realm.ExternalAddress != address)
-        realm.ExternalAddress = std::make_unique<boost::asio::ip::address>(std::move(address));
-    if (!realm.LocalAddress || *realm.LocalAddress != localAddr)
-        realm.LocalAddress = std::make_unique<boost::asio::ip::address>(std::move(localAddr));
-    if (!realm.LocalSubnetMask || *realm.LocalSubnetMask != localSubmask)
-        realm.LocalSubnetMask = std::make_unique<boost::asio::ip::address>(std::move(localSubmask));
+    realm.Addresses.resize(2);
+    realm.Addresses[0] = std::move(address);
+    realm.Addresses[1] = std::move(localAddr);
     realm.Port = port;
 }
 
@@ -114,58 +111,50 @@ void GruntRealmList::UpdateRealms(boost::system::error_code const& error)
                 std::string name = fields[1].GetString();
                 std::string externalAddressString = fields[2].GetString();
                 std::string localAddressString = fields[3].GetString();
-                std::string localSubmaskString = fields[4].GetString();
 
                 Optional<boost::asio::ip::tcp::endpoint> externalAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), externalAddressString, "");
                 if (!externalAddress)
                 {
-                    TC_LOG_ERROR("realmlist", "Could not resolve address %s", externalAddressString.c_str());
+                    TC_LOG_ERROR("realmlist", "Could not resolve address {}", externalAddressString.c_str());
                     continue;
                 }
 
                 Optional<boost::asio::ip::tcp::endpoint> localAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), localAddressString, "");
                 if (!localAddress)
                 {
-                    TC_LOG_ERROR("realmlist", "Could not resolve address %s", localAddressString.c_str());
+                    TC_LOG_ERROR("realmlist", "Could not resolve address {}", localAddressString.c_str());
                     continue;
                 }
 
-                Optional<boost::asio::ip::tcp::endpoint> localSubmask = resolver.Resolve(boost::asio::ip::tcp::v4(), localSubmaskString, "");
-                if (!localSubmask)
-                {
-                    TC_LOG_ERROR("realmlist", "Could not resolve address %s", localSubmaskString.c_str());
-                    continue;
-                }
-
-                uint16 port = fields[5].GetUInt16();
-                uint8 icon = fields[6].GetUInt8();
+                uint16 port = fields[4].GetUInt16();
+                uint8 icon = fields[5].GetUInt8();
                 if (icon == REALM_TYPE_FFA_PVP)
                     icon = REALM_TYPE_PVP;
                 if (icon >= MAX_CLIENT_REALM_TYPE)
                     icon = REALM_TYPE_NORMAL;
-                RealmFlags flag = RealmFlags(fields[7].GetUInt8());
-                uint8 timezone = fields[8].GetUInt8();
-                uint8 allowedSecurityLevel = fields[9].GetUInt8();
-                float pop = fields[10].GetFloat();
-                uint32 build = fields[11].GetUInt32();
-                uint8 region = fields[12].GetUInt8();
-                uint8 battlegroup = fields[13].GetUInt8();
+                RealmFlags flag = RealmFlags(fields[6].GetUInt8());
+                uint8 timezone = fields[7].GetUInt8();
+                uint8 allowedSecurityLevel = fields[8].GetUInt8();
+                float pop = fields[9].GetFloat();
+                uint32 build = fields[10].GetUInt32();
+                uint8 region = fields[11].GetUInt8();
+                uint8 battlegroup = fields[12].GetUInt8();
 
                 Battlenet::RealmHandle id{ region, battlegroup, realmId };
 
-                UpdateRealm(id, build, name, externalAddress->address(), localAddress->address(), localSubmask->address(), port, icon, flag,
+                UpdateRealm(id, build, name, externalAddress->address(), localAddress->address(), port, icon, flag,
                     timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop);
 
                 if (!existingRealms.count(id))
-                    TC_LOG_INFO("server.authserver", "Added realm \"%s\" at %s:%u.", name.c_str(), externalAddressString.c_str(), port);
+                    TC_LOG_INFO("server.authserver", "Added realm \"{}\" at {}:{}.", name.c_str(), externalAddressString.c_str(), port);
                 else
-                    TC_LOG_DEBUG("server.authserver", "Updating realm \"%s\" at %s:%u.", name.c_str(), externalAddressString.c_str(), port);
+                    TC_LOG_DEBUG("server.authserver", "Updating realm \"{}\" at {}:{}.", name.c_str(), externalAddressString.c_str(), port);
 
                 existingRealms.erase(id);
             }
             catch (std::exception& ex)
             {
-                TC_LOG_ERROR("server.authserver", "GruntRealmList::UpdateRealms has thrown an exception: %s", ex.what());
+                TC_LOG_ERROR("server.authserver", "GruntRealmList::UpdateRealms has thrown an exception: {}", ex.what());
                 ABORT();
             }
         }
@@ -173,7 +162,7 @@ void GruntRealmList::UpdateRealms(boost::system::error_code const& error)
     }
 
     for (auto itr = existingRealms.begin(); itr != existingRealms.end(); ++itr)
-        TC_LOG_INFO("server.authserver", "Removed realm \"%s\".", itr->second.c_str());
+        TC_LOG_INFO("server.authserver", "Removed realm \"{}\".", itr->second.c_str());
 
     if (_updateInterval)
     {
