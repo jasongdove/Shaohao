@@ -642,6 +642,9 @@ char* DB2DatabaseLoader::Load(const char* format, HotfixDatabaseStatements prepa
 
 void DB2DatabaseLoader::LoadStrings(const char* format, HotfixDatabaseStatements preparedStatement, uint32 locale, char**& indexTable, std::list<char*>& stringPool)
 {
+    // TODO: DATA temp disabled
+    return;
+
     auto stmt = HotfixDatabase.GetPreparedStatement(preparedStatement);
     stmt->setString(0, localeNames[locale]);
     PreparedQueryResult result = HotfixDatabase.Query(stmt);

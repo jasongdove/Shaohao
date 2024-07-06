@@ -418,7 +418,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 //    LOAD_DB2(sItemEffectStore);
 //    LOAD_DB2(sItemExtendedCostStore);
 //    LOAD_DB2(sItemModifiedAppearanceStore);
-//    LOAD_DB2(sItemSparseStore);
+LOAD_DB2(sItemSparseStore);
 LOAD_DB2(sItemStore);
 //    LOAD_DB2(sItemXBonusTreeStore);
 //    LOAD_DB2(sKeyChainStore);
@@ -1138,7 +1138,6 @@ uint32 DB2Manager::GetRedirectedContentTuningId(uint32 contentTuningId, uint32 r
 
     return contentTuningId;
 }
-
 Optional<ContentTuningLevels> DB2Manager::GetContentTuningData(uint32 contentTuningId, uint32 redirectFlag, bool forItem /*= false*/) const
 {
     ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(GetRedirectedContentTuningId(contentTuningId, redirectFlag));

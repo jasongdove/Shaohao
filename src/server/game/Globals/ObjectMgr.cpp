@@ -3182,8 +3182,8 @@ struct ItemSpecStats
             ItemType = 0;
 
         for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-            if (sparse->StatModifierBonusStat[i] != -1)
-                AddModStat(sparse->StatModifierBonusStat[i]);
+            if (sparse->ItemStatType[i] != -1)
+                AddModStat(sparse->ItemStatType[i]);
     }
 
     void AddStat(ItemSpecStat statType)
@@ -3268,7 +3268,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.BasicData = db2Data;
         itemTemplate.ExtendedData = sparse;
 
-        itemTemplate.MaxDurability = FillMaxDurability(db2Data->ClassID, db2Data->SubclassID, sparse->InventoryType, sparse->OverallQualityID, sparse->ItemLevel);
+        itemTemplate.MaxDurability = FillMaxDurability(db2Data->ClassID, db2Data->SubclassID, sparse->InventoryType, sparse->Quality, sparse->ItemLevel);
         itemTemplate.ScriptId = 0;
         itemTemplate.FoodType = 0;
         itemTemplate.MinMoneyLoot = 0;

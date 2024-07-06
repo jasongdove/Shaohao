@@ -811,50 +811,50 @@ struct TC_GAME_API ItemTemplate
     uint32 GetId() const { return BasicData->ID; }
     uint32 GetClass() const { return BasicData->ClassID; }
     uint32 GetSubClass() const { return BasicData->SubclassID; }
-    uint32 GetQuality() const { return ExtendedData->OverallQualityID; }
+    uint32 GetQuality() const { return ExtendedData->Quality; }
     uint32 GetOtherFactionItemId() const { return ExtendedData->FactionRelated; }
     float GetPriceRandomValue() const { return ExtendedData->PriceRandomValue; }
     float GetPriceVariance() const { return ExtendedData->PriceVariance; }
-    uint32 GetBuyCount() const { return std::max<uint32>(ExtendedData->VendorStackCount, 1u); }
+    uint32 GetBuyCount() const { return std::max<uint32>(ExtendedData->BuyCount, 1u); }
     uint32 GetBuyPrice() const { return ExtendedData->BuyPrice; }
     uint32 GetSellPrice() const { return ExtendedData->SellPrice; }
     InventoryType GetInventoryType() const { return InventoryType(ExtendedData->InventoryType); }
     int32 GetAllowableClass() const { return ExtendedData->AllowableClass; }
-    Trinity::RaceMask<int64> GetAllowableRace() const { return ExtendedData->AllowableRace; }
+    Trinity::RaceMask<int32> GetAllowableRace() const { return ExtendedData->AllowableRace; }
     uint32 GetBaseItemLevel() const { return ExtendedData->ItemLevel; }
     int32 GetBaseRequiredLevel() const { return ExtendedData->RequiredLevel; }
     uint32 GetRequiredSkill() const { return ExtendedData->RequiredSkill; }
     uint32 GetRequiredSkillRank() const { return ExtendedData->RequiredSkillRank; }
-    uint32 GetRequiredSpell() const { return ExtendedData->RequiredAbility; }
-    uint32 GetRequiredReputationFaction() const { return ExtendedData->MinFactionID; }
-    uint32 GetRequiredReputationRank() const { return ExtendedData->MinReputation; }
+    uint32 GetRequiredSpell() const { return ExtendedData->RequiredSpell; }
+    uint32 GetRequiredReputationFaction() const { return ExtendedData->RequiredReputationFaction; }
+    uint32 GetRequiredReputationRank() const { return ExtendedData->RequiredReputationRank; }
     uint32 GetMaxCount() const { return ExtendedData->MaxCount; }
     uint32 GetContainerSlots() const { return ExtendedData->ContainerSlots; }
-    int32 GetStatModifierBonusStat(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->StatModifierBonusStat[index]; }
-    int32 GetStatPercentEditor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->StatPercentEditor[index]; }
-    float GetStatPercentageOfSocket(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->StatPercentageOfSocket[index]; }
+    int32 GetStatModifierBonusStat(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->ItemStatType[index]; }
+    int32 GetStatPercentEditor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->ItemStatValue[index]; }
+    float GetStatPercentageOfSocket(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->ItemSocketCostRate[index]; }
     uint32 GetScalingStatContentTuning() const { return ExtendedData->ContentTuningID; }
     uint32 GetPlayerLevelToItemLevelCurveId() const { return ExtendedData->PlayerLevelToItemLevelCurveID; }
-    uint32 GetDamageType() const { return ExtendedData->DamageDamageType; }
-    uint32 GetDelay() const { return ExtendedData->ItemDelay; }
-    float GetRangedModRange() const { return ExtendedData->ItemRange; }
+    uint32 GetDamageType() const { return ExtendedData->DamageType; }
+    uint32 GetDelay() const { return ExtendedData->Delay; }
+    float GetRangedModRange() const { return ExtendedData->RangedModRange; }
     ItemBondingType GetBonding() const { return ItemBondingType(ExtendedData->Bonding); }
     char const* GetName(LocaleConstant locale) const;
-    uint32 GetPageText() const { return ExtendedData->PageID; }
-    uint32 GetStartQuest() const { return ExtendedData->StartQuestID; }
+    uint32 GetPageText() const { return ExtendedData->PageText; }
+    uint32 GetStartQuest() const { return ExtendedData->StartQuest; }
     uint32 GetLockID() const { return ExtendedData->LockID; }
     uint32 GetItemSet() const { return ExtendedData->ItemSet; }
-    uint32 GetArea(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_ZONES); return ExtendedData->ZoneBound[index]; }
-    uint32 GetMap() const { return ExtendedData->InstanceBound; }
+    uint32 GetArea(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_ZONES); return ExtendedData->Area; }
+    uint32 GetMap() const { return ExtendedData->Map; }
     uint32 GetBagFamily() const { return ExtendedData->BagFamily; }
-    uint32 GetTotemCategory() const { return ExtendedData->TotemCategoryID; }
-    SocketColor GetSocketColor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_SOCKETS); return SocketColor(ExtendedData->SocketType[index]); }
-    uint32 GetSocketBonus() const { return ExtendedData->SocketMatchEnchantmentId; }
+    uint32 GetTotemCategory() const { return ExtendedData->TotemCategory; }
+    SocketColor GetSocketColor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_SOCKETS); return SocketColor(ExtendedData->Color[index]); }
+    uint32 GetSocketBonus() const { return ExtendedData->SocketBonus; }
     uint32 GetGemProperties() const { return ExtendedData->GemProperties; }
-    float GetQualityModifier() const { return ExtendedData->QualityModifier; }
-    uint32 GetDuration() const { return ExtendedData->DurationInInventory; }
-    uint32 GetItemLimitCategory() const { return ExtendedData->LimitCategory; }
-    HolidayIds GetHolidayID() const { return HolidayIds(ExtendedData->RequiredHoliday); }
+    //float GetQualityModifier() const { return ExtendedData->QualityModifier; }
+    uint32 GetDuration() const { return ExtendedData->Duration; }
+    uint32 GetItemLimitCategory() const { return ExtendedData->ItemLimitCategory; }
+    HolidayIds GetHolidayID() const { return HolidayIds(ExtendedData->HolidayID); }
     float  GetDmgVariance() const { return ExtendedData->DmgVariance; }
     uint8 GetArtifactID() const { return ExtendedData->ArtifactID; }
     uint8 GetRequiredExpansion() const { return ExtendedData->ExpansionID; }

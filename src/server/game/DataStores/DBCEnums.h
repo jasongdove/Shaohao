@@ -1026,10 +1026,11 @@ enum class GlobalCurve : int32
     ContentTuningPvpItemLevelDamageScaling = 15,
 };
 
-#define MAX_ITEM_PROTO_FLAGS 4
+#define MAX_ITEM_PROTO_FLAGS 3
 #define MAX_ITEM_PROTO_ZONES 2
 #define MAX_ITEM_PROTO_SOCKETS 3
 #define MAX_ITEM_PROTO_STATS  10
+#define MAX_ITEM_PROTO_SPELLS 5
 
 enum GlyphSlotType
 {
