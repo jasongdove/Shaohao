@@ -447,9 +447,9 @@ LOAD_DBC(sAuctionHouseStore, "AuctionHouse.dbc");
 //    // sCharStartOutfitMap
 //    LOAD_DBC(sCharTitlesStore, "CharTitles.dbc");//20444
 //    LOAD_DBC(sChatChannelsStore, "ChatChannels.dbc");//20444
-//    LOAD_DBC(sChrClassesStore, "ChrClasses.dbc");//20444
+LOAD_DBC(sChrClassesStore, "ChrClasses.dbc");//20444
 //    // TODO: DATA LOAD_DBC(sChrClassesXPowerTypesStore, "ChrClassesXPowerTypes.dbc");
-//    LOAD_DBC(sChrRacesStore, "ChrRaces.dbc");//20444
+LOAD_DBC(sChrRacesStore, "ChrRaces.dbc");//20444
 //    LOAD_DBC(sChrSpecializationStore, "ChrSpecialization.dbc");//20444
 //    // sChrSpecializationByIndexStore
 //    LOAD_DBC(sCinematicCameraStore, "CinematicCamera.dbc");
@@ -469,8 +469,8 @@ LOAD_DBC(sDifficultyStore, "Difficulty.dbc");//20444
 //    LOAD_DBC(sDungeonEncounterStore, "DungeonEncounter.dbc");//20444
 //    LOAD_DBC(sDurabilityCostsStore, "DurabilityCosts.dbc");//20444
 //    LOAD_DBC(sDurabilityQualityStore, "DurabilityQuality.dbc");
-//    LOAD_DBC(sEmotesStore, "Emotes.dbc");//20444
-//    LOAD_DBC(sEmotesTextStore, "EmotesText.dbc");//20444
+LOAD_DBC(sEmotesStore, "Emotes.dbc");//20444
+LOAD_DBC(sEmotesTextStore, "EmotesText.dbc");//20444
 //    //
 //    //
 //    LOAD_DBC(sEmotesTextSoundStore, "EmotesTextSound.dbc");
@@ -1537,10 +1537,10 @@ char const* DBCManager::GetChrRaceName(uint8 race, LocaleConstant locale /*= DEF
     if (!raceEntry)
         return "";
 
-    if (raceEntry->Name[locale][0] != '\0')
-        return raceEntry->Name[locale];
+    if (raceEntry->Name(locale)[0] != '\0')
+        return raceEntry->Name(locale);
 
-    return raceEntry->Name[DEFAULT_LOCALE];
+    return raceEntry->Name(DEFAULT_LOCALE);
 }
 
 char const* DBCManager::GetClassName(uint8 class_, LocaleConstant locale /*= DEFAULT_LOCALE*/)
@@ -1549,10 +1549,10 @@ char const* DBCManager::GetClassName(uint8 class_, LocaleConstant locale /*= DEF
     if (!classEntry)
         return "";
 
-    if (classEntry->Name[locale][0] != '\0')
-        return classEntry->Name[locale];
+    if (classEntry->Name(locale)[0] != '\0')
+        return classEntry->Name(locale);
 
-    return classEntry->Name[DEFAULT_LOCALE];
+    return classEntry->Name(DEFAULT_LOCALE);
 }
 
 char const* DBCManager::GetCreatureFamilyPetName(uint32 petfamily, LocaleConstant locale)

@@ -235,67 +235,67 @@ struct ChatChannelsEntry
 
 struct ChrClassesEntry
 {
-    uint32      ID;                                         // 0
-    uint32      DisplayPower;                               // 1
-    //char*     PetNameToken                                // 2
-    LocalizedString Name;                                       // 3
-    //char*     NameFemale_lang;                            // 4
-    //char*     NameMale_lang;                              // 5
-    //char*     Filename;                                   // 6
-    uint32      SpellClassSet;                              // 7
-    uint32      Flags;                                      // 8
-    uint32      CinematicSequenceID;                        // 9
-    uint32      AttackPowerPerStrength;                     // 10 Attack Power bonus per point of strength
-    uint32      AttackPowerPerAgility;                      // 11 Attack Power bonus per point of agility
-    uint32      RangedAttackPowerPerAgility;                // 12 Ranged Attack Power bonus per point of agility
-    uint32      DefaultSpec;                                // 13
-    //uint32    CreateScreenFileDataID;                     // 14
-    //uint32    SelectScreenFileDataID;                     // 15
-    //uint32    LowResScreenFileDataID;                     // 16
-    //uint32    IconFileDataID;                             // 17
-    //uint32    Unk1;                                       // 18
+    uint32      ID;
+    uint32      DisplayPower;
+    //char*     PetNameToken;
+    char*       Name_lang;
+    //char*     Name_female_lang;
+    //char*     Name_male_lang;
+    //char*     Filename;
+    uint32      SpellClassSet;
+    uint32      Flags;
+    uint32      CinematicSequenceID;
+    uint32      AttackPowerPerStrength;
+    uint32      AttackPowerPerAgility;
+    uint32      RangedAttackPowerPerAgility;
+    uint32      DefaultSpec;
+    //uint32    CreateScreenFileDataID;
+    //uint32    SelectScreenFileDataID;
+    //uint32    LowResScreenFileDataID;
+    //uint32    IconFileDataID;
+
+    const char* Name(LocaleConstant /*locale*/) const { return Name_lang; }
 
     // TODO: Shaohao: MOP doesn't have ChrClassesEntry.ArmorTypeMask
-    uint32 ArmorTypeMask = 0;
+    // not sure if it is needed, or if zero is fine
+    static const uint32 ArmorTypeMask = 0;
 };
 
 struct ChrRacesEntry
 {
-    uint32 ID;                                              // 0
-    uint32 Flags;                                           // 1
-    uint32 FactionID;                                       // 2 facton template id
-    //uin32 unk1;                                           // 3
-    uint32 model_m;                                         // 4
-    uint32 model_f;                                         // 5
-    //uint32 unk2;                                          // 6
-    uint32 TeamID;                                          // 7 (42-Neutral 7-Alliance 1-Horde)
-    uint32 CreatureType;                                    // 8 (All 7)
-    uint32 ResSicknessSpellID;                              // 9 (All 15007)
-    //uint32 unk5;                                          // 10 (All 1096)
-    //uint32 unk6;                                          // 11
-    uint32 CinematicSequenceID;                             // 12 id from CinematicSequences.dbc
-    uint32 Alliance;                                        // 13 (0 alliance, 1 horde, 2 neutral)
-    LocalizedString Name;                                   // 14 m_name_lang used for DBC language detection/selection
-    //DbcStr nameFemale;                                    // 15 ""
-    //DbcStr nameNeutralGender;                             // 16 ""
-    //uint32 m_facialHairCustomization[2]                   // 17-18
-    //uint32 m_hairCustomization                            // 19
-    //uint32 m_enemyRace;                                   // 20 m_enemyRace
-    uint32 UnalteredVisualRaceID;                           // 21 (23 for worgens = Gilnean)
-    //uint32 unk7;                                          // 22 (Gilnean 3133)
-    //uint32 unk8;                                          // 23 (Gilnean 3134)
-    //uint32 unk9;                                          // 24 (All 1, Pandaren 2)
-    //uint32 defaultClassForRace                            // 25
-    //uint32 unk10;                                         // 26
-    //uint32 unk11;                                         // 27
-    //float unk12;                                          // 28
-    //uint32 unk13;                                         // 29 unused
-    //float unk14;                                          // 30
-    //float unk15;                                          // 31
-    //uint32 unk16;                                         // 32 unused
-    //float unk17;                                          // 33
-    //uint32 unk18;                                         // 34
-    //uint32 unk19;                                         // 35
+    uint32 ID;
+    uint32 Flags;
+    uint32 FactionID;
+    //uint32 ExplorationSoundID;
+    //uint32 MaleDisplayID;
+    //uint32 FemaleDisplayID;
+    //char* ClientPrefix;
+    //uint32 BaseLanuage;
+    uint32 CreatureType;
+    uint32 ResSicknessSpellID;
+    //uint32 SplashSoundID;
+    //char* ClientFileString;
+    uint32 CinematicSequenceID;
+    uint32 Alliance;
+    char* Name_lang;
+    //char* Name_female_lang;
+    //char* Name_male_lang;
+    //uint32 FacialHairCustomization[2];
+    //char* HairCustomization;
+    //uint32 Race_related;
+    uint32 UnalteredVisualRaceID;
+    //uint32 UaMaleCreatureSoundDataID;
+    //uint32 UaFemaleCreatureSoundDataID;
+    //uint32 ChrComponentTextureLayoutID;
+    //uint32 DefaultClassID;
+    //uint32 CreateScreenFileDataID;
+    //uint32 SelectScreenFileDataID;
+    //uint32 MaleCustomizeOffset[3];
+    //uint32 FemaleCustomizeOffset[3];
+    //uint32 NeutralRaceID;
+    //uint32 LowResScreenFileDataID;
+
+    const char* Name(LocaleConstant /*locale*/) const { return Name_lang; }
 
     EnumFlag<ChrRacesFlag> GetFlags() const { return static_cast<ChrRacesFlag>(Flags); }
 };
