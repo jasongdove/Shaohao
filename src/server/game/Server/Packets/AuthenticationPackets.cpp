@@ -23,6 +23,43 @@
 #include "ObjectMgr.h"
 #include "RSA.h"
 
+#define PLAYABLE_CLASSES_COUNT 11
+#define PLAYABLE_RACES_COUNT 15
+
+uint8 raceExpansion[PLAYABLE_RACES_COUNT][2] =
+{
+        { RACE_TAUREN,            EXPANSION_CLASSIC             },
+        { RACE_UNDEAD_PLAYER,     EXPANSION_CLASSIC             },
+        { RACE_ORC,               EXPANSION_CLASSIC             },
+        { RACE_GNOME,             EXPANSION_CLASSIC             },
+        { RACE_GOBLIN,            EXPANSION_THE_BURNING_CRUSADE },
+        { RACE_HUMAN,             EXPANSION_CLASSIC             },
+        { RACE_TROLL,             EXPANSION_CLASSIC             },
+        { RACE_PANDAREN_NEUTRAL,  EXPANSION_THE_BURNING_CRUSADE },
+        { RACE_DRAENEI,           EXPANSION_THE_BURNING_CRUSADE },
+        { RACE_WORGEN,            EXPANSION_THE_BURNING_CRUSADE },
+        { RACE_BLOODELF,          EXPANSION_THE_BURNING_CRUSADE },
+        { RACE_NIGHTELF,          EXPANSION_CLASSIC             },
+        { RACE_DWARF,             EXPANSION_CLASSIC             },
+        { RACE_PANDAREN_ALLIANCE, EXPANSION_THE_BURNING_CRUSADE },
+        { RACE_PANDAREN_HORDE,    EXPANSION_THE_BURNING_CRUSADE },
+};
+
+uint8 classExpansion[PLAYABLE_CLASSES_COUNT][2] =
+{
+        { CLASS_MONK,         EXPANSION_MISTS_OF_PANDARIA      },
+        { CLASS_WARRIOR,      EXPANSION_CLASSIC                },
+        { CLASS_PALADIN,      EXPANSION_CLASSIC                },
+        { CLASS_HUNTER,       EXPANSION_CLASSIC                },
+        { CLASS_ROGUE,        EXPANSION_CLASSIC                },
+        { CLASS_PRIEST,       EXPANSION_CLASSIC                },
+        { CLASS_SHAMAN,       EXPANSION_CLASSIC                },
+        { CLASS_MAGE,         EXPANSION_CLASSIC                },
+        { CLASS_WARLOCK,      EXPANSION_CLASSIC                },
+        { CLASS_DRUID,        EXPANSION_CLASSIC                },
+        { CLASS_DEATH_KNIGHT, EXPANSION_WRATH_OF_THE_LICH_KING },
+};
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmNameInfo const& virtualRealmInfo)
 {
     data.WriteBit(virtualRealmInfo.IsLocal);
@@ -73,29 +110,58 @@ const WorldPacket* WorldPackets::Auth::Pong::Write()
 
 WorldPacket const* WorldPackets::Auth::AuthChallenge::Write()
 {
-    _worldPacket.append(DosChallenge.data(), DosChallenge.size());
+    _worldPacket << uint16(0);
     _worldPacket.append(Challenge.data(), Challenge.size());
-    _worldPacket << uint8(DosZeroBits);
+    _worldPacket << uint8(1);
+    _worldPacket.append(AuthSeed);
     return &_worldPacket;
 }
 
 void WorldPackets::Auth::AuthSession::Read()
 {
-    uint32 realmJoinTicketSize;
+    uint32 addonDataSize;
 
-    _worldPacket >> DosResponse;
-    _worldPacket >> RegionID;
-    _worldPacket >> BattlegroupID;
-    _worldPacket >> RealmID;
-    _worldPacket.read(LocalChallenge.data(), LocalChallenge.size());
-    _worldPacket.read(Digest.data(), Digest.size());
-    UseIPv6 = _worldPacket.ReadBit();
-    _worldPacket >> realmJoinTicketSize;
-    if (realmJoinTicketSize)
+    _worldPacket.read_skip<uint32>();   // 0-3
+    _worldPacket.read_skip<uint32>();   // 4-7
+    _worldPacket >> Digest[18];         // 8
+    _worldPacket >> Digest[14];         // 9
+    _worldPacket >> Digest[3];          // 10
+    _worldPacket >> Digest[4];          // 11
+    _worldPacket >> Digest[0];          // 12
+    _worldPacket.read_skip<uint32>();   // 13-16
+    _worldPacket >> Digest[11];         // 17
+    _worldPacket >> ClientSeed;         // 18-21
+    _worldPacket >> Digest[19];
+    _worldPacket.read_skip<uint8>();
+    _worldPacket.read_skip<uint8>();
+    _worldPacket >> Digest[2];
+    _worldPacket >> Digest[9];
+    _worldPacket >> Digest[12];
+    _worldPacket.read_skip<uint64>();
+    _worldPacket.read_skip<uint32>();
+    _worldPacket >> Digest[16];
+    _worldPacket >> Digest[5];
+    _worldPacket >> Digest[6];
+    _worldPacket >> Digest[8];
+    _worldPacket >> ClientBuild;
+    _worldPacket >> Digest[17];
+    _worldPacket >> Digest[7];
+    _worldPacket >> Digest[13];
+    _worldPacket >> Digest[15];
+    _worldPacket >> Digest[1];
+    _worldPacket >> Digest[10];
+    _worldPacket >> addonDataSize;
+
+    if (addonDataSize)
     {
-        RealmJoinTicket.resize(std::min(realmJoinTicketSize, uint32(_worldPacket.size() - _worldPacket.rpos())));
-        _worldPacket.read(reinterpret_cast<uint8*>(&RealmJoinTicket[0]), RealmJoinTicket.size());
+        AddonInfo.resize(addonDataSize);
+        _worldPacket.read(AddonInfo.contents(), addonDataSize);
     }
+
+    _worldPacket.ReadBit();
+    uint32 accountNameLength = _worldPacket.ReadBits(11);
+
+    Account = _worldPacket.ReadString(accountNameLength);
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::AuthWaitInfo const& waitInfo)
@@ -112,99 +178,73 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::AuthWaitInfo const&
 
 WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
 {
-    _worldPacket << uint32(Result);
+    std::map<uint32, std::string> realmNamesToSend;
+
     _worldPacket.WriteBit(SuccessInfo.has_value());
-    _worldPacket.WriteBit(WaitInfo.has_value());
-    _worldPacket.FlushBits();
 
     if (SuccessInfo)
     {
-        _worldPacket << uint32(SuccessInfo->VirtualRealmAddress);
-        _worldPacket << uint32(SuccessInfo->VirtualRealms.size());
-        _worldPacket << uint32(SuccessInfo->TimeRested);
-        _worldPacket << uint8(SuccessInfo->ActiveExpansionLevel);
-        _worldPacket << uint8(SuccessInfo->AccountExpansionLevel);
-        _worldPacket << uint32(SuccessInfo->TimeSecondsUntilPCKick);
-        _worldPacket << uint32(SuccessInfo->AvailableClasses->size());
-        _worldPacket << uint32(SuccessInfo->Templates.size());
-        _worldPacket << uint32(SuccessInfo->CurrencyID);
-        _worldPacket << SuccessInfo->Time;
+        _worldPacket.WriteBits(SuccessInfo->VirtualRealms.size(), 21);
 
-        for (RaceClassAvailability const& raceClassAvailability : *SuccessInfo->AvailableClasses)
+        for (VirtualRealmInfo const &virtualRealm: SuccessInfo->VirtualRealms)
         {
-            _worldPacket << uint8(raceClassAvailability.RaceID);
-            _worldPacket << uint32(raceClassAvailability.Classes.size());
-
-            for (ClassAvailability const& classAvailability : raceClassAvailability.Classes)
-            {
-                _worldPacket << uint8(classAvailability.ClassID);
-                _worldPacket << uint8(classAvailability.ActiveExpansionLevel);
-                _worldPacket << uint8(classAvailability.AccountExpansionLevel);
-                _worldPacket << uint8(classAvailability.MinActiveExpansionLevel);
-            }
+            _worldPacket.WriteBits(virtualRealm.RealmNameInfo.RealmNameActual.length(), 8);
+            _worldPacket.WriteBits(virtualRealm.RealmNameInfo.RealmNameNormalized.length(), 8);
+            _worldPacket.WriteBit(virtualRealm.RealmNameInfo.IsLocal);
         }
 
-        _worldPacket.WriteBit(SuccessInfo->IsExpansionTrial);
-        _worldPacket.WriteBit(SuccessInfo->ForceCharacterTemplate);
-        _worldPacket.WriteBit(SuccessInfo->NumPlayersHorde.has_value());
-        _worldPacket.WriteBit(SuccessInfo->NumPlayersAlliance.has_value());
-        _worldPacket.WriteBit(SuccessInfo->ExpansionTrialExpiration.has_value());
-        _worldPacket.WriteBit(SuccessInfo->NewBuildKeys.has_value());
-        _worldPacket.FlushBits();
-
-        {
-            _worldPacket << uint32(SuccessInfo->GameTimeInfo.BillingPlan);
-            _worldPacket << uint32(SuccessInfo->GameTimeInfo.TimeRemain);
-            _worldPacket << uint32(SuccessInfo->GameTimeInfo.Unknown735);
-            // 3x same bit is not a mistake - preserves legacy client behavior of BillingPlanFlags::SESSION_IGR
-            _worldPacket.WriteBit(SuccessInfo->GameTimeInfo.InGameRoom); // inGameRoom check in function checking which lua event to fire when remaining time is near end - BILLING_NAG_DIALOG vs IGR_BILLING_NAG_DIALOG
-            _worldPacket.WriteBit(SuccessInfo->GameTimeInfo.InGameRoom); // inGameRoom lua return from Script_GetBillingPlan
-            _worldPacket.WriteBit(SuccessInfo->GameTimeInfo.InGameRoom); // not used anywhere in the client
-            _worldPacket.FlushBits();
-        }
-
-        if (SuccessInfo->NumPlayersHorde)
-            _worldPacket << uint16(*SuccessInfo->NumPlayersHorde);
-
-        if (SuccessInfo->NumPlayersAlliance)
-            _worldPacket << uint16(*SuccessInfo->NumPlayersAlliance);
-
-        if (SuccessInfo->ExpansionTrialExpiration)
-            _worldPacket << *SuccessInfo->ExpansionTrialExpiration;
-
-        if (SuccessInfo->NewBuildKeys)
-        {
-            for (std::size_t i = 0; i < 16; ++i)
-            {
-                _worldPacket << SuccessInfo->NewBuildKeys->NewBuildKey[i];
-                _worldPacket << SuccessInfo->NewBuildKeys->SomeKey[i];
-            }
-        }
-
-        for (VirtualRealmInfo const& virtualRealm : SuccessInfo->VirtualRealms)
-            _worldPacket << virtualRealm;
-
-        for (CharacterTemplate const* characterTemplate : SuccessInfo->Templates)
-        {
-            _worldPacket << uint32(characterTemplate->TemplateSetId);
-            _worldPacket << uint32(characterTemplate->Classes.size());
-            for (CharacterTemplateClass const& templateClass : characterTemplate->Classes)
-            {
-                _worldPacket << uint8(templateClass.ClassID);
-                _worldPacket << uint8(templateClass.FactionGroup);
-            }
-
-            _worldPacket.WriteBits(characterTemplate->Name.length(), 7);
-            _worldPacket.WriteBits(characterTemplate->Description.length(), 10);
-            _worldPacket.FlushBits();
-
-            _worldPacket.WriteString(characterTemplate->Name);
-            _worldPacket.WriteString(characterTemplate->Description);
-        }
+        _worldPacket.WriteBits(PLAYABLE_CLASSES_COUNT, 23); //
+        _worldPacket.WriteBits(0, 21);
+        _worldPacket.WriteBit(0);
+        _worldPacket.WriteBit(0);
+        _worldPacket.WriteBit(0);
+        _worldPacket.WriteBit(0);
+        _worldPacket.WriteBits(PLAYABLE_RACES_COUNT, 23);
+        _worldPacket.WriteBit(0);
     }
 
-    if (WaitInfo)
-        _worldPacket << *WaitInfo;
+    _worldPacket.WriteBit(WaitInfo.has_value());
+
+    if (WaitInfo.has_value())
+        _worldPacket.WriteBit(1);
+
+    _worldPacket.FlushBits();
+
+    if (WaitInfo.has_value())
+        _worldPacket << WaitInfo->WaitCount;
+
+    if (SuccessInfo)
+    {
+        for (VirtualRealmInfo const &virtualRealm: SuccessInfo->VirtualRealms)
+        {
+            _worldPacket << uint32(virtualRealm.RealmAddress);
+            _worldPacket.WriteString(virtualRealm.RealmNameInfo.RealmNameActual);
+            _worldPacket.WriteString(virtualRealm.RealmNameInfo.RealmNameNormalized);
+        }
+
+        for (auto &r: raceExpansion)
+        {
+            _worldPacket << uint8(r[1]);
+            _worldPacket << uint8(r[0]);
+        }
+
+        for (auto &c: classExpansion)
+        {
+            _worldPacket << uint8(c[1]);
+            _worldPacket << uint8(c[0]);
+        }
+
+        _worldPacket << uint32(0);
+        _worldPacket << uint8(SuccessInfo->ActiveExpansionLevel);
+        _worldPacket << uint32(0);
+        _worldPacket << uint32(0); // unk time in ms
+        _worldPacket << uint8(SuccessInfo->AccountExpansionLevel);
+        _worldPacket << uint32(SuccessInfo->CurrencyID);
+        _worldPacket << uint32(0);
+        _worldPacket << uint32(0);
+    }
+
+    _worldPacket << uint8(Result);
 
     return &_worldPacket;
 }

@@ -505,8 +505,10 @@ bool AuthSession::HandleLogonProof()
         // Update the sessionkey, last_ip, last login time and reset number of failed logins in the account table for this account
         // No SQL injection (escaped user name) and IP address as received by socket
 
+        TC_LOG_INFO("server.authserver", "User '{}' key data {}", _accountInfo.Login.c_str(), ByteArrayToHexStr(_sessionKey));
+
         auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
-        stmt->setString(0, ByteArrayToHexStr(_sessionKey));
+        stmt->setBinary(0, _sessionKey);
         stmt->setString(1, GetRemoteIpAddress().to_string());
         stmt->setUInt32(2, GetLocaleByName(_localizationName));
         stmt->setString(3, _os);
@@ -765,12 +767,15 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
 
         uint8 lock = (realm.AllowedSecurityLevel > _accountInfo.SecurityLevel) ? 1 : 0;
 
+        // need to include port
+        auto realmAddress = boost::asio::ip::tcp_endpoint(realm.GetAddressForClient(GetRemoteIpAddress()), realm.Port);
+
         pkt << uint8(realm.Type);                           // realm type
         if (_expversion & POST_BC_EXP_FLAG)                 // only 2.x and 3.x clients
             pkt << uint8(lock);                             // if 1, then realm locked
         pkt << uint8(flag);                                 // RealmFlags
         pkt << name;
-        pkt << boost::lexical_cast<std::string>(realm.GetAddressForClient(GetRemoteIpAddress()));
+        pkt << boost::lexical_cast<std::string>(realmAddress);
         pkt << float(realm.PopulationLevel);
         pkt << uint8(characterCounts[realm.Id.Realm]);
         pkt << uint8(realm.Timezone);                       // realm category

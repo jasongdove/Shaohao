@@ -65,34 +65,28 @@ namespace WorldPackets
         class AuthChallenge final : public ServerPacket
         {
         public:
-            AuthChallenge() : ServerPacket(SMSG_AUTH_CHALLENGE, 16 + 4 * 8 + 1) { }
+            AuthChallenge() : ServerPacket(SMSG_AUTH_CHALLENGE, 32 + 4 + 2 + 1) { }
 
             WorldPacket const* Write() override;
 
-            std::array<uint8, 16> Challenge = { };
-            std::array<uint32, 8> DosChallenge = { };
-            uint8 DosZeroBits = 0;
+            std::array<uint8, 32> Challenge = { };
+            uint32 AuthSeed = { };
         };
 
         class AuthSession final : public EarlyProcessClientPacket
         {
         public:
-            static uint32 const DigestLength = 24;
+            static uint32 const DigestLength = 20;
 
             AuthSession(WorldPacket&& packet) : EarlyProcessClientPacket(CMSG_AUTH_SESSION, std::move(packet))
             {
-                LocalChallenge.fill(0);
-                Digest.fill(0);
             }
 
-            uint32 RegionID = 0;
-            uint32 BattlegroupID = 0;
-            uint32 RealmID = 0;
-            std::array<uint8, 16> LocalChallenge;
             std::array<uint8, DigestLength> Digest;
-            uint64 DosResponse = 0;
-            std::string RealmJoinTicket;
-            bool UseIPv6 = false;
+            uint32 ClientSeed;
+            uint16 ClientBuild;
+            ByteBuffer AddonInfo;
+            std::string Account;
 
         private:
             void Read() override;

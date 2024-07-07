@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,20 +15,25 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _WORLDPACKETCRYPT_H
-#define _WORLDPACKETCRYPT_H
-
 #include "PacketCrypt.h"
 
-class BigNumber;
-
-class TC_COMMON_API WorldPacketCrypt : public PacketCrypt
+PacketCrypt::PacketCrypt()
+    : _clientDecrypt(), _serverEncrypt(), _initialized(false)
 {
-    public:
-        WorldPacketCrypt();
+}
 
-        void Init(BigNumber* K) override;
-        void Init(BigNumber* k, uint8 const* serverKey, uint8 const* clientKey);
-};
+void PacketCrypt::DecryptRecv(uint8* data, size_t len)
+{
+    if (!_initialized)
+        return;
 
-#endif // _WORLDPACKETCRYPT_H
+    _clientDecrypt.UpdateData(data, len);
+}
+
+void PacketCrypt::EncryptSend(uint8* data, size_t len)
+{
+    if (!_initialized)
+        return;
+
+    _serverEncrypt.UpdateData(data, len);
+}

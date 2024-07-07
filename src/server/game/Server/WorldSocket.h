@@ -67,17 +67,22 @@ namespace WorldPackets
 
 #pragma pack(push, 1)
 
-struct PacketHeader
+union ClientPktHeader
 {
-    uint32 Size;
-    uint8 Tag[12];
+    struct
+    {
+        uint16 Size;
+        uint32 Command;
+    } Setup;
 
-    bool IsValidSize() { return Size < 0x10000; }
-};
+    struct
+    {
+        uint16 Size;
+        uint16 Command;
+    } Normal;
 
-struct IncomingPacketHeader : PacketHeader
-{
-    uint16 EncryptedOpcode;
+    static bool IsValidSize(uint32 size) { return size < 10240; }
+    static bool IsValidOpcode(uint32 opcode) { return true; } // TODO: PacketIO return opcode < NUM_OPCODE_HANDLERS; }
 };
 
 #pragma pack(pop)
@@ -88,7 +93,6 @@ class TC_GAME_API WorldSocket : public Socket<WorldSocket>
     static std::string const ClientConnectionInitialize;
     static uint32 const MinSizeForCompression;
 
-    static uint8 const AuthCheckSeed[16];
     static uint8 const SessionKeySeed[16];
     static uint8 const ContinuedSessionSeed[16];
     static uint8 const EncryptionKeySeed[16];
@@ -148,10 +152,13 @@ private:
     bool HandlePing(WorldPackets::Auth::Ping& ping);
     void HandleEnterEncryptedModeAck();
 
+    void ExtractOpcodeAndSize(ClientPktHeader const* header, uint32& opcode, uint32& size) const;
+
     ConnectionType _type;
     uint64 _key;
 
-    std::array<uint8, 16> _serverChallenge;
+    std::array<uint8, 32> _serverChallenge;
+    uint32 _authSeed;
     WorldPacketCrypt _authCrypt;
     SessionKey _sessionKey;
     std::array<uint8, 16> _encryptKey;

@@ -2218,15 +2218,15 @@ inline std::string GetOpcodeNameForLoggingImpl(T id)
     uint32 opcode = uint32(id);
     char const* name = nullptr;
 
-    if (opcode >= MIN_OPCODE && opcode <= MAX_OPCODE)
-    {
+//    if (opcode >= MIN_OPCODE && opcode <= MAX_OPCODE)
+//    {
         if (auto const* handler = opcodeTable[id])
             name = handler->Name;
         else
             name = "UNKNOWN OPCODE";
-    }
-    else
-        name = "INVALID OPCODE";
+//    }
+//    else
+//        name = "INVALID OPCODE";
 
     return Trinity::StringFormat("[{0} 0x{1:04X} ({1})]", name, opcode);
 }

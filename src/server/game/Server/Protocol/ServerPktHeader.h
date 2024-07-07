@@ -16,20 +16,28 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _WORLDPACKETCRYPT_H
-#define _WORLDPACKETCRYPT_H
+#ifndef __SERVERPKTHDR_H__
+#define __SERVERPKTHDR_H__
 
-#include "PacketCrypt.h"
+#include "Define.h"
 
-class BigNumber;
+#pragma pack(push, 1)
 
-class TC_COMMON_API WorldPacketCrypt : public PacketCrypt
+union ServerPktHeader
 {
-    public:
-        WorldPacketCrypt();
+    struct
+    {
+        uint16 Size;
+        uint16 Command;
+    } Setup;
 
-        void Init(BigNumber* K) override;
-        void Init(BigNumber* k, uint8 const* serverKey, uint8 const* clientKey);
+    struct
+    {
+        uint32 Size;
+        uint16 Command;
+    } Normal;
 };
 
-#endif // _WORLDPACKETCRYPT_H
+#pragma pack(pop)
+
+#endif
