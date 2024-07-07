@@ -16,6 +16,7 @@
  */
 
 #include "WorldSocket.h"
+#include "BigNumber.h"
 #include "AuthenticationPackets.h"
 #include "BattlenetRpcErrorCodes.h"
 #include "CharacterPackets.h"
@@ -338,12 +339,23 @@ bool WorldSocket::ReadHeaderHandler()
 {
     ASSERT(_headerBuffer.GetActiveSize() == SizeOfClientHeader[_authCrypt.IsInitialized()], "Header size " SZFMTD " different than expected %u", _headerBuffer.GetActiveSize(), SizeOfClientHeader[_authCrypt.IsInitialized()]);
 
-    _authCrypt.DecryptRecv(_headerBuffer.GetReadPointer(), 4);
-    ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(_headerBuffer.GetReadPointer());
     uint32 opcode;
     uint32 size;
 
-    ExtractOpcodeAndSize(header, opcode, size);
+    if (_authCrypt.IsInitialized())
+    {
+        uint8* uintHeader = (uint8*)_headerBuffer.GetReadPointer();
+        _authCrypt.DecryptRecv(uintHeader, SizeOfClientHeader[_authCrypt.IsInitialized()]);
+        ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(_headerBuffer.GetReadPointer());
+        uint32 value = *(uint32*)uintHeader;
+        opcode = header->Normal.Command = value & 0x1FFF;
+        size = header->Normal.Size = ((value & ~(uint32)0x1FFF) >> 13);
+    }
+    else
+    {
+        ClientPktHeader *header = reinterpret_cast<ClientPktHeader *>(_headerBuffer.GetReadPointer());
+        ExtractOpcodeAndSize(header, opcode, size);
+    }
 
     if (!ClientPktHeader::IsValidSize(size) || !ClientPktHeader::IsValidOpcode(opcode))
     {
@@ -887,12 +899,17 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
         LoginDatabase.Execute(stmt);
     }
 
+    BigNumber k(_sessionKey);
+    _authCrypt.Init(&k);
+
     // At this point, we can safely hook a successful login
     sScriptMgr->OnAccountLogin(account.Game.Id);
 
     _authed = true;
     _worldSession = new WorldSession(account.Game.Id, std::move(authSession->Account), account.BattleNet.Id, shared_from_this(), account.Game.Security,
         account.Game.Expansion, mutetime, account.Game.OS, account.Game.TimezoneOffset, account.BattleNet.Locale, account.Game.Recruiter, account.Game.IsRectuiter);
+
+    // TODO: read addons? send addon info?
 
     // Initialize Warden system only if it is enabled by config
     if (wardenActive)
@@ -910,7 +927,11 @@ void WorldSocket::LoadSessionPermissionsCallback(PreparedQueryResult result)
     // RBAC must be loaded before adding session to check for skip queue permission
     _worldSession->GetRBACData()->LoadFromDBCallback(result);
 
-    SendPacketAndLogOpcode(*WorldPackets::Auth::EnterEncryptedMode(_encryptKey, true).Write());
+    // SendPacketAndLogOpcode(*WorldPackets::Auth::EnterEncryptedMode(_encryptKey, true).Write());
+    if (_type == CONNECTION_TYPE_REALM)
+        sWorld->AddSession(_worldSession);
+    else
+        sWorld->AddInstanceSocket(shared_from_this(), _key);
 }
 
 void WorldSocket::HandleAuthContinuedSession(std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession)

@@ -1206,9 +1206,10 @@ void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder const& hol
         } while (characterCountsResult->NextRow());
     }
 
-    WorldPackets::Battlenet::ConnectionStatus bnetConnected;
-    bnetConnected.State = 1;
-    SendPacket(bnetConnected.Write());
+    // TODO: DATA - is this needed?
+//    WorldPackets::Battlenet::ConnectionStatus bnetConnected;
+//    bnetConnected.State = 1;
+//    SendPacket(bnetConnected.Write());
 
     _battlePetMgr->LoadFromDB(holder.GetPreparedResult(AccountInfoQueryHolder::BATTLE_PETS),
                               holder.GetPreparedResult(AccountInfoQueryHolder::BATTLE_PET_SLOTS));
