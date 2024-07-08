@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,20 +15,29 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _WORLDPACKETCRYPT_H
-#define _WORLDPACKETCRYPT_H
+#ifndef _PACKETCRYPT_H
+#define _PACKETCRYPT_H
 
-#include "PacketCrypt.h"
+#include "Cryptography/ARC4.h"
 
 class BigNumber;
 
-class TC_COMMON_API WorldPacketCrypt : public PacketCrypt
+class TC_COMMON_API PacketCrypt
 {
     public:
-        WorldPacketCrypt();
+        PacketCrypt();
+        virtual ~PacketCrypt() { }
 
-        void Init(BigNumber* K) override;
-        void Init(BigNumber* k, uint8 const* serverKey, uint8 const* clientKey);
+        virtual void Init(BigNumber* K) = 0;
+        void DecryptRecv(uint8* data, size_t length);
+        void EncryptSend(uint8* data, size_t length);
+
+        bool IsInitialized() const { return _initialized; }
+
+    protected:
+        Trinity::Crypto::ARC4 _clientDecrypt;
+        Trinity::Crypto::ARC4 _serverEncrypt;
+        bool _initialized;
 };
 
-#endif // _WORLDPACKETCRYPT_H
+#endif // _PACKETCRYPT_H

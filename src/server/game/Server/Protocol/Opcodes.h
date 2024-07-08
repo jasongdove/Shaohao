@@ -36,12 +36,12 @@ enum ConnectionType : int8
     CONNECTION_TYPE_DEFAULT     = -1
 };
 
-constexpr std::size_t MIN_CMSG_OPCODE_NUMBER = 0x305C;
-constexpr std::size_t MAX_CMSG_OPCODE_NUMBER = 0x5040;
+constexpr std::size_t MIN_CMSG_OPCODE_NUMBER = 0x0002;
+constexpr std::size_t MAX_CMSG_OPCODE_NUMBER = 0x1FFF;
 constexpr std::size_t NUM_CMSG_OPCODES = MAX_CMSG_OPCODE_NUMBER - MIN_CMSG_OPCODE_NUMBER + 1;
 
-constexpr std::size_t MIN_SMSG_OPCODE_NUMBER = 0x256C;
-constexpr std::size_t MAX_SMSG_OPCODE_NUMBER = 0x3052;
+constexpr std::size_t MIN_SMSG_OPCODE_NUMBER = 0x0002;
+constexpr std::size_t MAX_SMSG_OPCODE_NUMBER = 0x1FFF;
 constexpr std::size_t NUM_SMSG_OPCODES = MAX_SMSG_OPCODE_NUMBER - MIN_SMSG_OPCODE_NUMBER + 1;
 
 constexpr uint16 UNKNOWN_OPCODE = 0xBADD;   // special marker value for uninitialized WorldPackets
@@ -94,8 +94,8 @@ enum OpcodeClient : uint16
     CMSG_AUCTION_SELL_COMMODITY                       = 0x34E1,
     CMSG_AUCTION_SELL_ITEM                            = 0x34D4,
     CMSG_AUCTION_SET_FAVORITE_ITEM                    = 0x3732,
-    CMSG_AUTH_CONTINUED_SESSION                       = 0x377A,
-    CMSG_AUTH_SESSION                                 = 0x3779,
+    CMSG_AUTH_CONTINUED_SESSION                       = 0x0F49,
+    CMSG_AUTH_SESSION                                 = 0x00B2,
     CMSG_AUTOBANK_ITEM                                = 0x3997,
     CMSG_AUTOBANK_REAGENT                             = 0x3999,
     CMSG_AUTOSTORE_BANK_ITEM                          = 0x3996,
@@ -341,7 +341,7 @@ enum OpcodeClient : uint16
     CMSG_ENABLE_TAXI_NODE                             = 0x34B1,
     CMSG_ENGINE_SURVEY                                = 0x36DE,
     CMSG_ENTER_ENCRYPTED_MODE_ACK                     = 0x377B,
-    CMSG_ENUM_CHARACTERS                              = 0x35E8,
+    CMSG_ENUM_CHARACTERS                              = 0x00E0,
     CMSG_ENUM_CHARACTERS_DELETED_BY_CLIENT            = 0x36D8,
     CMSG_FAR_SIGHT                                    = 0x34F8,
     CMSG_GAME_EVENT_DEBUG_DISABLE                     = 0x31B2,
@@ -472,7 +472,7 @@ enum OpcodeClient : uint16
     CMSG_LIVE_REGION_CHARACTER_COPY                   = 0x36B3,
     CMSG_LIVE_REGION_GET_ACCOUNT_CHARACTER_LIST       = 0x36B2,
     CMSG_LIVE_REGION_KEY_BINDINGS_COPY                = 0x36B5,
-    CMSG_LOADING_SCREEN_NOTIFY                        = 0x35F8,
+    CMSG_LOADING_SCREEN_NOTIFY                        = 0x1DBD,
     CMSG_LOAD_SELECTED_TROPHY                         = 0x3333,
     CMSG_LOBBY_MATCHMAKER_ACCEPT_PARTY_INVITE         = 0x373B,
     CMSG_LOBBY_MATCHMAKER_CREATE_CHARACTER            = 0x3749,
@@ -485,9 +485,9 @@ enum OpcodeClient : uint16
     CMSG_LOGOUT_CANCEL                                = 0x34E8,
     CMSG_LOGOUT_INSTANT                               = 0x34E9,
     CMSG_LOGOUT_LOBBY_MATCHMAKER                      = 0x3595,
-    CMSG_LOGOUT_REQUEST                               = 0x34E6,
-    CMSG_LOG_DISCONNECT                               = 0x377D,
-    CMSG_LOG_STREAMING_ERROR                          = 0x3781,
+    CMSG_LOGOUT_REQUEST                               = 0x1349,
+    CMSG_LOG_DISCONNECT                               = 0x10B3,
+    CMSG_LOG_STREAMING_ERROR                          = 0x12B3,
     CMSG_LOOT_ITEM                                    = 0x3218,
     CMSG_LOOT_MONEY                                   = 0x3217,
     CMSG_LOOT_RELEASE                                 = 0x321C,
@@ -720,7 +720,7 @@ enum OpcodeClient : uint16
     CMSG_REPORT_PVP_PLAYER_AFK                        = 0x3504,
     CMSG_REPORT_SERVER_LAG                            = 0x33C8,
     CMSG_REPORT_STUCK_IN_COMBAT                       = 0x33C9,
-    CMSG_REQUEST_ACCOUNT_DATA                         = 0x3691,
+    CMSG_REQUEST_ACCOUNT_DATA                         = 0x031C,
     CMSG_REQUEST_AREA_POI_UPDATE                      = 0x3379,
     CMSG_REQUEST_BATTLEFIELD_STATUS                   = 0x35DC,
     CMSG_REQUEST_CEMETERY_LIST                        = 0x3177,
@@ -921,7 +921,7 @@ enum OpcodeServer : uint16
     SMSG_ABORT_NEW_WORLD                              = 0x2599,
     SMSG_ACCOUNT_COSMETIC_ADDED                       = 0x2879,
     SMSG_ACCOUNT_CRITERIA_UPDATE                      = 0x285F,
-    SMSG_ACCOUNT_DATA_TIMES                           = 0x2709,
+    SMSG_ACCOUNT_DATA_TIMES                           = 0x162B,
     SMSG_ACCOUNT_EXPORT_RESPONSE                      = 0x28B6,
     SMSG_ACCOUNT_MOUNT_REMOVED                        = 0x25B0,
     SMSG_ACCOUNT_MOUNT_UPDATE                         = 0x25AF,
@@ -994,10 +994,10 @@ enum OpcodeServer : uint16
     SMSG_AUCTION_WON_NOTIFICATION                     = 0x26F0,
     SMSG_AURA_POINTS_DEPLETED                         = 0x2C22,
     SMSG_AURA_UPDATE                                  = 0x2C21,
-    SMSG_AUTH_CHALLENGE                               = 0x3048,
+    SMSG_AUTH_CHALLENGE                               = 0x0949,
     SMSG_AUTH_FAILED                                  = 0x256C,
-    SMSG_AUTH_RESPONSE                                = 0x256D,
-    SMSG_AVAILABLE_HOTFIXES                           = 0x290F,
+    SMSG_AUTH_RESPONSE                                = 0x0ABA,
+    SMSG_AVAILABLE_HOTFIXES                           = 0x1EBA,
     SMSG_BACKPACK_DEFAULT_SIZE_CHANGED                = 0x289B,
     SMSG_BAG_CLEANUP_FINISHED                         = 0x2DA7,
     SMSG_BARBER_SHOP_RESULT                           = 0x26BD,
@@ -1065,7 +1065,7 @@ enum OpcodeServer : uint16
     SMSG_BUY_FAILED                                   = 0x26C6,
     SMSG_BUY_SUCCEEDED                                = 0x26C5,
     SMSG_CACHE_INFO                                   = 0x291D,
-    SMSG_CACHE_VERSION                                = 0x291C,
+    SMSG_CACHE_VERSION                                = 0x002A,
     SMSG_CALENDAR_CLEAR_PENDING_ACTION                = 0x269E,
     SMSG_CALENDAR_COMMAND_RESULT                      = 0x269F,
     SMSG_CALENDAR_COMMUNITY_INVITE                    = 0x268E,
@@ -1208,6 +1208,7 @@ enum OpcodeServer : uint16
     SMSG_CUSTOM_LOAD_SCREEN                           = 0x25CC,
     SMSG_DAILY_QUESTS_RESET                           = 0x2A80,
     SMSG_DAMAGE_CALC_LOG                              = 0x2C65,
+    SMSG_DANCE_STUDIO_CREATE_RESULT                   = 0x1E9B,
     SMSG_DB_REPLY                                     = 0x290E,
     SMSG_DEATH_RELEASE_LOC                            = 0x26D3,
     SMSG_DEBUG_MENU_MANAGER_FULL_UPDATE               = 0x2656,
@@ -1246,7 +1247,7 @@ enum OpcodeServer : uint16
     SMSG_END_LIGHTNING_STORM                          = 0x26A9,
     SMSG_ENSURE_WORLD_LOADED                          = 0x2886,
     SMSG_ENTER_ENCRYPTED_MODE                         = 0x3049,
-    SMSG_ENUM_CHARACTERS_RESULT                       = 0x2584,
+    SMSG_ENUM_CHARACTERS_RESULT                       = 0x11C3,
     SMSG_ENUM_VAS_PURCHASE_STATES_RESPONSE            = 0x27EC,
     SMSG_ENVIRONMENTAL_DAMAGE_LOG                     = 0x2C1E,
     SMSG_EQUIPMENT_SET_ID                             = 0x26B2,
@@ -1258,7 +1259,7 @@ enum OpcodeServer : uint16
     SMSG_FAILED_QUEST_TURN_IN                         = 0x280A,
     SMSG_FEATURE_SYSTEM_STATUS                        = 0x25C0,
     SMSG_FEATURE_SYSTEM_STATUS2                       = 0x28C1,
-    SMSG_FEATURE_SYSTEM_STATUS_GLUE_SCREEN            = 0x25C1,
+    SMSG_FEATURE_SYSTEM_STATUS_GLUE_SCREEN            = 0x121E,
     SMSG_FEIGN_DEATH_RESISTED                         = 0x2742,
     SMSG_FISH_ESCAPED                                 = 0x26D0,
     SMSG_FISH_NOT_HOOKED                              = 0x26CF,
@@ -1945,7 +1946,7 @@ enum OpcodeServer : uint16
     SMSG_SET_QUEST_REPLAY_COOLDOWN_OVERRIDE           = 0x2858,
     SMSG_SET_SHIPMENT_READY_RESPONSE                  = 0x2998,
     SMSG_SET_SPELL_CHARGES                            = 0x2C28,
-    SMSG_SET_TIME_ZONE_INFORMATION                    = 0x2678,
+    SMSG_SET_TIME_ZONE_INFORMATION                    = 0x19C1,
     SMSG_SET_VEHICLE_REC_ID                           = 0x26F6,
     SMSG_SHADOWLANDS_CAPACITANCE_UPDATE               = 0x2887,
     SMSG_SHIPMENT_FACTION_UPDATE_RESULT               = 0x2999,
@@ -2035,7 +2036,7 @@ enum OpcodeServer : uint16
     SMSG_TRIGGER_CINEMATIC                            = 0x27C2,
     SMSG_TRIGGER_MOVIE                                = 0x26CB,
     SMSG_TURN_IN_PETITION_RESULT                      = 0x274C,
-    SMSG_TUTORIAL_FLAGS                               = 0x27B6,
+    SMSG_TUTORIAL_FLAGS                               = 0x1B90,
     SMSG_UI_MAP_QUEST_LINES_RESPONSE                  = 0x2AA2,
     SMSG_UNDELETE_CHARACTER_RESPONSE                  = 0x27C4,
     SMSG_UNDELETE_COOLDOWN_STATUS_RESPONSE            = 0x27C5,

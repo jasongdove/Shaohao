@@ -6216,8 +6216,12 @@ enum ResponseCodes
     CSTATUS_NEGOTIATION_FAILED                             = 10,
     CSTATUS_AUTHENTICATING                                 = 11,
 
-    REALM_LIST_IN_PROGRESS                                 = 12,
-    REALM_LIST_SUCCESS                                     = 13,
+    // TODO: PacketIO probably need a lot more of these
+    AUTH_OK                                                = 12,
+    AUTH_FAILED                                            = 13,
+
+//    REALM_LIST_IN_PROGRESS                                 = 12,
+//    REALM_LIST_SUCCESS                                     = 13,
     REALM_LIST_FAILED                                      = 14,
     REALM_LIST_INVALID                                     = 15,
     REALM_LIST_REALM_NOT_FOUND                             = 16,

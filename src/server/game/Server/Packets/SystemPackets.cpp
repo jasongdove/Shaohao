@@ -200,78 +200,80 @@ WorldPacket const* FeatureSystemStatus::Write()
 WorldPacket const* FeatureSystemStatusGlueScreen::Write()
 {
     _worldPacket.WriteBit(BpayStoreEnabled);
-    _worldPacket.WriteBit(BpayStoreAvailable);
     _worldPacket.WriteBit(BpayStoreDisabledByParentalControls);
-    _worldPacket.WriteBit(CharUndeleteEnabled);
-    _worldPacket.WriteBit(CommerceSystemEnabled);
-    _worldPacket.WriteBit(Unk14);
-    _worldPacket.WriteBit(WillKickFromWorld);
-    _worldPacket.WriteBit(IsExpansionPreorderInStore);
-
-    _worldPacket.WriteBit(KioskModeEnabled);
-    _worldPacket.WriteBit(CompetitiveModeEnabled);
-    _worldPacket.WriteBit(IsBoostEnabled);
-    _worldPacket.WriteBit(TrialBoostEnabled);
-    _worldPacket.WriteBit(TokenBalanceEnabled);
-    _worldPacket.WriteBit(LiveRegionCharacterListEnabled);
-    _worldPacket.WriteBit(LiveRegionCharacterCopyEnabled);
-    _worldPacket.WriteBit(LiveRegionAccountCopyEnabled);
-
-    _worldPacket.WriteBit(LiveRegionKeyBindingsCopyEnabled);
-    _worldPacket.WriteBit(Unknown901CheckoutRelated);
-    _worldPacket.WriteBit(false); // unused, 10.0.2
-    _worldPacket.WriteBit(EuropaTicketSystemStatus.has_value());
-    _worldPacket.WriteBit(IsNameReservationEnabled);
-    _worldPacket.WriteBit(LaunchETA.has_value());
-    _worldPacket.WriteBit(TimerunningEnabled);
-    _worldPacket.WriteBit(AddonsDisabled);
-
-    _worldPacket.WriteBit(Unused1000);
-    _worldPacket.WriteBit(AccountSaveDataExportEnabled);
-    _worldPacket.WriteBit(AccountLockedByExport);
-
-    _worldPacket.WriteBits(RealmHiddenAlert.length() + 1, 11);
-
+    _worldPacket.WriteBit(BpayStoreAvailable);
     _worldPacket.FlushBits();
 
-    if (EuropaTicketSystemStatus)
-        _worldPacket << *EuropaTicketSystemStatus;
-
-    _worldPacket << uint32(TokenPollTimeSeconds);
-    _worldPacket << uint32(KioskSessionMinutes);
-    _worldPacket << int64(TokenBalanceAmount);
-    _worldPacket << int32(MaxCharactersPerRealm);
-    _worldPacket << uint32(LiveRegionCharacterCopySourceRegions.size());
-    _worldPacket << uint32(BpayStoreProductDeliveryDelay);
-    _worldPacket << int32(ActiveCharacterUpgradeBoostType);
-    _worldPacket << int32(ActiveClassTrialBoostType);
-    _worldPacket << int32(MinimumExpansionLevel);
-    _worldPacket << int32(MaximumExpansionLevel);
-    _worldPacket << int32(ActiveSeason);
-    _worldPacket << uint32(GameRuleValues.size());
-    _worldPacket << int32(ActiveTimerunningSeasonID);
-    _worldPacket << int32(RemainingTimerunningSeasonSeconds);
-    _worldPacket << int16(MaxPlayerNameQueriesPerPacket);
-    _worldPacket << int16(PlayerNameQueryTelemetryInterval);
-    _worldPacket << PlayerNameQueryInterval;
-    _worldPacket << uint32(DebugTimeEvents.size());
-    _worldPacket << int32(Unused1007);
-    _worldPacket << uint32(EventRealmQueues);
-
-    if (LaunchETA)
-        _worldPacket << int32(*LaunchETA);
-
-    if (!RealmHiddenAlert.empty())
-        _worldPacket << RealmHiddenAlert;
-
-    if (!LiveRegionCharacterCopySourceRegions.empty())
-        _worldPacket.append(LiveRegionCharacterCopySourceRegions.data(), LiveRegionCharacterCopySourceRegions.size());
-
-    for (GameRuleValuePair const& gameRuleValue : GameRuleValues)
-        _worldPacket << gameRuleValue;
-
-    for (DebugTimeEventInfo const& debugTimeEventInfo : DebugTimeEvents)
-        _worldPacket << debugTimeEventInfo;
+//    _worldPacket.WriteBit(CharUndeleteEnabled);
+//    _worldPacket.WriteBit(CommerceSystemEnabled);
+//    _worldPacket.WriteBit(Unk14);
+//    _worldPacket.WriteBit(WillKickFromWorld);
+//    _worldPacket.WriteBit(IsExpansionPreorderInStore);
+//
+//    _worldPacket.WriteBit(KioskModeEnabled);
+//    _worldPacket.WriteBit(CompetitiveModeEnabled);
+//    _worldPacket.WriteBit(IsBoostEnabled);
+//    _worldPacket.WriteBit(TrialBoostEnabled);
+//    _worldPacket.WriteBit(TokenBalanceEnabled);
+//    _worldPacket.WriteBit(LiveRegionCharacterListEnabled);
+//    _worldPacket.WriteBit(LiveRegionCharacterCopyEnabled);
+//    _worldPacket.WriteBit(LiveRegionAccountCopyEnabled);
+//
+//    _worldPacket.WriteBit(LiveRegionKeyBindingsCopyEnabled);
+//    _worldPacket.WriteBit(Unknown901CheckoutRelated);
+//    _worldPacket.WriteBit(false); // unused, 10.0.2
+//    _worldPacket.WriteBit(EuropaTicketSystemStatus.has_value());
+//    _worldPacket.WriteBit(IsNameReservationEnabled);
+//    _worldPacket.WriteBit(LaunchETA.has_value());
+//    _worldPacket.WriteBit(TimerunningEnabled);
+//    _worldPacket.WriteBit(AddonsDisabled);
+//
+//    _worldPacket.WriteBit(Unused1000);
+//    _worldPacket.WriteBit(AccountSaveDataExportEnabled);
+//    _worldPacket.WriteBit(AccountLockedByExport);
+//
+//    _worldPacket.WriteBits(RealmHiddenAlert.length() + 1, 11);
+//
+//    _worldPacket.FlushBits();
+//
+//    if (EuropaTicketSystemStatus)
+//        _worldPacket << *EuropaTicketSystemStatus;
+//
+//    _worldPacket << uint32(TokenPollTimeSeconds);
+//    _worldPacket << uint32(KioskSessionMinutes);
+//    _worldPacket << int64(TokenBalanceAmount);
+//    _worldPacket << int32(MaxCharactersPerRealm);
+//    _worldPacket << uint32(LiveRegionCharacterCopySourceRegions.size());
+//    _worldPacket << uint32(BpayStoreProductDeliveryDelay);
+//    _worldPacket << int32(ActiveCharacterUpgradeBoostType);
+//    _worldPacket << int32(ActiveClassTrialBoostType);
+//    _worldPacket << int32(MinimumExpansionLevel);
+//    _worldPacket << int32(MaximumExpansionLevel);
+//    _worldPacket << int32(ActiveSeason);
+//    _worldPacket << uint32(GameRuleValues.size());
+//    _worldPacket << int32(ActiveTimerunningSeasonID);
+//    _worldPacket << int32(RemainingTimerunningSeasonSeconds);
+//    _worldPacket << int16(MaxPlayerNameQueriesPerPacket);
+//    _worldPacket << int16(PlayerNameQueryTelemetryInterval);
+//    _worldPacket << PlayerNameQueryInterval;
+//    _worldPacket << uint32(DebugTimeEvents.size());
+//    _worldPacket << int32(Unused1007);
+//    _worldPacket << uint32(EventRealmQueues);
+//
+//    if (LaunchETA)
+//        _worldPacket << int32(*LaunchETA);
+//
+//    if (!RealmHiddenAlert.empty())
+//        _worldPacket << RealmHiddenAlert;
+//
+//    if (!LiveRegionCharacterCopySourceRegions.empty())
+//        _worldPacket.append(LiveRegionCharacterCopySourceRegions.data(), LiveRegionCharacterCopySourceRegions.size());
+//
+//    for (GameRuleValuePair const& gameRuleValue : GameRuleValues)
+//        _worldPacket << gameRuleValue;
+//
+//    for (DebugTimeEventInfo const& debugTimeEventInfo : DebugTimeEvents)
+//        _worldPacket << debugTimeEventInfo;
 
     return &_worldPacket;
 }
@@ -280,12 +282,12 @@ WorldPacket const* SetTimeZoneInformation::Write()
 {
     _worldPacket.WriteBits(ServerTimeTZ.length(), 7);
     _worldPacket.WriteBits(GameTimeTZ.length(), 7);
-    _worldPacket.WriteBits(ServerRegionalTZ.length(), 7);
+    //_worldPacket.WriteBits(ServerRegionalTZ.length(), 7);
     _worldPacket.FlushBits();
 
     _worldPacket.WriteString(ServerTimeTZ);
     _worldPacket.WriteString(GameTimeTZ);
-    _worldPacket.WriteString(ServerRegionalTZ);
+    //_worldPacket.WriteString(ServerRegionalTZ);
 
     return &_worldPacket;
 }

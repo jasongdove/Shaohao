@@ -1307,7 +1307,7 @@ void OpcodeTable::InitializeServerOpcodes()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_CUSTOM_LOAD_SCREEN,                      STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_DAILY_QUESTS_RESET,                      STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_DAMAGE_CALC_LOG,                         STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_DB_REPLY,                                STATUS_NEVER,        CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_DANCE_STUDIO_CREATE_RESULT,              STATUS_NEVER,        CONNECTION_TYPE_REALM);    DEFINE_SERVER_OPCODE_HANDLER(SMSG_DB_REPLY,                                STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_DEATH_RELEASE_LOC,                       STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_DEBUG_MENU_MANAGER_FULL_UPDATE,          STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_DEFENSE_MESSAGE,                         STATUS_NEVER,        CONNECTION_TYPE_REALM);
@@ -2218,15 +2218,15 @@ inline std::string GetOpcodeNameForLoggingImpl(T id)
     uint32 opcode = uint32(id);
     char const* name = nullptr;
 
-    if (opcode >= MIN_OPCODE && opcode <= MAX_OPCODE)
-    {
+//    if (opcode >= MIN_OPCODE && opcode <= MAX_OPCODE)
+//    {
         if (auto const* handler = opcodeTable[id])
             name = handler->Name;
         else
             name = "UNKNOWN OPCODE";
-    }
-    else
-        name = "INVALID OPCODE";
+//    }
+//    else
+//        name = "INVALID OPCODE";
 
     return Trinity::StringFormat("[{0} 0x{1:04X} ({1})]", name, opcode);
 }

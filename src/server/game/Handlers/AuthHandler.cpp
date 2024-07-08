@@ -34,12 +34,12 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
     WorldPackets::Auth::AuthResponse response;
     response.Result = code;
 
-    if (code == ERROR_OK)
+    if (code == AUTH_OK)
     {
         response.SuccessInfo.emplace();
 
-        response.SuccessInfo->ActiveExpansionLevel = GetExpansion();
-        response.SuccessInfo->AccountExpansionLevel = GetAccountExpansion();
+        response.SuccessInfo->ActiveExpansionLevel = 4; // TODO: DATA GetExpansion();
+        response.SuccessInfo->AccountExpansionLevel = 4; // TODO: DATA GetAccountExpansion();
         response.SuccessInfo->VirtualRealmAddress = realm.Id.GetAddress();
         response.SuccessInfo->Time = int32(GameTime::GetGameTime());
 
