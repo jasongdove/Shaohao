@@ -3762,13 +3762,17 @@ void ObjectMgr::LoadPlayerInfo()
 
                 if (!sChrRacesStore.LookupEntry(current_race))
                 {
-                    TC_LOG_ERROR("sql.sql", "Wrong race {} in `playercreateinfo` table, ignoring.", current_race);
+                    // TODO: Shaohao temp reduce spam
+                    if (current_race < MAX_RACES_MOP)
+                        TC_LOG_ERROR("sql.sql", "Wrong race {} in `playercreateinfo` table, ignoring.", current_race);
                     continue;
                 }
 
                 if (!sChrClassesStore.LookupEntry(current_class))
                 {
-                    TC_LOG_ERROR("sql.sql", "Wrong class {} in `playercreateinfo` table, ignoring.", current_class);
+                    // TODO: Shaohao temp reduce spam
+                    if (current_class < MAX_CLASSES_MOP)
+                        TC_LOG_ERROR("sql.sql", "Wrong class {} in `playercreateinfo` table, ignoring.", current_class);
                     continue;
                 }
 
@@ -3785,17 +3789,17 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                if (!sDB2Manager.GetChrModel(current_race, GENDER_MALE))
-                {
-                    TC_LOG_ERROR("sql.sql", "Missing male model for race {}, ignoring.", current_race);
-                    continue;
-                }
-
-                if (!sDB2Manager.GetChrModel(current_race, GENDER_FEMALE))
-                {
-                    TC_LOG_ERROR("sql.sql", "Missing female model for race {}, ignoring.", current_race);
-                    continue;
-                }
+//                if (!sDB2Manager.GetChrModel(current_race, GENDER_MALE))
+//                {
+//                    TC_LOG_ERROR("sql.sql", "Missing male model for race {}, ignoring.", current_race);
+//                    continue;
+//                }
+//
+//                if (!sDB2Manager.GetChrModel(current_race, GENDER_FEMALE))
+//                {
+//                    TC_LOG_ERROR("sql.sql", "Missing female model for race {}, ignoring.", current_race);
+//                    continue;
+//                }
 
                 std::unique_ptr<PlayerInfo> info = std::make_unique<PlayerInfo>();
                 info->createPosition.Loc.WorldRelocate(mapId, positionX, positionY, positionZ, orientation);
@@ -3810,8 +3814,10 @@ void ObjectMgr::LoadPlayerInfo()
 
                     if (!sMapStore.LookupEntry(info->createPositionNPE->Loc.GetMapId()))
                     {
-                        TC_LOG_ERROR("sql.sql", "Invalid NPE map id {} for class {} race {} pair in `playercreateinfo` table, ignoring.",
-                            info->createPositionNPE->Loc.GetMapId(), current_class, current_race);
+                        // TODO: Shaohao temp disable spam
+                        if (info->createPositionNPE->Loc.GetMapId() < MAX_MAPS_MOP)
+                            TC_LOG_ERROR("sql.sql", "Invalid NPE map id {} for class {} race {} pair in `playercreateinfo` table, ignoring.",
+                                info->createPositionNPE->Loc.GetMapId(), current_class, current_race);
                         info->createPositionNPE.reset();
                     }
 

@@ -2170,13 +2170,13 @@ bool World::SetInitialWorldSettings()
 //
 //    TC_LOG_INFO("server.loading", "Loading linked spells...");
 //    sSpellMgr->LoadSpellLinked();
-//
-//    TC_LOG_INFO("server.loading", "Loading Scenes Templates..."); // must be before LoadPlayerInfo
-//    sObjectMgr->LoadSceneTemplates();
-//
-//    TC_LOG_INFO("server.loading", "Loading Player Create Data...");
-//    sObjectMgr->LoadPlayerInfo();
-//
+
+    TC_LOG_INFO("server.loading", "Loading Scenes Templates..."); // must be before LoadPlayerInfo
+    sObjectMgr->LoadSceneTemplates();
+
+    TC_LOG_INFO("server.loading", "Loading Player Create Data...");
+    sObjectMgr->LoadPlayerInfo();
+
 //    TC_LOG_INFO("server.loading", "Loading Exploration BaseXP Data...");
 //    sObjectMgr->LoadExplorationBaseXP();
 //
@@ -2252,11 +2252,11 @@ bool World::SetInitialWorldSettings()
 //    }
 //    TC_LOG_INFO("server.loading", "Loading Completed Achievements...");
 //    sAchievementMgr->LoadCompletedAchievements();
-//
-//    // Load before guilds and arena teams
-//    TC_LOG_INFO("server.loading", "Loading character cache store...");
-//    sCharacterCache->LoadCharacterCacheStorage();
-//
+
+    // Load before guilds and arena teams
+    TC_LOG_INFO("server.loading", "Loading character cache store...");
+    sCharacterCache->LoadCharacterCacheStorage();
+
 //    ///- Load dynamic data tables from the database
 //    TC_LOG_INFO("server.loading", "Loading Auctions...");
 //    sAuctionMgr->LoadAuctions();
@@ -2281,10 +2281,10 @@ bool World::SetInitialWorldSettings()
 //
 //    TC_LOG_INFO("server.loading", "Loading Groups...");
 //    sGroupMgr->LoadGroups();
-//
-//    TC_LOG_INFO("server.loading", "Loading ReservedNames...");
-//    sObjectMgr->LoadReservedPlayersNames();
-//
+
+    TC_LOG_INFO("server.loading", "Loading ReservedNames...");
+    sObjectMgr->LoadReservedPlayersNames();
+
 //    TC_LOG_INFO("server.loading", "Loading GameObjects for quests...");
 //    sObjectMgr->LoadGameObjectForQuests();
 //
@@ -2484,9 +2484,9 @@ bool World::SetInitialWorldSettings()
 
 //    TC_LOG_INFO("server.loading", "Initialize AuctionHouseBot...");
 //    sAuctionBot->Initialize();
-//
-//    TC_LOG_INFO("server.loading", "Initializing chat channels...");
-//    ChannelMgr::LoadFromDB();
+
+    TC_LOG_INFO("server.loading", "Initializing chat channels...");
+    ChannelMgr::LoadFromDB();
 
     TC_LOG_INFO("server.loading", "Initializing Opcodes...");
     opcodeTable.Initialize();
