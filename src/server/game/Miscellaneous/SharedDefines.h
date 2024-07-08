@@ -102,32 +102,32 @@ enum Expansions
     MAX_ACCOUNT_EXPANSIONS
 };
 
-#define CURRENT_EXPANSION EXPANSION_DRAGONFLIGHT
+#define CURRENT_EXPANSION EXPANSION_MISTS_OF_PANDARIA
 
 constexpr uint32 GetMaxLevelForExpansion(uint32 expansion)
 {
     switch (expansion)
     {
         case EXPANSION_CLASSIC:
-            return 30;
-        case EXPANSION_THE_BURNING_CRUSADE:
-            return 30;
-        case EXPANSION_WRATH_OF_THE_LICH_KING:
-            return 30;
-        case EXPANSION_CATACLYSM:
-            return 35;
-        case EXPANSION_MISTS_OF_PANDARIA:
-            return 35;
-        case EXPANSION_WARLORDS_OF_DRAENOR:
-            return 40;
-        case EXPANSION_LEGION:
-            return 45;
-        case EXPANSION_BATTLE_FOR_AZEROTH:
-            return 50;
-        case EXPANSION_SHADOWLANDS:
             return 60;
-        case EXPANSION_DRAGONFLIGHT:
+        case EXPANSION_THE_BURNING_CRUSADE:
             return 70;
+        case EXPANSION_WRATH_OF_THE_LICH_KING:
+            return 80;
+        case EXPANSION_CATACLYSM:
+            return 85;
+        case EXPANSION_MISTS_OF_PANDARIA:
+            return 90;
+//        case EXPANSION_WARLORDS_OF_DRAENOR:
+//            return 40;
+//        case EXPANSION_LEGION:
+//            return 45;
+//        case EXPANSION_BATTLE_FOR_AZEROTH:
+//            return 50;
+//        case EXPANSION_SHADOWLANDS:
+//            return 60;
+//        case EXPANSION_DRAGONFLIGHT:
+//            return 70;
         default:
             break;
     }
@@ -165,6 +165,10 @@ enum Classes : uint8
 
 // max+1 for player class
 #define MAX_CLASSES       15
+
+#define MAX_CLASSES_MOP   12
+#define MAX_RACES_MOP     27
+#define MAX_MAPS_MOP      1174
 
 #define CLASSMASK_ALL_PLAYABLE     \
     ((1<<(CLASS_WARRIOR-1))      | \

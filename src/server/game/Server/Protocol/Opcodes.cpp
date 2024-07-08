@@ -59,7 +59,8 @@ bool OpcodeTable::ValidateClientOpcode(OpcodeClient opcode, char const* name) co
 
     if (opcode < MIN_CMSG_OPCODE_NUMBER || opcode > MAX_CMSG_OPCODE_NUMBER)
     {
-        TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode {}", opcode);
+        // TODO: PacketIO reduce spam for now
+        //TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode {}", opcode);
         return false;
     }
 
@@ -95,7 +96,8 @@ bool OpcodeTable::ValidateServerOpcode(OpcodeServer opcode, char const* name, Co
 
     if (opcode < MIN_SMSG_OPCODE_NUMBER || opcode > MAX_SMSG_OPCODE_NUMBER)
     {
-        TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode {}", opcode);
+        // TODO: PacketIO disable spam for now
+        //TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode {}", opcode);
         return false;
     }
 

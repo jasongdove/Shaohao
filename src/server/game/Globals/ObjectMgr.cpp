@@ -10637,7 +10637,9 @@ void ObjectMgr::LoadRaceAndClassExpansionRequirements()
             ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(raceID);
             if (!raceEntry)
             {
-                TC_LOG_ERROR("sql.sql", "Race {} defined in `race_unlock_requirement` does not exists, skipped.", raceID);
+                // Shaohao: Max ChrRaces.dbc ID is 26; disable spam for invalid races
+                if (raceID < MAX_RACES_MOP)
+                    TC_LOG_ERROR("sql.sql", "Race {} defined in `race_unlock_requirement` does not exists, skipped.", raceID);
                 continue;
             }
 
@@ -10687,16 +10689,20 @@ void ObjectMgr::LoadRaceAndClassExpansionRequirements()
             ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(classID);
             if (!classEntry)
             {
-                TC_LOG_ERROR("sql.sql", "Class {} (race {}) defined in `class_expansion_requirement` does not exists, skipped.",
-                    uint32(classID), uint32(raceID));
+                // Shaohao: Max ChrClasses.dbc ID is 11; disable spam for invalid races
+                if (classID < MAX_CLASSES_MOP)
+                    TC_LOG_ERROR("sql.sql", "Class {} (race {}) defined in `class_expansion_requirement` does not exists, skipped.",
+                        uint32(classID), uint32(raceID));
                 continue;
             }
 
             ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(raceID);
             if (!raceEntry)
             {
-                TC_LOG_ERROR("sql.sql", "Race {} (class {}) defined in `class_expansion_requirement` does not exists, skipped.",
-                    uint32(raceID), uint32(classID));
+                // Shaohao: Max ChrRaces.dbc ID is 26; disable spam for invalid races
+                if (raceID < MAX_RACES_MOP)
+                    TC_LOG_ERROR("sql.sql", "Race {} (class {}) defined in `class_expansion_requirement` does not exists, skipped.",
+                        uint32(raceID), uint32(classID));
                 continue;
             }
 

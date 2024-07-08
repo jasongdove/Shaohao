@@ -1815,11 +1815,10 @@ bool World::SetInitialWorldSettings()
         // TODO: DATA return false;
     }
 
-    TC_LOG_INFO("misc", "Loading hotfix blobs...");
-    sDB2Manager.LoadHotfixBlob(m_availableDbcLocaleMask);
-    TC_LOG_INFO("misc", "Loading hotfix info...");
-    sDB2Manager.LoadHotfixData(m_availableDbcLocaleMask);
-    // TODO: DATA tons of errors from this, disabling for now...
+//    TC_LOG_INFO("misc", "Loading hotfix blobs...");
+//    sDB2Manager.LoadHotfixBlob(m_availableDbcLocaleMask);
+//    TC_LOG_INFO("misc", "Loading hotfix info...");
+//    sDB2Manager.LoadHotfixData(m_availableDbcLocaleMask);
 //    TC_LOG_INFO("misc", "Loading hotfix optional data...");
 //    sDB2Manager.LoadHotfixOptionalData(m_availableDbcLocaleMask);
     ///- Load M2 fly by cameras
@@ -1864,561 +1863,561 @@ bool World::SetInitialWorldSettings()
     ///- Initialize static helper structures
     AIRegistry::Initialize();
 
-    TC_LOG_INFO("server.loading", "Initializing PlayerDump tables...");
-    PlayerDump::InitializeTables();
-
-    TC_LOG_INFO("server.loading", "Loading SpellInfo store...");
-    sSpellMgr->LoadSpellInfoStore();
-
-    TC_LOG_INFO("server.loading", "Loading serverside spells...");
-    sSpellMgr->LoadSpellInfoServerside();
-
-    TC_LOG_INFO("server.loading", "Loading SpellInfo corrections...");
-    sSpellMgr->LoadSpellInfoCorrections();
-
-    TC_LOG_INFO("server.loading", "Loading SkillLineAbilityMultiMap Data...");
-    sSpellMgr->LoadSkillLineAbilityMap();
-
-    TC_LOG_INFO("server.loading", "Loading SpellInfo custom attributes...");
-    sSpellMgr->LoadSpellInfoCustomAttributes();
-
-    TC_LOG_INFO("server.loading", "Loading SpellInfo diminishing infos...");
-    sSpellMgr->LoadSpellInfoDiminishing();
-
-    TC_LOG_INFO("server.loading", "Loading SpellInfo immunity infos...");
-    sSpellMgr->LoadSpellInfoImmunities();
-
-    TC_LOG_INFO("server.loading", "Loading PetFamilySpellsStore Data...");
-    sSpellMgr->LoadPetFamilySpellsStore();
-
-    TC_LOG_INFO("server.loading", "Loading Spell Totem models...");
-    sSpellMgr->LoadSpellTotemModel();
-
-    TC_LOG_INFO("server.loading", "Loading Traits...");
-    TraitMgr::Load();
-
-    TC_LOG_INFO("server.loading", "Loading languages...");  // must be after LoadSpellInfoStore and LoadSkillLineAbilityMap
-    sLanguageMgr->LoadLanguages();
-
-    TC_LOG_INFO("server.loading", "Loading languages words...");
-    sLanguageMgr->LoadLanguagesWords();
-
-    TC_LOG_INFO("server.loading", "Loading Instance Template...");
-    sObjectMgr->LoadInstanceTemplate();
-
-    // Must be called before `respawn` data
-    TC_LOG_INFO("server.loading", "Loading instances...");
-    sMapMgr->InitInstanceIds();
-    sInstanceLockMgr.Load();
-
-    TC_LOG_INFO("server.loading", "Loading Localization strings...");
-    uint32 oldMSTime = getMSTime();
-    if (m_bool_configs[CONFIG_LOAD_LOCALES])
-    {
-        sObjectMgr->LoadCreatureLocales();
-        sObjectMgr->LoadGameObjectLocales();
-        sObjectMgr->LoadQuestTemplateLocale();
-        sObjectMgr->LoadQuestOfferRewardLocale();
-        sObjectMgr->LoadQuestRequestItemsLocale();
-        sObjectMgr->LoadQuestObjectivesLocale();
-        sObjectMgr->LoadPageTextLocales();
-        sObjectMgr->LoadGossipMenuItemsLocales();
-        sObjectMgr->LoadPointOfInterestLocales();
-    }
-
-    sObjectMgr->SetDBCLocaleIndex(GetDefaultDbcLocale());        // Get once for all the locale index of DBC language (console/broadcasts)
-    TC_LOG_INFO("server.loading", ">> Localization strings loaded in {} ms", GetMSTimeDiffToNow(oldMSTime));
-
-    TC_LOG_INFO("server.loading", "Loading Account Roles and Permissions...");
-    sAccountMgr->LoadRBAC();
-
-    TC_LOG_INFO("server.loading", "Loading Page Texts...");
-    sObjectMgr->LoadPageTexts();
-
-    TC_LOG_INFO("server.loading", "Loading Game Object Templates...");         // must be after LoadPageTexts
-    sObjectMgr->LoadDestructibleHitpoints();
-    sObjectMgr->LoadGameObjectTemplate();
-
-    TC_LOG_INFO("server.loading", "Loading Game Object template addons...");
-    sObjectMgr->LoadGameObjectTemplateAddons();
-
-    TC_LOG_INFO("server.loading", "Loading Transport templates...");
-    sTransportMgr->LoadTransportTemplates();
-
-    TC_LOG_INFO("server.loading", "Loading Transport animations and rotations...");
-    sTransportMgr->LoadTransportAnimationAndRotation();
-
-    TC_LOG_INFO("server.loading", "Loading Transport spawns...");
-    sTransportMgr->LoadTransportSpawns();
-
-    TC_LOG_INFO("server.loading", "Loading Spell Rank Data...");
-    sSpellMgr->LoadSpellRanks();
-
-    TC_LOG_INFO("server.loading", "Loading Spell Required Data...");
-    sSpellMgr->LoadSpellRequired();
-
-    TC_LOG_INFO("server.loading", "Loading Spell Group types...");
-    sSpellMgr->LoadSpellGroups();
-
-    TC_LOG_INFO("server.loading", "Loading Spell Learn Skills...");
-    sSpellMgr->LoadSpellLearnSkills();                           // must be after LoadSpellRanks
-
-    TC_LOG_INFO("server.loading", "Loading SpellInfo SpellSpecific and AuraState...");
-    sSpellMgr->LoadSpellInfoSpellSpecificAndAuraState();         // must be after LoadSpellRanks
-
-    TC_LOG_INFO("server.loading", "Loading Spell Learn Spells...");
-    sSpellMgr->LoadSpellLearnSpells();
-
-    TC_LOG_INFO("server.loading", "Loading Spell Proc conditions and data...");
-    sSpellMgr->LoadSpellProcs();
-
-    TC_LOG_INFO("server.loading", "Loading Aggro Spells Definitions...");
-    sSpellMgr->LoadSpellThreats();
-
-    TC_LOG_INFO("server.loading", "Loading Spell Group Stack Rules...");
-    sSpellMgr->LoadSpellGroupStackRules();
-
-    TC_LOG_INFO("server.loading", "Loading NPC Texts...");
-    sObjectMgr->LoadNPCText();
-
-    TC_LOG_INFO("server.loading", "Loading Enchant Spells Proc datas...");
-    sSpellMgr->LoadSpellEnchantProcData();
-
-    TC_LOG_INFO("server.loading", "Loading item bonus data...");
-    ItemBonusMgr::Load();
-
-    TC_LOG_INFO("server.loading", "Loading Random item bonus list definitions...");
-    LoadItemRandomBonusListTemplates();
-
-    TC_LOG_INFO("server.loading", "Loading Disables");                         // must be before loading quests and items
-    DisableMgr::LoadDisables();
-
-    TC_LOG_INFO("server.loading", "Loading Items...");                         // must be after LoadRandomEnchantmentsTable and LoadPageTexts
-    sObjectMgr->LoadItemTemplates();
-
-    TC_LOG_INFO("server.loading", "Loading Item set names...");                // must be after LoadItemPrototypes
-    sObjectMgr->LoadItemTemplateAddon();
-
-    TC_LOG_INFO("misc", "Loading Item Scripts...");                 // must be after LoadItemPrototypes
-    sObjectMgr->LoadItemScriptNames();
-
-    TC_LOG_INFO("server.loading", "Loading Creature Model Based Info Data...");
-    sObjectMgr->LoadCreatureModelInfo();
-
-    TC_LOG_INFO("server.loading", "Loading Creature templates...");
-    sObjectMgr->LoadCreatureTemplates();
-
-    TC_LOG_INFO("server.loading", "Loading Equipment templates...");           // must be after LoadCreatureTemplates
-    sObjectMgr->LoadEquipmentTemplates();
-
-    TC_LOG_INFO("server.loading", "Loading Creature template addons...");
-    sObjectMgr->LoadCreatureTemplateAddons();
-
-    TC_LOG_INFO("server.loading", "Loading Creature template difficulty...");
-    sObjectMgr->LoadCreatureTemplateDifficulty();
-
-    TC_LOG_INFO("server.loading", "Loading Creature template sparring...");
-    sObjectMgr->LoadCreatureTemplateSparring();
-
-    TC_LOG_INFO("server.loading", "Loading Reputation Reward Rates...");
-    sObjectMgr->LoadReputationRewardRate();
-
-    TC_LOG_INFO("server.loading", "Loading Creature Reputation OnKill Data...");
-    sObjectMgr->LoadReputationOnKill();
-
-    TC_LOG_INFO("server.loading", "Loading Reputation Spillover Data...");
-    sObjectMgr->LoadReputationSpilloverTemplate();
-
-    TC_LOG_INFO("server.loading", "Loading Points Of Interest Data...");
-    sObjectMgr->LoadPointsOfInterest();
-
-    TC_LOG_INFO("server.loading", "Loading Creature Base Stats...");
-    sObjectMgr->LoadCreatureClassLevelStats();
-
-    TC_LOG_INFO("server.loading", "Loading Spawn Group Templates...");
-    sObjectMgr->LoadSpawnGroupTemplates();
-
-    TC_LOG_INFO("server.loading", "Loading Creature Data...");
-    sObjectMgr->LoadCreatures();
-
-    TC_LOG_INFO("server.loading", "Loading Temporary Summon Data...");
-    sObjectMgr->LoadTempSummons();                               // must be after LoadCreatureTemplates() and LoadGameObjectTemplates()
-
-    TC_LOG_INFO("server.loading", "Loading pet levelup spells...");
-    sSpellMgr->LoadPetLevelupSpellMap();
-
-    TC_LOG_INFO("server.loading", "Loading pet default spells additional to levelup spells...");
-    sSpellMgr->LoadPetDefaultSpells();
-
-    TC_LOG_INFO("server.loading", "Loading Creature Addon Data...");
-    sObjectMgr->LoadCreatureAddons();                            // must be after LoadCreatureTemplates() and LoadCreatures()
-
-    TC_LOG_INFO("server.loading", "Loading Creature Movement Overrides...");
-    sObjectMgr->LoadCreatureMovementOverrides();                 // must be after LoadCreatures()
-
-    TC_LOG_INFO("server.loading", "Loading Gameobject Data...");
-    sObjectMgr->LoadGameObjects();
-
-    TC_LOG_INFO("server.loading", "Loading Spawn Group Data...");
-    sObjectMgr->LoadSpawnGroups();
-
-    TC_LOG_INFO("server.loading", "Loading instance spawn groups...");
-    sObjectMgr->LoadInstanceSpawnGroups();
-
-    TC_LOG_INFO("server.loading", "Loading GameObject Addon Data...");
-    sObjectMgr->LoadGameObjectAddons();                          // must be after LoadGameObjects()
-
-    TC_LOG_INFO("server.loading", "Loading GameObject faction and flags overrides...");
-    sObjectMgr->LoadGameObjectOverrides();                       // must be after LoadGameObjects()
-
-    TC_LOG_INFO("server.loading", "Loading GameObject Quest Items...");
-    sObjectMgr->LoadGameObjectQuestItems();
-
-    TC_LOG_INFO("server.loading", "Loading Creature Quest Items...");
-    sObjectMgr->LoadCreatureQuestItems();
-
-    TC_LOG_INFO("server.loading", "Loading Creature Quest Currencies...");
-    sObjectMgr->LoadCreatureQuestCurrencies();
-
-    TC_LOG_INFO("server.loading", "Loading Creature Linked Respawn...");
-    sObjectMgr->LoadLinkedRespawn();                             // must be after LoadCreatures(), LoadGameObjects()
-
-    TC_LOG_INFO("server.loading", "Loading Weather Data...");
-    WeatherMgr::LoadWeatherData();
-
-    TC_LOG_INFO("server.loading", "Loading Quests...");
-    sObjectMgr->LoadQuests();                                    // must be loaded after DBCs, creature_template, items, gameobject tables
-
-    TC_LOG_INFO("server.loading", "Checking Quest Disables");
-    DisableMgr::CheckQuestDisables();                           // must be after loading quests
-
-    TC_LOG_INFO("server.loading", "Loading Quest POI");
-    sObjectMgr->LoadQuestPOI();
-
-    TC_LOG_INFO("server.loading", "Loading Quests Starters and Enders...");
-    sObjectMgr->LoadQuestStartersAndEnders();                    // must be after quest load
-
-    TC_LOG_INFO("server.loading", "Loading Quest Greetings...");
-    sObjectMgr->LoadQuestGreetings();
-
-    if (m_bool_configs[CONFIG_LOAD_LOCALES])
-        sObjectMgr->LoadQuestGreetingLocales();
-
-    TC_LOG_INFO("server.loading", "Loading Objects Pooling Data...");
-    sPoolMgr->LoadFromDB();
-    TC_LOG_INFO("server.loading", "Loading Quest Pooling Data...");
-    sQuestPoolMgr->LoadFromDB();                                // must be after quest templates
-
-    TC_LOG_INFO("server.loading", "Loading Game Event Data...");               // must be after loading pools fully
-    sGameEventMgr->LoadFromDB();
-
-    TC_LOG_INFO("server.loading", "Loading creature summoned data...");
-    sObjectMgr->LoadCreatureSummonedData();                     // must be after LoadCreatureTemplates() and LoadQuests()
-
-    TC_LOG_INFO("server.loading", "Loading UNIT_NPC_FLAG_SPELLCLICK Data..."); // must be after LoadQuests
-    sObjectMgr->LoadNPCSpellClickSpells();
-
-    TC_LOG_INFO("server.loading", "Loading Vehicle Templates...");
-    sObjectMgr->LoadVehicleTemplate();                          // must be after LoadCreatureTemplates()
-
-    TC_LOG_INFO("server.loading", "Loading Vehicle Template Accessories...");
-    sObjectMgr->LoadVehicleTemplateAccessories();                // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
-
-    TC_LOG_INFO("server.loading", "Loading Vehicle Accessories...");
-    sObjectMgr->LoadVehicleAccessories();                       // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
-
-    TC_LOG_INFO("server.loading", "Loading Vehicle Seat Addon Data...");
-    sObjectMgr->LoadVehicleSeatAddon();                         // must be after loading DBC
-
-    TC_LOG_INFO("server.loading", "Loading SpellArea Data...");                // must be after quest load
-    sSpellMgr->LoadSpellAreas();
-
-    TC_LOG_INFO("server.loading", "Loading World locations...");
-    sObjectMgr->LoadWorldSafeLocs();                            // must be before LoadAreaTriggerTeleports and LoadGraveyardZones
-
-    TC_LOG_INFO("server.loading", "Loading Area Trigger Teleports definitions...");
-    sObjectMgr->LoadAreaTriggerTeleports();
-
-    TC_LOG_INFO("server.loading", "Loading Area Trigger Polygon data...");
-    sObjectMgr->LoadAreaTriggerPolygons();
-
-    TC_LOG_INFO("server.loading", "Loading Access Requirements...");
-    sObjectMgr->LoadAccessRequirements();                        // must be after item template load
-
-    TC_LOG_INFO("server.loading", "Loading Quest Area Triggers...");
-    sObjectMgr->LoadQuestAreaTriggers();                         // must be after LoadQuests
-
-    TC_LOG_INFO("server.loading", "Loading Tavern Area Triggers...");
-    sObjectMgr->LoadTavernAreaTriggers();
-
-    TC_LOG_INFO("server.loading", "Loading AreaTrigger script names...");
-    sObjectMgr->LoadAreaTriggerScripts();
-
-    TC_LOG_INFO("server.loading", "Loading LFG entrance positions..."); // Must be after areatriggers
-    sLFGMgr->LoadLFGDungeons();
-
-    TC_LOG_INFO("server.loading", "Loading LFG rewards...");
-    sLFGMgr->LoadRewards();
-
-    TC_LOG_INFO("server.loading", "Loading Graveyard-zone links...");
-    sObjectMgr->LoadGraveyardZones();
-
-    TC_LOG_INFO("server.loading", "Loading spell pet auras...");
-    sSpellMgr->LoadSpellPetAuras();
-
-    TC_LOG_INFO("server.loading", "Loading Spell target coordinates...");
-    sSpellMgr->LoadSpellTargetPositions();
-
-    TC_LOG_INFO("server.loading", "Loading linked spells...");
-    sSpellMgr->LoadSpellLinked();
-
-    TC_LOG_INFO("server.loading", "Loading Scenes Templates..."); // must be before LoadPlayerInfo
-    sObjectMgr->LoadSceneTemplates();
-
-    TC_LOG_INFO("server.loading", "Loading Player Create Data...");
-    sObjectMgr->LoadPlayerInfo();
-
-    TC_LOG_INFO("server.loading", "Loading Exploration BaseXP Data...");
-    sObjectMgr->LoadExplorationBaseXP();
-
-    TC_LOG_INFO("server.loading", "Loading Pet Name Parts...");
-    sObjectMgr->LoadPetNames();
-
-    TC_LOG_INFO("server.loading", "Loading AreaTrigger Templates...");
-    sAreaTriggerDataStore->LoadAreaTriggerTemplates();
-
-    TC_LOG_INFO("server.loading", "Loading AreaTrigger Spawns...");
-    sAreaTriggerDataStore->LoadAreaTriggerSpawns();
-
-    TC_LOG_INFO("server.loading", "Loading Conversation Templates...");
-    sConversationDataStore->LoadConversationTemplates();
-
-    TC_LOG_INFO("server.loading", "Loading Player Choices...");
-    sObjectMgr->LoadPlayerChoices();
-
-    if (m_bool_configs[CONFIG_LOAD_LOCALES])
-    {
-        TC_LOG_INFO("server.loading", "Loading Player Choices Locales...");
-        sObjectMgr->LoadPlayerChoicesLocale();
-    }
-    TC_LOG_INFO("server.loading", "Loading Jump Charge Params...");
-    sObjectMgr->LoadJumpChargeParams();
-
-    CharacterDatabaseCleaner::CleanDatabase();
-
-    TC_LOG_INFO("server.loading", "Loading the max pet number...");
-    sObjectMgr->LoadPetNumber();
-
-    TC_LOG_INFO("server.loading", "Loading pet level stats...");
-    sObjectMgr->LoadPetLevelInfo();
-
-    TC_LOG_INFO("server.loading", "Loading Player level dependent mail rewards...");
-    sObjectMgr->LoadMailLevelRewards();
-
-    // Loot tables
-    LoadLootTables();
-
-    TC_LOG_INFO("server.loading", "Loading Skill Discovery Table...");
-    LoadSkillDiscoveryTable();
-
-    TC_LOG_INFO("server.loading", "Loading Skill Extra Item Table...");
-    LoadSkillExtraItemTable();
-
-    TC_LOG_INFO("server.loading", "Loading Skill Perfection Data Table...");
-    LoadSkillPerfectItemTable();
-
-    TC_LOG_INFO("server.loading", "Loading Skill Fishing base level requirements...");
-    sObjectMgr->LoadFishingBaseSkillLevel();
-
-    TC_LOG_INFO("server.loading", "Loading skill tier info...");
-    sObjectMgr->LoadSkillTiers();
-
-    TC_LOG_INFO("server.loading", "Loading Criteria Modifier trees...");
-    sCriteriaMgr->LoadCriteriaModifiersTree();
-    TC_LOG_INFO("server.loading", "Loading Criteria Lists...");
-    sCriteriaMgr->LoadCriteriaList();
-    TC_LOG_INFO("server.loading", "Loading Criteria Data...");
-    sCriteriaMgr->LoadCriteriaData();
-    TC_LOG_INFO("server.loading", "Loading Achievements...");
-    sAchievementMgr->LoadAchievementReferenceList();
-    TC_LOG_INFO("server.loading", "Loading Achievements Scripts...");
-    sAchievementMgr->LoadAchievementScripts();
-    TC_LOG_INFO("server.loading", "Loading Achievement Rewards...");
-    sAchievementMgr->LoadRewards();
-
-    if (m_bool_configs[CONFIG_LOAD_LOCALES])
-    {
-        TC_LOG_INFO("server.loading", "Loading Achievement Reward Locales...");
-        sAchievementMgr->LoadRewardLocales();
-    }
-    TC_LOG_INFO("server.loading", "Loading Completed Achievements...");
-    sAchievementMgr->LoadCompletedAchievements();
-
-    // Load before guilds and arena teams
-    TC_LOG_INFO("server.loading", "Loading character cache store...");
-    sCharacterCache->LoadCharacterCacheStorage();
-
-    ///- Load dynamic data tables from the database
-    TC_LOG_INFO("server.loading", "Loading Auctions...");
-    sAuctionMgr->LoadAuctions();
-
-    if (m_bool_configs[CONFIG_BLACKMARKET_ENABLED])
-    {
-        TC_LOG_INFO("server.loading", "Loading Black Market Templates...");
-        sBlackMarketMgr->LoadTemplates();
-
-        TC_LOG_INFO("server.loading", "Loading Black Market Auctions...");
-        sBlackMarketMgr->LoadAuctions();
-    }
-
-    TC_LOG_INFO("server.loading", "Loading Guild rewards...");
-    sGuildMgr->LoadGuildRewards();
-
-    TC_LOG_INFO("server.loading", "Loading Guilds...");
-    sGuildMgr->LoadGuilds();
-
-    TC_LOG_INFO("server.loading", "Loading ArenaTeams...");
-    sArenaTeamMgr->LoadArenaTeams();
-
-    TC_LOG_INFO("server.loading", "Loading Groups...");
-    sGroupMgr->LoadGroups();
-
-    TC_LOG_INFO("server.loading", "Loading ReservedNames...");
-    sObjectMgr->LoadReservedPlayersNames();
-
-    TC_LOG_INFO("server.loading", "Loading GameObjects for quests...");
-    sObjectMgr->LoadGameObjectForQuests();
-
-    TC_LOG_INFO("server.loading", "Loading BattleMasters...");
-    sBattlegroundMgr->LoadBattleMastersEntry();                 // must be after load CreatureTemplate
-
-    TC_LOG_INFO("server.loading", "Loading GameTeleports...");
-    sObjectMgr->LoadGameTele();
-
-    TC_LOG_INFO("server.loading", "Loading Trainers...");
-    sObjectMgr->LoadTrainers();                                 // must be after load CreatureTemplate
-
-    TC_LOG_INFO("server.loading", "Loading Gossip menu...");
-    sObjectMgr->LoadGossipMenu();
-
-    TC_LOG_INFO("server.loading", "Loading Gossip menu options...");
-    sObjectMgr->LoadGossipMenuItems();
-
-    TC_LOG_INFO("server.loading", "Loading Gossip menu addon...");
-    sObjectMgr->LoadGossipMenuAddon();
-
-    TC_LOG_INFO("server.loading", "Loading Creature Template Gossip...");
-    sObjectMgr->LoadCreatureTemplateGossip();
-
-    TC_LOG_INFO("server.loading", "Loading Creature trainers...");
-    sObjectMgr->LoadCreatureTrainers();                         // must be after LoadGossipMenuItems
-
-    TC_LOG_INFO("server.loading", "Loading Vendors...");
-    sObjectMgr->LoadVendors();                                  // must be after load CreatureTemplate and ItemTemplate
-
-    TC_LOG_INFO("server.loading", "Loading Waypoint paths...");
-    sWaypointMgr->LoadPaths();
-
-    TC_LOG_INFO("server.loading", "Loading Creature Formations...");
-    sFormationMgr->LoadCreatureFormations();
-
-    TC_LOG_INFO("server.loading", "Loading World State templates...");
-    sWorldStateMgr->LoadFromDB();                               // must be loaded before battleground, outdoor PvP and conditions
-
-    TC_LOG_INFO("server.loading", "Loading Persistend World Variables...");
-    LoadPersistentWorldVariables();
-
-    sWorldStateMgr->SetValue(WS_CURRENT_PVP_SEASON_ID, getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS) ? getIntConfig(CONFIG_ARENA_SEASON_ID) : 0, false, nullptr);
-    sWorldStateMgr->SetValue(WS_PREVIOUS_PVP_SEASON_ID, getIntConfig(CONFIG_ARENA_SEASON_ID) - getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS), false, nullptr);
-
-    sObjectMgr->LoadPhases();
-
-    TC_LOG_INFO("server.loading", "Loading Conditions...");
-    sConditionMgr->LoadConditions();
-
-    TC_LOG_INFO("server.loading", "Loading faction change achievement pairs...");
-    sObjectMgr->LoadFactionChangeAchievements();
-
-    TC_LOG_INFO("server.loading", "Loading faction change spell pairs...");
-    sObjectMgr->LoadFactionChangeSpells();
-
-    TC_LOG_INFO("server.loading", "Loading faction change quest pairs...");
-    sObjectMgr->LoadFactionChangeQuests();
-
-    TC_LOG_INFO("server.loading", "Loading faction change item pairs...");
-    sObjectMgr->LoadFactionChangeItems();
-
-    TC_LOG_INFO("server.loading", "Loading faction change reputation pairs...");
-    sObjectMgr->LoadFactionChangeReputations();
-
-    TC_LOG_INFO("server.loading", "Loading faction change title pairs...");
-    sObjectMgr->LoadFactionChangeTitles();
-
-    TC_LOG_INFO("server.loading", "Loading mount definitions...");
-    CollectionMgr::LoadMountDefinitions();
-
-    TC_LOG_INFO("server.loading", "Loading GM bugs...");
-    sSupportMgr->LoadBugTickets();
-
-    TC_LOG_INFO("server.loading", "Loading GM complaints...");
-    sSupportMgr->LoadComplaintTickets();
-
-    TC_LOG_INFO("server.loading", "Loading GM suggestions...");
-    sSupportMgr->LoadSuggestionTickets();
-
-    /*TC_LOG_INFO("server.loading", "Loading GM surveys...");
-    sSupportMgr->LoadSurveys();*/
-
-    TC_LOG_INFO("server.loading", "Loading garrison info...");
-    sGarrisonMgr.Initialize();
-
-    ///- Handle outdated emails (delete/return)
-    TC_LOG_INFO("server.loading", "Returning old mails...");
-    sObjectMgr->ReturnOrDeleteOldMails(false);
-
-    TC_LOG_INFO("server.loading", "Loading Autobroadcasts...");
-    LoadAutobroadcasts();
-
-    ///- Load and initialize scripts
-    sObjectMgr->LoadSpellScripts();                              // must be after load Creature/Gameobject(Template/Data)
-    sObjectMgr->LoadEventScripts();                              // must be after load Creature/Gameobject(Template/Data)
-
-    TC_LOG_INFO("server.loading", "Loading spell script names...");
-    sObjectMgr->LoadSpellScriptNames();
-
-    TC_LOG_INFO("server.loading", "Loading Creature Texts...");
-    sCreatureTextMgr->LoadCreatureTexts();
-
-    if (m_bool_configs[CONFIG_LOAD_LOCALES])
-    {
-        TC_LOG_INFO("server.loading", "Loading Creature Text Locales...");
-        sCreatureTextMgr->LoadCreatureTextLocales();
-    }
-
-    TC_LOG_INFO("server.loading", "Loading creature StaticFlags overrides...");
-    sObjectMgr->LoadCreatureStaticFlagsOverride(); // must be after LoadCreatures
-
+//    TC_LOG_INFO("server.loading", "Initializing PlayerDump tables...");
+//    PlayerDump::InitializeTables();
+//
+//    TC_LOG_INFO("server.loading", "Loading SpellInfo store...");
+//    sSpellMgr->LoadSpellInfoStore();
+//
+//    TC_LOG_INFO("server.loading", "Loading serverside spells...");
+//    sSpellMgr->LoadSpellInfoServerside();
+//
+//    TC_LOG_INFO("server.loading", "Loading SpellInfo corrections...");
+//    sSpellMgr->LoadSpellInfoCorrections();
+//
+//    TC_LOG_INFO("server.loading", "Loading SkillLineAbilityMultiMap Data...");
+//    sSpellMgr->LoadSkillLineAbilityMap();
+//
+//    TC_LOG_INFO("server.loading", "Loading SpellInfo custom attributes...");
+//    sSpellMgr->LoadSpellInfoCustomAttributes();
+//
+//    TC_LOG_INFO("server.loading", "Loading SpellInfo diminishing infos...");
+//    sSpellMgr->LoadSpellInfoDiminishing();
+//
+//    TC_LOG_INFO("server.loading", "Loading SpellInfo immunity infos...");
+//    sSpellMgr->LoadSpellInfoImmunities();
+//
+//    TC_LOG_INFO("server.loading", "Loading PetFamilySpellsStore Data...");
+//    sSpellMgr->LoadPetFamilySpellsStore();
+//
+//    TC_LOG_INFO("server.loading", "Loading Spell Totem models...");
+//    sSpellMgr->LoadSpellTotemModel();
+//
+//    TC_LOG_INFO("server.loading", "Loading Traits...");
+//    TraitMgr::Load();
+//
+//    TC_LOG_INFO("server.loading", "Loading languages...");  // must be after LoadSpellInfoStore and LoadSkillLineAbilityMap
+//    sLanguageMgr->LoadLanguages();
+//
+//    TC_LOG_INFO("server.loading", "Loading languages words...");
+//    sLanguageMgr->LoadLanguagesWords();
+//
+//    TC_LOG_INFO("server.loading", "Loading Instance Template...");
+//    sObjectMgr->LoadInstanceTemplate();
+//
+//    // Must be called before `respawn` data
+//    TC_LOG_INFO("server.loading", "Loading instances...");
+//    sMapMgr->InitInstanceIds();
+//    sInstanceLockMgr.Load();
+//
+//    TC_LOG_INFO("server.loading", "Loading Localization strings...");
+//    uint32 oldMSTime = getMSTime();
+//    if (m_bool_configs[CONFIG_LOAD_LOCALES])
+//    {
+//        sObjectMgr->LoadCreatureLocales();
+//        sObjectMgr->LoadGameObjectLocales();
+//        sObjectMgr->LoadQuestTemplateLocale();
+//        sObjectMgr->LoadQuestOfferRewardLocale();
+//        sObjectMgr->LoadQuestRequestItemsLocale();
+//        sObjectMgr->LoadQuestObjectivesLocale();
+//        sObjectMgr->LoadPageTextLocales();
+//        sObjectMgr->LoadGossipMenuItemsLocales();
+//        sObjectMgr->LoadPointOfInterestLocales();
+//    }
+//
+//    sObjectMgr->SetDBCLocaleIndex(GetDefaultDbcLocale());        // Get once for all the locale index of DBC language (console/broadcasts)
+//    TC_LOG_INFO("server.loading", ">> Localization strings loaded in {} ms", GetMSTimeDiffToNow(oldMSTime));
+//
+//    TC_LOG_INFO("server.loading", "Loading Account Roles and Permissions...");
+//    sAccountMgr->LoadRBAC();
+//
+//    TC_LOG_INFO("server.loading", "Loading Page Texts...");
+//    sObjectMgr->LoadPageTexts();
+//
+//    TC_LOG_INFO("server.loading", "Loading Game Object Templates...");         // must be after LoadPageTexts
+//    sObjectMgr->LoadDestructibleHitpoints();
+//    sObjectMgr->LoadGameObjectTemplate();
+//
+//    TC_LOG_INFO("server.loading", "Loading Game Object template addons...");
+//    sObjectMgr->LoadGameObjectTemplateAddons();
+//
+//    TC_LOG_INFO("server.loading", "Loading Transport templates...");
+//    sTransportMgr->LoadTransportTemplates();
+//
+//    TC_LOG_INFO("server.loading", "Loading Transport animations and rotations...");
+//    sTransportMgr->LoadTransportAnimationAndRotation();
+//
+//    TC_LOG_INFO("server.loading", "Loading Transport spawns...");
+//    sTransportMgr->LoadTransportSpawns();
+//
+//    TC_LOG_INFO("server.loading", "Loading Spell Rank Data...");
+//    sSpellMgr->LoadSpellRanks();
+//
+//    TC_LOG_INFO("server.loading", "Loading Spell Required Data...");
+//    sSpellMgr->LoadSpellRequired();
+//
+//    TC_LOG_INFO("server.loading", "Loading Spell Group types...");
+//    sSpellMgr->LoadSpellGroups();
+//
+//    TC_LOG_INFO("server.loading", "Loading Spell Learn Skills...");
+//    sSpellMgr->LoadSpellLearnSkills();                           // must be after LoadSpellRanks
+//
+//    TC_LOG_INFO("server.loading", "Loading SpellInfo SpellSpecific and AuraState...");
+//    sSpellMgr->LoadSpellInfoSpellSpecificAndAuraState();         // must be after LoadSpellRanks
+//
+//    TC_LOG_INFO("server.loading", "Loading Spell Learn Spells...");
+//    sSpellMgr->LoadSpellLearnSpells();
+//
+//    TC_LOG_INFO("server.loading", "Loading Spell Proc conditions and data...");
+//    sSpellMgr->LoadSpellProcs();
+//
+//    TC_LOG_INFO("server.loading", "Loading Aggro Spells Definitions...");
+//    sSpellMgr->LoadSpellThreats();
+//
+//    TC_LOG_INFO("server.loading", "Loading Spell Group Stack Rules...");
+//    sSpellMgr->LoadSpellGroupStackRules();
+//
+//    TC_LOG_INFO("server.loading", "Loading NPC Texts...");
+//    sObjectMgr->LoadNPCText();
+//
+//    TC_LOG_INFO("server.loading", "Loading Enchant Spells Proc datas...");
+//    sSpellMgr->LoadSpellEnchantProcData();
+//
+//    TC_LOG_INFO("server.loading", "Loading item bonus data...");
+//    ItemBonusMgr::Load();
+//
+//    TC_LOG_INFO("server.loading", "Loading Random item bonus list definitions...");
+//    LoadItemRandomBonusListTemplates();
+//
+//    TC_LOG_INFO("server.loading", "Loading Disables");                         // must be before loading quests and items
+//    DisableMgr::LoadDisables();
+//
+//    TC_LOG_INFO("server.loading", "Loading Items...");                         // must be after LoadRandomEnchantmentsTable and LoadPageTexts
+//    sObjectMgr->LoadItemTemplates();
+//
+//    TC_LOG_INFO("server.loading", "Loading Item set names...");                // must be after LoadItemPrototypes
+//    sObjectMgr->LoadItemTemplateAddon();
+//
+//    TC_LOG_INFO("misc", "Loading Item Scripts...");                 // must be after LoadItemPrototypes
+//    sObjectMgr->LoadItemScriptNames();
+//
+//    TC_LOG_INFO("server.loading", "Loading Creature Model Based Info Data...");
+//    sObjectMgr->LoadCreatureModelInfo();
+//
+//    TC_LOG_INFO("server.loading", "Loading Creature templates...");
+//    sObjectMgr->LoadCreatureTemplates();
+//
+//    TC_LOG_INFO("server.loading", "Loading Equipment templates...");           // must be after LoadCreatureTemplates
+//    sObjectMgr->LoadEquipmentTemplates();
+//
+//    TC_LOG_INFO("server.loading", "Loading Creature template addons...");
+//    sObjectMgr->LoadCreatureTemplateAddons();
+//
+//    TC_LOG_INFO("server.loading", "Loading Creature template difficulty...");
+//    sObjectMgr->LoadCreatureTemplateDifficulty();
+//
+//    TC_LOG_INFO("server.loading", "Loading Creature template sparring...");
+//    sObjectMgr->LoadCreatureTemplateSparring();
+//
+//    TC_LOG_INFO("server.loading", "Loading Reputation Reward Rates...");
+//    sObjectMgr->LoadReputationRewardRate();
+//
+//    TC_LOG_INFO("server.loading", "Loading Creature Reputation OnKill Data...");
+//    sObjectMgr->LoadReputationOnKill();
+//
+//    TC_LOG_INFO("server.loading", "Loading Reputation Spillover Data...");
+//    sObjectMgr->LoadReputationSpilloverTemplate();
+//
+//    TC_LOG_INFO("server.loading", "Loading Points Of Interest Data...");
+//    sObjectMgr->LoadPointsOfInterest();
+//
+//    TC_LOG_INFO("server.loading", "Loading Creature Base Stats...");
+//    sObjectMgr->LoadCreatureClassLevelStats();
+//
+//    TC_LOG_INFO("server.loading", "Loading Spawn Group Templates...");
+//    sObjectMgr->LoadSpawnGroupTemplates();
+//
+//    TC_LOG_INFO("server.loading", "Loading Creature Data...");
+//    sObjectMgr->LoadCreatures();
+//
+//    TC_LOG_INFO("server.loading", "Loading Temporary Summon Data...");
+//    sObjectMgr->LoadTempSummons();                               // must be after LoadCreatureTemplates() and LoadGameObjectTemplates()
+//
+//    TC_LOG_INFO("server.loading", "Loading pet levelup spells...");
+//    sSpellMgr->LoadPetLevelupSpellMap();
+//
+//    TC_LOG_INFO("server.loading", "Loading pet default spells additional to levelup spells...");
+//    sSpellMgr->LoadPetDefaultSpells();
+//
+//    TC_LOG_INFO("server.loading", "Loading Creature Addon Data...");
+//    sObjectMgr->LoadCreatureAddons();                            // must be after LoadCreatureTemplates() and LoadCreatures()
+//
+//    TC_LOG_INFO("server.loading", "Loading Creature Movement Overrides...");
+//    sObjectMgr->LoadCreatureMovementOverrides();                 // must be after LoadCreatures()
+//
+//    TC_LOG_INFO("server.loading", "Loading Gameobject Data...");
+//    sObjectMgr->LoadGameObjects();
+//
+//    TC_LOG_INFO("server.loading", "Loading Spawn Group Data...");
+//    sObjectMgr->LoadSpawnGroups();
+//
+//    TC_LOG_INFO("server.loading", "Loading instance spawn groups...");
+//    sObjectMgr->LoadInstanceSpawnGroups();
+//
+//    TC_LOG_INFO("server.loading", "Loading GameObject Addon Data...");
+//    sObjectMgr->LoadGameObjectAddons();                          // must be after LoadGameObjects()
+//
+//    TC_LOG_INFO("server.loading", "Loading GameObject faction and flags overrides...");
+//    sObjectMgr->LoadGameObjectOverrides();                       // must be after LoadGameObjects()
+//
+//    TC_LOG_INFO("server.loading", "Loading GameObject Quest Items...");
+//    sObjectMgr->LoadGameObjectQuestItems();
+//
+//    TC_LOG_INFO("server.loading", "Loading Creature Quest Items...");
+//    sObjectMgr->LoadCreatureQuestItems();
+//
+//    TC_LOG_INFO("server.loading", "Loading Creature Quest Currencies...");
+//    sObjectMgr->LoadCreatureQuestCurrencies();
+//
+//    TC_LOG_INFO("server.loading", "Loading Creature Linked Respawn...");
+//    sObjectMgr->LoadLinkedRespawn();                             // must be after LoadCreatures(), LoadGameObjects()
+//
+//    TC_LOG_INFO("server.loading", "Loading Weather Data...");
+//    WeatherMgr::LoadWeatherData();
+//
+//    TC_LOG_INFO("server.loading", "Loading Quests...");
+//    sObjectMgr->LoadQuests();                                    // must be loaded after DBCs, creature_template, items, gameobject tables
+//
+//    TC_LOG_INFO("server.loading", "Checking Quest Disables");
+//    DisableMgr::CheckQuestDisables();                           // must be after loading quests
+//
+//    TC_LOG_INFO("server.loading", "Loading Quest POI");
+//    sObjectMgr->LoadQuestPOI();
+//
+//    TC_LOG_INFO("server.loading", "Loading Quests Starters and Enders...");
+//    sObjectMgr->LoadQuestStartersAndEnders();                    // must be after quest load
+//
+//    TC_LOG_INFO("server.loading", "Loading Quest Greetings...");
+//    sObjectMgr->LoadQuestGreetings();
+//
+//    if (m_bool_configs[CONFIG_LOAD_LOCALES])
+//        sObjectMgr->LoadQuestGreetingLocales();
+//
+//    TC_LOG_INFO("server.loading", "Loading Objects Pooling Data...");
+//    sPoolMgr->LoadFromDB();
+//    TC_LOG_INFO("server.loading", "Loading Quest Pooling Data...");
+//    sQuestPoolMgr->LoadFromDB();                                // must be after quest templates
+//
+//    TC_LOG_INFO("server.loading", "Loading Game Event Data...");               // must be after loading pools fully
+//    sGameEventMgr->LoadFromDB();
+//
+//    TC_LOG_INFO("server.loading", "Loading creature summoned data...");
+//    sObjectMgr->LoadCreatureSummonedData();                     // must be after LoadCreatureTemplates() and LoadQuests()
+//
+//    TC_LOG_INFO("server.loading", "Loading UNIT_NPC_FLAG_SPELLCLICK Data..."); // must be after LoadQuests
+//    sObjectMgr->LoadNPCSpellClickSpells();
+//
+//    TC_LOG_INFO("server.loading", "Loading Vehicle Templates...");
+//    sObjectMgr->LoadVehicleTemplate();                          // must be after LoadCreatureTemplates()
+//
+//    TC_LOG_INFO("server.loading", "Loading Vehicle Template Accessories...");
+//    sObjectMgr->LoadVehicleTemplateAccessories();                // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
+//
+//    TC_LOG_INFO("server.loading", "Loading Vehicle Accessories...");
+//    sObjectMgr->LoadVehicleAccessories();                       // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
+//
+//    TC_LOG_INFO("server.loading", "Loading Vehicle Seat Addon Data...");
+//    sObjectMgr->LoadVehicleSeatAddon();                         // must be after loading DBC
+//
+//    TC_LOG_INFO("server.loading", "Loading SpellArea Data...");                // must be after quest load
+//    sSpellMgr->LoadSpellAreas();
+//
+//    TC_LOG_INFO("server.loading", "Loading World locations...");
+//    sObjectMgr->LoadWorldSafeLocs();                            // must be before LoadAreaTriggerTeleports and LoadGraveyardZones
+//
+//    TC_LOG_INFO("server.loading", "Loading Area Trigger Teleports definitions...");
+//    sObjectMgr->LoadAreaTriggerTeleports();
+//
+//    TC_LOG_INFO("server.loading", "Loading Area Trigger Polygon data...");
+//    sObjectMgr->LoadAreaTriggerPolygons();
+//
+//    TC_LOG_INFO("server.loading", "Loading Access Requirements...");
+//    sObjectMgr->LoadAccessRequirements();                        // must be after item template load
+//
+//    TC_LOG_INFO("server.loading", "Loading Quest Area Triggers...");
+//    sObjectMgr->LoadQuestAreaTriggers();                         // must be after LoadQuests
+//
+//    TC_LOG_INFO("server.loading", "Loading Tavern Area Triggers...");
+//    sObjectMgr->LoadTavernAreaTriggers();
+//
+//    TC_LOG_INFO("server.loading", "Loading AreaTrigger script names...");
+//    sObjectMgr->LoadAreaTriggerScripts();
+//
+//    TC_LOG_INFO("server.loading", "Loading LFG entrance positions..."); // Must be after areatriggers
+//    sLFGMgr->LoadLFGDungeons();
+//
+//    TC_LOG_INFO("server.loading", "Loading LFG rewards...");
+//    sLFGMgr->LoadRewards();
+//
+//    TC_LOG_INFO("server.loading", "Loading Graveyard-zone links...");
+//    sObjectMgr->LoadGraveyardZones();
+//
+//    TC_LOG_INFO("server.loading", "Loading spell pet auras...");
+//    sSpellMgr->LoadSpellPetAuras();
+//
+//    TC_LOG_INFO("server.loading", "Loading Spell target coordinates...");
+//    sSpellMgr->LoadSpellTargetPositions();
+//
+//    TC_LOG_INFO("server.loading", "Loading linked spells...");
+//    sSpellMgr->LoadSpellLinked();
+//
+//    TC_LOG_INFO("server.loading", "Loading Scenes Templates..."); // must be before LoadPlayerInfo
+//    sObjectMgr->LoadSceneTemplates();
+//
+//    TC_LOG_INFO("server.loading", "Loading Player Create Data...");
+//    sObjectMgr->LoadPlayerInfo();
+//
+//    TC_LOG_INFO("server.loading", "Loading Exploration BaseXP Data...");
+//    sObjectMgr->LoadExplorationBaseXP();
+//
+//    TC_LOG_INFO("server.loading", "Loading Pet Name Parts...");
+//    sObjectMgr->LoadPetNames();
+//
+//    TC_LOG_INFO("server.loading", "Loading AreaTrigger Templates...");
+//    sAreaTriggerDataStore->LoadAreaTriggerTemplates();
+//
+//    TC_LOG_INFO("server.loading", "Loading AreaTrigger Spawns...");
+//    sAreaTriggerDataStore->LoadAreaTriggerSpawns();
+//
+//    TC_LOG_INFO("server.loading", "Loading Conversation Templates...");
+//    sConversationDataStore->LoadConversationTemplates();
+//
+//    TC_LOG_INFO("server.loading", "Loading Player Choices...");
+//    sObjectMgr->LoadPlayerChoices();
+//
+//    if (m_bool_configs[CONFIG_LOAD_LOCALES])
+//    {
+//        TC_LOG_INFO("server.loading", "Loading Player Choices Locales...");
+//        sObjectMgr->LoadPlayerChoicesLocale();
+//    }
+//    TC_LOG_INFO("server.loading", "Loading Jump Charge Params...");
+//    sObjectMgr->LoadJumpChargeParams();
+//
+//    CharacterDatabaseCleaner::CleanDatabase();
+//
+//    TC_LOG_INFO("server.loading", "Loading the max pet number...");
+//    sObjectMgr->LoadPetNumber();
+//
+//    TC_LOG_INFO("server.loading", "Loading pet level stats...");
+//    sObjectMgr->LoadPetLevelInfo();
+//
+//    TC_LOG_INFO("server.loading", "Loading Player level dependent mail rewards...");
+//    sObjectMgr->LoadMailLevelRewards();
+//
+//    // Loot tables
+//    LoadLootTables();
+//
+//    TC_LOG_INFO("server.loading", "Loading Skill Discovery Table...");
+//    LoadSkillDiscoveryTable();
+//
+//    TC_LOG_INFO("server.loading", "Loading Skill Extra Item Table...");
+//    LoadSkillExtraItemTable();
+//
+//    TC_LOG_INFO("server.loading", "Loading Skill Perfection Data Table...");
+//    LoadSkillPerfectItemTable();
+//
+//    TC_LOG_INFO("server.loading", "Loading Skill Fishing base level requirements...");
+//    sObjectMgr->LoadFishingBaseSkillLevel();
+//
+//    TC_LOG_INFO("server.loading", "Loading skill tier info...");
+//    sObjectMgr->LoadSkillTiers();
+//
+//    TC_LOG_INFO("server.loading", "Loading Criteria Modifier trees...");
+//    sCriteriaMgr->LoadCriteriaModifiersTree();
+//    TC_LOG_INFO("server.loading", "Loading Criteria Lists...");
+//    sCriteriaMgr->LoadCriteriaList();
+//    TC_LOG_INFO("server.loading", "Loading Criteria Data...");
+//    sCriteriaMgr->LoadCriteriaData();
+//    TC_LOG_INFO("server.loading", "Loading Achievements...");
+//    sAchievementMgr->LoadAchievementReferenceList();
+//    TC_LOG_INFO("server.loading", "Loading Achievements Scripts...");
+//    sAchievementMgr->LoadAchievementScripts();
+//    TC_LOG_INFO("server.loading", "Loading Achievement Rewards...");
+//    sAchievementMgr->LoadRewards();
+//
+//    if (m_bool_configs[CONFIG_LOAD_LOCALES])
+//    {
+//        TC_LOG_INFO("server.loading", "Loading Achievement Reward Locales...");
+//        sAchievementMgr->LoadRewardLocales();
+//    }
+//    TC_LOG_INFO("server.loading", "Loading Completed Achievements...");
+//    sAchievementMgr->LoadCompletedAchievements();
+//
+//    // Load before guilds and arena teams
+//    TC_LOG_INFO("server.loading", "Loading character cache store...");
+//    sCharacterCache->LoadCharacterCacheStorage();
+//
+//    ///- Load dynamic data tables from the database
+//    TC_LOG_INFO("server.loading", "Loading Auctions...");
+//    sAuctionMgr->LoadAuctions();
+//
+//    if (m_bool_configs[CONFIG_BLACKMARKET_ENABLED])
+//    {
+//        TC_LOG_INFO("server.loading", "Loading Black Market Templates...");
+//        sBlackMarketMgr->LoadTemplates();
+//
+//        TC_LOG_INFO("server.loading", "Loading Black Market Auctions...");
+//        sBlackMarketMgr->LoadAuctions();
+//    }
+//
+//    TC_LOG_INFO("server.loading", "Loading Guild rewards...");
+//    sGuildMgr->LoadGuildRewards();
+//
+//    TC_LOG_INFO("server.loading", "Loading Guilds...");
+//    sGuildMgr->LoadGuilds();
+//
+//    TC_LOG_INFO("server.loading", "Loading ArenaTeams...");
+//    sArenaTeamMgr->LoadArenaTeams();
+//
+//    TC_LOG_INFO("server.loading", "Loading Groups...");
+//    sGroupMgr->LoadGroups();
+//
+//    TC_LOG_INFO("server.loading", "Loading ReservedNames...");
+//    sObjectMgr->LoadReservedPlayersNames();
+//
+//    TC_LOG_INFO("server.loading", "Loading GameObjects for quests...");
+//    sObjectMgr->LoadGameObjectForQuests();
+//
+//    TC_LOG_INFO("server.loading", "Loading BattleMasters...");
+//    sBattlegroundMgr->LoadBattleMastersEntry();                 // must be after load CreatureTemplate
+//
+//    TC_LOG_INFO("server.loading", "Loading GameTeleports...");
+//    sObjectMgr->LoadGameTele();
+//
+//    TC_LOG_INFO("server.loading", "Loading Trainers...");
+//    sObjectMgr->LoadTrainers();                                 // must be after load CreatureTemplate
+//
+//    TC_LOG_INFO("server.loading", "Loading Gossip menu...");
+//    sObjectMgr->LoadGossipMenu();
+//
+//    TC_LOG_INFO("server.loading", "Loading Gossip menu options...");
+//    sObjectMgr->LoadGossipMenuItems();
+//
+//    TC_LOG_INFO("server.loading", "Loading Gossip menu addon...");
+//    sObjectMgr->LoadGossipMenuAddon();
+//
+//    TC_LOG_INFO("server.loading", "Loading Creature Template Gossip...");
+//    sObjectMgr->LoadCreatureTemplateGossip();
+//
+//    TC_LOG_INFO("server.loading", "Loading Creature trainers...");
+//    sObjectMgr->LoadCreatureTrainers();                         // must be after LoadGossipMenuItems
+//
+//    TC_LOG_INFO("server.loading", "Loading Vendors...");
+//    sObjectMgr->LoadVendors();                                  // must be after load CreatureTemplate and ItemTemplate
+//
+//    TC_LOG_INFO("server.loading", "Loading Waypoint paths...");
+//    sWaypointMgr->LoadPaths();
+//
+//    TC_LOG_INFO("server.loading", "Loading Creature Formations...");
+//    sFormationMgr->LoadCreatureFormations();
+//
+//    TC_LOG_INFO("server.loading", "Loading World State templates...");
+//    sWorldStateMgr->LoadFromDB();                               // must be loaded before battleground, outdoor PvP and conditions
+//
+//    TC_LOG_INFO("server.loading", "Loading Persistend World Variables...");
+//    LoadPersistentWorldVariables();
+//
+//    sWorldStateMgr->SetValue(WS_CURRENT_PVP_SEASON_ID, getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS) ? getIntConfig(CONFIG_ARENA_SEASON_ID) : 0, false, nullptr);
+//    sWorldStateMgr->SetValue(WS_PREVIOUS_PVP_SEASON_ID, getIntConfig(CONFIG_ARENA_SEASON_ID) - getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS), false, nullptr);
+//
+//    sObjectMgr->LoadPhases();
+//
+//    TC_LOG_INFO("server.loading", "Loading Conditions...");
+//    sConditionMgr->LoadConditions();
+//
+//    TC_LOG_INFO("server.loading", "Loading faction change achievement pairs...");
+//    sObjectMgr->LoadFactionChangeAchievements();
+//
+//    TC_LOG_INFO("server.loading", "Loading faction change spell pairs...");
+//    sObjectMgr->LoadFactionChangeSpells();
+//
+//    TC_LOG_INFO("server.loading", "Loading faction change quest pairs...");
+//    sObjectMgr->LoadFactionChangeQuests();
+//
+//    TC_LOG_INFO("server.loading", "Loading faction change item pairs...");
+//    sObjectMgr->LoadFactionChangeItems();
+//
+//    TC_LOG_INFO("server.loading", "Loading faction change reputation pairs...");
+//    sObjectMgr->LoadFactionChangeReputations();
+//
+//    TC_LOG_INFO("server.loading", "Loading faction change title pairs...");
+//    sObjectMgr->LoadFactionChangeTitles();
+//
+//    TC_LOG_INFO("server.loading", "Loading mount definitions...");
+//    CollectionMgr::LoadMountDefinitions();
+//
+//    TC_LOG_INFO("server.loading", "Loading GM bugs...");
+//    sSupportMgr->LoadBugTickets();
+//
+//    TC_LOG_INFO("server.loading", "Loading GM complaints...");
+//    sSupportMgr->LoadComplaintTickets();
+//
+//    TC_LOG_INFO("server.loading", "Loading GM suggestions...");
+//    sSupportMgr->LoadSuggestionTickets();
+//
+//    /*TC_LOG_INFO("server.loading", "Loading GM surveys...");
+//    sSupportMgr->LoadSurveys();*/
+//
+//    TC_LOG_INFO("server.loading", "Loading garrison info...");
+//    sGarrisonMgr.Initialize();
+//
+//    ///- Handle outdated emails (delete/return)
+//    TC_LOG_INFO("server.loading", "Returning old mails...");
+//    sObjectMgr->ReturnOrDeleteOldMails(false);
+//
+//    TC_LOG_INFO("server.loading", "Loading Autobroadcasts...");
+//    LoadAutobroadcasts();
+//
+//    ///- Load and initialize scripts
+//    sObjectMgr->LoadSpellScripts();                              // must be after load Creature/Gameobject(Template/Data)
+//    sObjectMgr->LoadEventScripts();                              // must be after load Creature/Gameobject(Template/Data)
+//
+//    TC_LOG_INFO("server.loading", "Loading spell script names...");
+//    sObjectMgr->LoadSpellScriptNames();
+//
+//    TC_LOG_INFO("server.loading", "Loading Creature Texts...");
+//    sCreatureTextMgr->LoadCreatureTexts();
+//
+//    if (m_bool_configs[CONFIG_LOAD_LOCALES])
+//    {
+//        TC_LOG_INFO("server.loading", "Loading Creature Text Locales...");
+//        sCreatureTextMgr->LoadCreatureTextLocales();
+//    }
+//
+//    TC_LOG_INFO("server.loading", "Loading creature StaticFlags overrides...");
+//    sObjectMgr->LoadCreatureStaticFlagsOverride(); // must be after LoadCreatures
+//
     TC_LOG_INFO("server.loading", "Initializing Scripts...");
     sScriptMgr->Initialize();
     sScriptMgr->OnConfigLoad(false);                                // must be done after the ScriptMgr has been properly initialized
-
-    TC_LOG_INFO("server.loading", "Validating spell scripts...");
-    sObjectMgr->ValidateSpellScripts();
-
-    TC_LOG_INFO("server.loading", "Loading SmartAI scripts...");
-    sSmartScriptMgr->LoadSmartAIFromDB();
-
-    TC_LOG_INFO("server.loading", "Loading Calendar data...");
-    sCalendarMgr->LoadFromDB();
-
-    TC_LOG_INFO("server.loading", "Loading Petitions...");
-    sPetitionMgr->LoadPetitions();
-
-    TC_LOG_INFO("server.loading", "Loading Signatures...");
-    sPetitionMgr->LoadSignatures();
-
-    TC_LOG_INFO("server.loading", "Loading Item loot...");
-    sLootItemStorage->LoadStorageFromDB();
+//
+//    TC_LOG_INFO("server.loading", "Validating spell scripts...");
+//    sObjectMgr->ValidateSpellScripts();
+//
+//    TC_LOG_INFO("server.loading", "Loading SmartAI scripts...");
+//    sSmartScriptMgr->LoadSmartAIFromDB();
+//
+//    TC_LOG_INFO("server.loading", "Loading Calendar data...");
+//    sCalendarMgr->LoadFromDB();
+//
+//    TC_LOG_INFO("server.loading", "Loading Petitions...");
+//    sPetitionMgr->LoadPetitions();
+//
+//    TC_LOG_INFO("server.loading", "Loading Signatures...");
+//    sPetitionMgr->LoadSignatures();
+//
+//    TC_LOG_INFO("server.loading", "Loading Item loot...");
+//    sLootItemStorage->LoadStorageFromDB();
 
     TC_LOG_INFO("server.loading", "Initialize query data...");
     sObjectMgr->InitializeQueriesData(QUERY_DATA_ALL);
@@ -2483,34 +2482,34 @@ bool World::SetInitialWorldSettings()
     // Delete all characters which have been deleted X days before
     Player::DeleteOldCharacters();
 
-    TC_LOG_INFO("server.loading", "Initialize AuctionHouseBot...");
-    sAuctionBot->Initialize();
-
-    TC_LOG_INFO("server.loading", "Initializing chat channels...");
-    ChannelMgr::LoadFromDB();
+//    TC_LOG_INFO("server.loading", "Initialize AuctionHouseBot...");
+//    sAuctionBot->Initialize();
+//
+//    TC_LOG_INFO("server.loading", "Initializing chat channels...");
+//    ChannelMgr::LoadFromDB();
 
     TC_LOG_INFO("server.loading", "Initializing Opcodes...");
     opcodeTable.Initialize();
     WorldPackets::Auth::ConnectTo::InitializeEncryption();
     WorldPackets::Auth::EnterEncryptedMode::InitializeEncryption();
 
-    TC_LOG_INFO("server.loading", "Starting Arena Season...");
-    sGameEventMgr->StartArenaSeason();
+//    TC_LOG_INFO("server.loading", "Starting Arena Season...");
+//    sGameEventMgr->StartArenaSeason();
 
     sSupportMgr->Initialize();
 
-    ///- Initialize Battlegrounds
-    TC_LOG_INFO("server.loading", "Starting Battleground System");
-    sBattlegroundMgr->LoadBattlegroundTemplates();
-    sBattlegroundMgr->LoadBattlegroundScriptTemplate();
-
-    ///- Initialize outdoor pvp
-    TC_LOG_INFO("server.loading", "Starting Outdoor PvP System");
-    sOutdoorPvPMgr->InitOutdoorPvP();
-
-    ///- Initialize Battlefield
-    TC_LOG_INFO("server.loading", "Starting Battlefield System");
-    sBattlefieldMgr->InitBattlefield();
+//    ///- Initialize Battlegrounds
+//    TC_LOG_INFO("server.loading", "Starting Battleground System");
+//    sBattlegroundMgr->LoadBattlegroundTemplates();
+//    sBattlegroundMgr->LoadBattlegroundScriptTemplate();
+//
+//    ///- Initialize outdoor pvp
+//    TC_LOG_INFO("server.loading", "Starting Outdoor PvP System");
+//    sOutdoorPvPMgr->InitOutdoorPvP();
+//
+//    ///- Initialize Battlefield
+//    TC_LOG_INFO("server.loading", "Starting Battlefield System");
+//    sBattlefieldMgr->InitBattlefield();
 
     ///- Initialize Warden
     TC_LOG_INFO("server.loading", "Loading Warden Checks...");
@@ -2522,21 +2521,21 @@ bool World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Deleting expired bans...");
     LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");      // One-time query
 
-    TC_LOG_INFO("server.loading", "Initializing quest reset times...");
-    InitQuestResetTimes();
-    CheckScheduledResetTimes();
+//    TC_LOG_INFO("server.loading", "Initializing quest reset times...");
+//    InitQuestResetTimes();
+//    CheckScheduledResetTimes();
 
-    TC_LOG_INFO("server.loading", "Calculate random battleground reset time...");
-    InitRandomBGResetTime();
-
-    TC_LOG_INFO("server.loading", "Calculate deletion of old calendar events time...");
-    InitCalendarOldEventsDeletionTime();
-
-    TC_LOG_INFO("server.loading", "Calculate guild limitation(s) reset time...");
-    InitGuildResetTime();
-
-    TC_LOG_INFO("server.loading", "Calculate next currency reset time...");
-    InitCurrencyResetTime();
+//    TC_LOG_INFO("server.loading", "Calculate random battleground reset time...");
+//    InitRandomBGResetTime();
+//
+//    TC_LOG_INFO("server.loading", "Calculate deletion of old calendar events time...");
+//    InitCalendarOldEventsDeletionTime();
+//
+//    TC_LOG_INFO("server.loading", "Calculate guild limitation(s) reset time...");
+//    InitGuildResetTime();
+//
+//    TC_LOG_INFO("server.loading", "Calculate next currency reset time...");
+//    InitCurrencyResetTime();
 
     TC_LOG_INFO("server.loading", "Loading race and class expansion requirements...");
     sObjectMgr->LoadRaceAndClassExpansionRequirements();
@@ -2544,15 +2543,15 @@ bool World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading character templates...");
     sCharacterTemplateDataStore->LoadCharacterTemplates();
 
-    TC_LOG_INFO("server.loading", "Loading battle pets info...");
-    BattlePets::BattlePetMgr::Initialize();
-
-    TC_LOG_INFO("server.loading", "Loading scenarios");
-    sScenarioMgr->LoadDB2Data();
-    sScenarioMgr->LoadDBData();
-
-    TC_LOG_INFO("server.loading", "Loading scenario poi data");
-    sScenarioMgr->LoadScenarioPOI();
+//    TC_LOG_INFO("server.loading", "Loading battle pets info...");
+//    BattlePets::BattlePetMgr::Initialize();
+//
+//    TC_LOG_INFO("server.loading", "Loading scenarios");
+//    sScenarioMgr->LoadDB2Data();
+//    sScenarioMgr->LoadDBData();
+//
+//    TC_LOG_INFO("server.loading", "Loading scenario poi data");
+//    sScenarioMgr->LoadScenarioPOI();
 
     TC_LOG_INFO("server.loading", "Loading phase names...");
     sObjectMgr->LoadPhaseNames();
