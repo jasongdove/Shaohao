@@ -34,7 +34,7 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
     WorldPackets::Auth::AuthResponse response;
     response.Result = code;
 
-    if (code == ERROR_OK)
+    if (code == AUTH_OK)
     {
         response.SuccessInfo.emplace();
 

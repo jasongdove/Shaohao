@@ -1208,6 +1208,7 @@ enum OpcodeServer : uint16
     SMSG_CUSTOM_LOAD_SCREEN                           = 0x25CC,
     SMSG_DAILY_QUESTS_RESET                           = 0x2A80,
     SMSG_DAMAGE_CALC_LOG                              = 0x2C65,
+    SMSG_DANCE_STUDIO_CREATE_RESULT                   = 0x1E9B,
     SMSG_DB_REPLY                                     = 0x290E,
     SMSG_DEATH_RELEASE_LOC                            = 0x26D3,
     SMSG_DEBUG_MENU_MANAGER_FULL_UPDATE               = 0x2656,

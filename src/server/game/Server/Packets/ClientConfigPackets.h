@@ -34,6 +34,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid PlayerGuid;
+            uint32 Mask;
             Timestamp<> ServerTime;
             std::array<Timestamp<>, NUM_ACCOUNT_DATA_TYPES> AccountTimes = { };
         };

@@ -19,10 +19,14 @@
 
 WorldPacket const* WorldPackets::ClientConfig::AccountDataTimes::Write()
 {
-    _worldPacket << PlayerGuid;
-    _worldPacket << ServerTime;
+    _worldPacket.WriteBit(1);
+    _worldPacket.FlushBits();
+
     for (Timestamp<> const& accountDataTime : AccountTimes)
-        _worldPacket << accountDataTime;
+        _worldPacket << uint32(accountDataTime);
+
+    _worldPacket << Mask;
+    _worldPacket << uint32(ServerTime);
 
     return &_worldPacket;
 }

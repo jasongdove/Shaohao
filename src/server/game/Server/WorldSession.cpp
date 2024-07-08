@@ -888,6 +888,7 @@ void WorldSession::SendAccountDataTimes(ObjectGuid playerGuid, uint32 mask)
 {
     WorldPackets::ClientConfig::AccountDataTimes accountDataTimes;
     accountDataTimes.PlayerGuid = playerGuid;
+    accountDataTimes.Mask = mask;
     accountDataTimes.ServerTime = GameTime::GetSystemTime();
     for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
         if (mask & (1 << i))
@@ -908,6 +909,12 @@ void WorldSession::LoadTutorialsData(PreparedQueryResult result)
     }
 
     _tutorialsChanged &= ~TUTORIALS_FLAG_CHANGED;
+}
+
+void WorldSession::SendDanceStudioCreateResult()
+{
+    WorldPackets::Auth::DanceStudioCreateResult packet;
+    SendPacket(packet.Write());
 }
 
 void WorldSession::SendTutorialsData()
@@ -1181,18 +1188,21 @@ void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder const& hol
     _collectionMgr->LoadAccountItemAppearances(holder.GetPreparedResult(AccountInfoQueryHolder::ITEM_APPEARANCES), holder.GetPreparedResult(AccountInfoQueryHolder::ITEM_FAVORITE_APPEARANCES));
     _collectionMgr->LoadAccountTransmogIllusions(holder.GetPreparedResult(AccountInfoQueryHolder::TRANSMOG_ILLUSIONS));
 
-    if (!m_inQueue)
-        SendAuthResponse(ERROR_OK, false);
-    else
-        SendAuthWaitQueue(0);
 
     SetInQueue(false);
     ResetTimeOutTime(false);
 
-    SendSetTimeZoneInformation();
+    SendDanceStudioCreateResult();
     SendFeatureSystemStatusGlueScreen();
-    SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
-    SendAvailableHotfixes();
+    SendSetTimeZoneInformation();
+
+    if (!m_inQueue)
+        SendAuthResponse(AUTH_OK, false);
+    else
+        SendAuthWaitQueue(0);
+
+//    SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
+//    SendAvailableHotfixes();
     SendAccountDataTimes(ObjectGuid::Empty, GLOBAL_CACHE_MASK);
     SendTutorialsData();
 

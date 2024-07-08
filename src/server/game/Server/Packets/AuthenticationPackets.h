@@ -73,6 +73,14 @@ namespace WorldPackets
             uint32 AuthSeed = { };
         };
 
+        class DanceStudioCreateResult : public ServerPacket
+        {
+        public:
+            DanceStudioCreateResult() : ServerPacket(SMSG_DANCE_STUDIO_CREATE_RESULT, 17) { }
+
+            WorldPacket const* Write() override;
+        };
+
         class AuthSession final : public EarlyProcessClientPacket
         {
         public:

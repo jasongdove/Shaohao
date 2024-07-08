@@ -117,6 +117,17 @@ WorldPacket const* WorldPackets::Auth::AuthChallenge::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Auth::DanceStudioCreateResult::Write()
+{
+    _worldPacket << uint32(4665878);
+    _worldPacket << uint32(795877);
+    _worldPacket << uint32(10848087);
+    _worldPacket << uint32(1084761);
+    _worldPacket.WriteBit(true);
+    _worldPacket.FlushBits();
+    return &_worldPacket;
+}
+
 void WorldPackets::Auth::AuthSession::Read()
 {
     uint32 addonDataSize;
@@ -217,7 +228,7 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
     {
         for (VirtualRealmInfo const &virtualRealm: SuccessInfo->VirtualRealms)
         {
-            _worldPacket << uint32(virtualRealm.RealmAddress);
+            _worldPacket << uint32(virtualRealm.RealmAddress & 0xFF); // we only want to send realm id
             _worldPacket.WriteString(virtualRealm.RealmNameInfo.RealmNameActual);
             _worldPacket.WriteString(virtualRealm.RealmNameInfo.RealmNameNormalized);
         }

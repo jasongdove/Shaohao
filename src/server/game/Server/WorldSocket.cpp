@@ -54,7 +54,7 @@ std::string const WorldSocket::ClientConnectionInitialize("WORLD OF WARCRAFT CON
 uint32 const WorldSocket::MinSizeForCompression = 0x400;
 
 uint32 const SizeOfClientHeader[2] = { sizeof(uint32) + sizeof(uint16), sizeof(uint16) + sizeof(uint16) };
-uint32 const SizeOfServerHeader[2] = { sizeof(uint16) + sizeof(uint16), sizeof(uint32) + sizeof(uint16) };
+uint32 const SizeOfServerHeader[2] = { sizeof(uint16) + sizeof(uint16), sizeof(uint16) + sizeof(uint16) };
 
 uint8 const WorldSocket::SessionKeySeed[16] = { 0x58, 0xCB, 0xCF, 0x40, 0xFE, 0x2E, 0xCE, 0xA6, 0x5A, 0x90, 0xB8, 0x01, 0x68, 0x6C, 0x28, 0x0B };
 uint8 const WorldSocket::ContinuedSessionSeed[16] = { 0x16, 0xAD, 0x0C, 0xD4, 0x46, 0xF9, 0x4F, 0xB2, 0xEF, 0x7D, 0xEA, 0x2A, 0x17, 0x66, 0x4D, 0x2F };
@@ -198,35 +198,39 @@ void WorldSocket::InitializeHandler(boost::system::error_code const& error, std:
 bool WorldSocket::Update()
 {
     EncryptablePacket* queued;
-    MessageBuffer buffer(_sendBufferSize);
-    while (_bufferQueue.Dequeue(queued))
+    if (_bufferQueue.Dequeue(queued))
     {
-        uint32 sizeOfHeader = SizeOfServerHeader[queued->NeedsEncryption()];
-        uint32 packetSize = queued->size();
-        if (packetSize > MinSizeForCompression && queued->NeedsEncryption())
-            packetSize = deflateBound(_compressionStream, packetSize) + sizeof(CompressedWorldPacket);
-
-        // Flush current buffer if too small for next packet
-        if (buffer.GetRemainingSpace() < packetSize + sizeOfHeader)
+        // Allocate buffer only when it's needed but not on every Update() call.
+        MessageBuffer buffer(_sendBufferSize);
+        do
         {
+            uint32 sizeOfHeader = SizeOfServerHeader[queued->NeedsEncryption()];
+            uint32 packetSize = queued->size();
+            if (packetSize > MinSizeForCompression && queued->NeedsEncryption())
+                packetSize = deflateBound(_compressionStream, packetSize) + sizeof(CompressedWorldPacket);
+
+            // Flush current buffer if too small for next packet
+            if (buffer.GetRemainingSpace() < packetSize + sizeOfHeader)
+            {
+                QueuePacket(std::move(buffer));
+                buffer.Resize(_sendBufferSize);
+            }
+
+            if (buffer.GetRemainingSpace() >= packetSize + sizeOfHeader)
+                WritePacketToBuffer(*queued, buffer);
+            else    // single packet larger than _sendBufferSize
+            {
+                MessageBuffer packetBuffer(packetSize + sizeOfHeader);
+                WritePacketToBuffer(*queued, packetBuffer);
+                QueuePacket(std::move(packetBuffer));
+            }
+
+            delete queued;
+        } while (_bufferQueue.Dequeue(queued));
+
+        if (buffer.GetActiveSize() > 0)
             QueuePacket(std::move(buffer));
-            buffer.Resize(_sendBufferSize);
-        }
-
-        if (buffer.GetRemainingSpace() >= packetSize + sizeOfHeader)
-            WritePacketToBuffer(*queued, buffer);
-        else    // single packet larger than _sendBufferSize
-        {
-            MessageBuffer packetBuffer(packetSize + sizeOfHeader);
-            WritePacketToBuffer(*queued, packetBuffer);
-            QueuePacket(std::move(packetBuffer));
-        }
-
-        delete queued;
     }
-
-    if (buffer.GetActiveSize() > 0)
-        QueuePacket(std::move(buffer));
 
     if (!BaseSocket::Update())
         return false;
@@ -261,8 +265,11 @@ void WorldSocket::ReadHandler()
     MessageBuffer& packet = GetReadBuffer();
     while (packet.GetActiveSize() > 0)
     {
+        TC_LOG_INFO("network", "incoming packet stuff...");
         if (_headerBuffer.GetRemainingSpace() > 0)
         {
+            TC_LOG_INFO("network", "have remaining header space...");
+
             // need to receive the header
             std::size_t readHeaderSize = std::min(packet.GetActiveSize(), _headerBuffer.GetRemainingSpace());
             _headerBuffer.Write(packet.GetReadPointer(), readHeaderSize);
@@ -270,11 +277,13 @@ void WorldSocket::ReadHandler()
 
             if (_headerBuffer.GetRemainingSpace() > 0)
             {
+                TC_LOG_INFO("network", "STILL have remaining header space...");
                 // Couldn't receive the whole header this time.
                 ASSERT(packet.GetActiveSize() == 0);
                 break;
             }
 
+            TC_LOG_INFO("network", "should have the whole header now...");
             // We just received nice new header
             if (!ReadHeaderHandler())
             {
@@ -286,6 +295,8 @@ void WorldSocket::ReadHandler()
         // We have full read header, now check the data payload
         if (_packetBuffer.GetRemainingSpace() > 0)
         {
+            TC_LOG_INFO("network", "still packet buffer to fill...");
+
             // need more data in the payload
             std::size_t readDataSize = std::min(packet.GetActiveSize(), _packetBuffer.GetRemainingSpace());
             _packetBuffer.Write(packet.GetReadPointer(), readDataSize);
@@ -293,11 +304,15 @@ void WorldSocket::ReadHandler()
 
             if (_packetBuffer.GetRemainingSpace() > 0)
             {
+                TC_LOG_INFO("network", "STILL still packet buffer to fill...");
+
                 // Couldn't receive the whole data this time.
                 ASSERT(packet.GetActiveSize() == 0);
                 break;
             }
         }
+
+        TC_LOG_INFO("network", "should have a full payload now...");
 
         // just received fresh new payload
         ReadDataHandlerResult result = ReadDataHandler();
@@ -309,6 +324,8 @@ void WorldSocket::ReadHandler()
 
             return;
         }
+
+        TC_LOG_INFO("network", "done with this loop...");
     }
 
     AsyncRead();
