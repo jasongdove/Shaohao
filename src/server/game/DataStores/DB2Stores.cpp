@@ -575,6 +575,20 @@ LOAD_DB2(sItemStore);
         }
     }
 
+    // Shaohao: fake having ChrModel store
+    for (ChrRacesEntry const* chrRacesEntry : sChrRacesStore)
+        for (int c = 1; c < MAX_CLASSES_MOP; c++)
+        {
+            ChrModelEntry maleModel;
+            maleModel.DisplayID = chrRacesEntry->MaleDisplayID;
+            _chrModelsByRaceAndGender[{ uint8(chrRacesEntry->ID), GENDER_MALE }] = &maleModel;
+
+            ChrModelEntry femaleModel;
+            femaleModel.DisplayID = chrRacesEntry->FemaleDisplayID;
+            _chrModelsByRaceAndGender[{ uint8(chrRacesEntry->ID), GENDER_FEMALE }] = &femaleModel;
+        }
+
+
     for (ConditionalChrModelEntry const* conditionalChrModel : sConditionalChrModelStore)
         _conditionalChrModelsByChrModelId[conditionalChrModel->ChrModelID] = conditionalChrModel;
 

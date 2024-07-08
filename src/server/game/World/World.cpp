@@ -2320,18 +2320,18 @@ bool World::SetInitialWorldSettings()
 //
 //    TC_LOG_INFO("server.loading", "Loading Creature Formations...");
 //    sFormationMgr->LoadCreatureFormations();
-//
-//    TC_LOG_INFO("server.loading", "Loading World State templates...");
-//    sWorldStateMgr->LoadFromDB();                               // must be loaded before battleground, outdoor PvP and conditions
-//
-//    TC_LOG_INFO("server.loading", "Loading Persistend World Variables...");
-//    LoadPersistentWorldVariables();
-//
-//    sWorldStateMgr->SetValue(WS_CURRENT_PVP_SEASON_ID, getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS) ? getIntConfig(CONFIG_ARENA_SEASON_ID) : 0, false, nullptr);
-//    sWorldStateMgr->SetValue(WS_PREVIOUS_PVP_SEASON_ID, getIntConfig(CONFIG_ARENA_SEASON_ID) - getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS), false, nullptr);
-//
-//    sObjectMgr->LoadPhases();
-//
+
+    TC_LOG_INFO("server.loading", "Loading World State templates...");
+    sWorldStateMgr->LoadFromDB();                               // must be loaded before battleground, outdoor PvP and conditions
+
+    TC_LOG_INFO("server.loading", "Loading Persistend World Variables...");
+    LoadPersistentWorldVariables();
+
+    sWorldStateMgr->SetValue(WS_CURRENT_PVP_SEASON_ID, getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS) ? getIntConfig(CONFIG_ARENA_SEASON_ID) : 0, false, nullptr);
+    sWorldStateMgr->SetValue(WS_PREVIOUS_PVP_SEASON_ID, getIntConfig(CONFIG_ARENA_SEASON_ID) - getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS), false, nullptr);
+
+    sObjectMgr->LoadPhases();
+
 //    TC_LOG_INFO("server.loading", "Loading Conditions...");
 //    sConditionMgr->LoadConditions();
 //
@@ -2502,11 +2502,11 @@ bool World::SetInitialWorldSettings()
 //    TC_LOG_INFO("server.loading", "Starting Battleground System");
 //    sBattlegroundMgr->LoadBattlegroundTemplates();
 //    sBattlegroundMgr->LoadBattlegroundScriptTemplate();
-//
-//    ///- Initialize outdoor pvp
-//    TC_LOG_INFO("server.loading", "Starting Outdoor PvP System");
-//    sOutdoorPvPMgr->InitOutdoorPvP();
-//
+
+    ///- Initialize outdoor pvp
+    TC_LOG_INFO("server.loading", "Starting Outdoor PvP System");
+    sOutdoorPvPMgr->InitOutdoorPvP();
+
 //    ///- Initialize Battlefield
 //    TC_LOG_INFO("server.loading", "Starting Battlefield System");
 //    sBattlefieldMgr->InitBattlefield();

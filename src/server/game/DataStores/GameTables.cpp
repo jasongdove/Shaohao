@@ -47,6 +47,8 @@ GameTable<GtChanceToSpellCritBaseEntry>          sChanceToSpellCritBaseGameTable
 GameTable<GtChanceToSpellCritEntry>              sChanceToSpellCritGameTable(GtChanceToSpellCritfmt);
 GameTable<GtCombatRatingsEntry>                  sCombatRatingsGameTable(GtCombatRatingsfmt);
 GameTable<GtItemSocketCostPerLevelEntry>         sItemSocketCostPerLevelGameTable(GtItemSocketCostPerLevelfmt);
+GameTable<GtOCTBaseHPByClassEntry>               sOctBaseHpByClassStore(GtOCTBaseHPByClassfmt);
+GameTable<GtOCTBaseMPByClassEntry>               sOctBaseMpByClassStore(GtOCTBaseMPByClassfmt);
 GameTable<GtNpcManaCostScalerEntry>              sNpcManaCostScalerGameTable(GtNPCManaCostScalerfmt);
 GameTable<GtRegenMPPerSptEntry>                  sRegenMPPerSptGameTable(GtRegenMPPerSptfmt);
 GameTable<GtSpellScalingEntry>                   sSpellScalingGameTable(GtSpellScalingfmt);
@@ -137,6 +139,8 @@ void LoadGameTables(std::string const& dataPath, uint32 defaultLocale)
 //    GameTable<GtRegenMPPerSptEntry>                  sRegenMPPerSptGameTable(GtRegenMPPerSptfmt);
 //    GameTable<GtSpellScalingEntry>                   sSpellScalingGameTable(GtSpellScalingfmt);
     LOAD_GT("BarberShopCostBase", sBarberShopCostBaseGameTable, "gtBarberShopCostBase.dbc");
+    LOAD_GT("OCTBaseHPByClass", sOctBaseHpByClassStore, "gtOCTBaseHPByClass.dbc");
+    LOAD_GT("OCTBaseMPByClass", sOctBaseMpByClassStore, "gtOCTBaseMPByClass.dbc");
 
 #undef LOAD_GT
 

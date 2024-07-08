@@ -25,6 +25,8 @@
 
 enum InventoryType : uint8;
 
+#define GT_MAX_LEVEL    100
+
 struct GtArtifactKnowledgeMultiplierEntry
 {
     float Multiplier = 0.0f;
@@ -151,6 +153,16 @@ struct GtRegenMPPerSptEntry
     float    ratio;
 };
 
+struct GtOCTBaseHPByClassEntry
+{
+    float ratio;
+};
+
+struct GtOCTBaseMPByClassEntry
+{
+    float ratio;
+};
+
 struct GtSpellScalingEntry
 {
     float Rogue = 0.0f;
@@ -252,6 +264,8 @@ TC_GAME_API extern GameTable<GtChanceToSpellCritBaseEntry>          sChanceToSpe
 TC_GAME_API extern GameTable<GtChanceToSpellCritEntry>              sChanceToSpellCritGameTable;
 TC_GAME_API extern GameTable<GtCombatRatingsEntry>                  sCombatRatingsGameTable;
 TC_GAME_API extern GameTable<GtItemSocketCostPerLevelEntry>         sItemSocketCostPerLevelGameTable;
+TC_GAME_API extern GameTable<GtOCTBaseHPByClassEntry>               sOctBaseHpByClassStore;
+TC_GAME_API extern GameTable<GtOCTBaseMPByClassEntry>               sOctBaseMpByClassStore;
 TC_GAME_API extern GameTable<GtNpcManaCostScalerEntry>              sNpcManaCostScalerGameTable;
 TC_GAME_API extern GameTable<GtRegenMPPerSptEntry>                  sRegenMPPerSptGameTable;
 TC_GAME_API extern GameTable<GtSpellScalingEntry>                   sSpellScalingGameTable;

@@ -169,6 +169,8 @@ enum Classes : uint8
 #define MAX_CLASSES_MOP   12
 #define MAX_RACES_MOP     27
 #define MAX_MAPS_MOP      1174
+#define MAX_AREAS_MOP     6864
+#define MAX_PHASES_MOP    3402
 
 #define CLASSMASK_ALL_PLAYABLE     \
     ((1<<(CLASS_WARRIOR-1))      | \
@@ -985,7 +987,10 @@ enum SpellAttr14 : uint32
 #define MIN_SPECIALIZATION_LEVEL    10
 #define MAX_SPECIALIZATIONS         5
 #define PET_SPEC_OVERRIDE_CLASS_INDEX MAX_CLASSES
-#define INITIAL_SPECIALIZATION_INDEX 4
+
+// TODO: Shaohao, don't know if this is correct,
+// but classes don't have more than 3 specs, so 4 is definitely wrong
+#define INITIAL_SPECIALIZATION_INDEX 0
 
 // Custom values
 enum SpellClickUserTypes

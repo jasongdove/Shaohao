@@ -2893,10 +2893,10 @@ struct MythicPlusSeasonEntry
 
 struct NameGenEntry
 {
-    uint32 ID;
+    //uint32 ID;
     char const* Name;
-    uint8 RaceID;
-    uint8 Sex;
+    uint32 RaceID;
+    uint32 Sex;
 };
 
 struct NamesProfanityEntry
@@ -4015,63 +4015,6 @@ struct TactKeyEntry
 //    uint32 OverridesSpellID;
 //    std::array<uint8, 2> CategoryMask;
 //};
-
-struct TaxiNodesEntry
-{
-    LocalizedString Name;
-    DBCPosition3D Pos;
-    DBCPosition2D MapOffset;
-    DBCPosition2D FlightMapOffset;
-    uint32 ID;
-    uint16 ContinentID;
-    int32 ConditionID;
-    uint16 CharacterBitNumber;
-    int32 Flags;
-    int32 UiTextureKitID;
-    int32 MinimapAtlasMemberID;
-    float Facing;
-    uint32 SpecialIconConditionID;
-    uint32 VisibilityConditionID;
-    std::array<int32, 2> MountCreatureID;
-
-    EnumFlag<TaxiNodeFlags> GetFlags() const { return static_cast<TaxiNodeFlags>(Flags); }
-
-    bool IsPartOfTaxiNetwork() const
-    {
-        return GetFlags().HasFlag(TaxiNodeFlags::ShowOnAllianceMap | TaxiNodeFlags::ShowOnHordeMap)
-            // manually whitelisted nodes
-            || ID == 1985   // [Hidden] Argus Ground Points Hub (Ground TP out to here, TP to Vindicaar from here)
-            || ID == 1986   // [Hidden] Argus Vindicaar Ground Hub (Vindicaar TP out to here, TP to ground from here)
-            || ID == 1987   // [Hidden] Argus Vindicaar No Load Hub (Vindicaar No Load transition goes through here)
-            || ID == 2627   // [Hidden] 9.0 Bastion Ground Points Hub (Ground TP out to here, TP to Sanctum from here)
-            || ID == 2628   // [Hidden] 9.0 Bastion Ground Hub (Sanctum TP out to here, TP to ground from here)
-            || ID == 2732   // [HIDDEN] 9.2 Resonant Peaks - Teleport Network - Hidden Hub (Connects all Nodes to each other without unique paths)
-            || ID == 2835   // [Hidden] 10.0 Travel Network - Destination Input
-            || ID == 2843   // [Hidden] 10.0 Travel Network - Destination Output
-        ;
-    }
-};
-
-struct TaxiPathEntry
-{
-    uint32 ID;
-    uint16 FromTaxiNode;
-    uint16 ToTaxiNode;
-    uint32 Cost;
-};
-
-struct TaxiPathNodeEntry
-{
-    DBCPosition3D Loc;
-    uint32 ID;
-    uint16 PathID;
-    int32 NodeIndex;
-    uint16 ContinentID;
-    int32 Flags;
-    uint32 Delay;
-    int32 ArrivalEventID;
-    int32 DepartureEventID;
-};
 
 struct TotemCategoryEntry
 {

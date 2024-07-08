@@ -450,7 +450,7 @@ LOAD_DBC(sAuctionHouseStore, "AuctionHouse.dbc");
 LOAD_DBC(sChrClassesStore, "ChrClasses.dbc");//20444
 //    // TODO: DATA LOAD_DBC(sChrClassesXPowerTypesStore, "ChrClassesXPowerTypes.dbc");
 LOAD_DBC(sChrRacesStore, "ChrRaces.dbc");//20444
-//    LOAD_DBC(sChrSpecializationStore, "ChrSpecialization.dbc");//20444
+LOAD_DBC(sChrSpecializationStore, "ChrSpecialization.dbc");
 //    // sChrSpecializationByIndexStore
 //    LOAD_DBC(sCinematicCameraStore, "CinematicCamera.dbc");
 //    LOAD_DBC(sCinematicSequencesStore, "CinematicSequences.dbc");
@@ -527,19 +527,19 @@ LOAD_DBC(sGameTablesStore, "GameTables.dbc");
 //    LOAD_DBC(sLiquidTypeStore, "LiquidType.dbc");//20444
 //    LOAD_DBC(sLockStore, "Lock.dbc");//20444
 //    LOAD_DBC(sMailTemplateStore, "MailTemplate.dbc");
-LOAD_DBC_EXTRA(sMapStore, "Map.dbc", MapEntry::ExtraData);//20444
+LOAD_DBC(sMapStore, "Map.dbc");//20444
 //    LOAD_DBC(sMapDifficultyStore, "MapDifficulty.dbc");//20444
 //    // sMapDifficultyMap
 //    LOAD_DBC(sModifierTreeStore, "ModifierTree.dbc");
 //    LOAD_DBC(sMountCapabilityStore, "MountCapability.dbc");
 //    LOAD_DBC(sMountTypeStore, "MountType.dbc");
 //    LOAD_DBC(sMovieStore, "Movie.dbc");//20444
-//    LOAD_DBC(sNameGenStore, "NameGen.dbc");
+LOAD_DBC(sNameGenStore, "NameGen.dbc");
 //    // TODO: DATA LOAD_DBC(sNamesProfanityStore, "NamesProfanity.dbc");
 //    // TODO: DATA LOAD_DBC(sNamesReservedStore, "NamesReserved.dbc");
 //    // TODO: DATA LOAD_DBC(sNamesReservedLocaleStore, "NamesReservedLocaleStore.dbc");
 //    LOAD_DBC(sOverrideSpellDataStore, "OverrideSpellData.dbc");
-//    LOAD_DBC(sPhaseStore, "Phase.dbc"); // 20444
+LOAD_DBC(sPhaseStore, "Phase.dbc"); // 20444
 //    // TODO: DATA LOAD_DBC(sPhaseXPhaseGroupStore, "PhaseXPhaseGroup.dbc");
 //    LOAD_DBC(sPlayerConditionStore, "PlayerCondition.dbc");
 //    LOAD_DBC(sPowerDisplayStore, "PowerDisplay.dbc");//20444
@@ -605,10 +605,9 @@ LOAD_DBC(sSpellRadiusStore, "SpellRadius.dbc");
 //    // TODO: DATA LOAD_DBC(sSpellVisualKitStore, "SpellVisualKit.dbc");
 //    LOAD_DBC(sSummonPropertiesStore, "SummonProperties.dbc");//20444
 //    LOAD_DBC(sTalentStore, "Talent.dbc");//20444
-//    //
-//    LOAD_DBC(sTaxiNodesStore, "TaxiNodes.dbc");
-//    LOAD_DBC(sTaxiPathStore, "TaxiPath.dbc");
-//    LOAD_DBC(sTaxiPathNodeStore, "TaxiPathNode.dbc");
+LOAD_DBC(sTaxiNodesStore, "TaxiNodes.dbc");
+LOAD_DBC(sTaxiPathStore, "TaxiPath.dbc");
+LOAD_DBC(sTaxiPathNodeStore, "TaxiPathNode.dbc");
 //    LOAD_DBC(sTotemCategoryStore, "TotemCategory.dbc");
 //    LOAD_DBC(sTransportAnimationStore, "TransportAnimation.dbc");
 //    LOAD_DBC(sTransportRotationStore, "TransportRotation.dbc");

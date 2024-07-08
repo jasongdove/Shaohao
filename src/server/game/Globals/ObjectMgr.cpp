@@ -28,6 +28,7 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "DBCStores.h"
+#include "GameTables.h"
 #include "DisableMgr.h"
 #include "GameObject.h"
 #include "GameObjectAIFactory.h"
@@ -4386,7 +4387,7 @@ void ObjectMgr::LoadPlayerInfo()
     }
 }
 
-void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& baseMana) const
+void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& baseHp, uint32& baseMana) const
 {
     if (level < 1 || class_ >= MAX_CLASSES)
         return;
@@ -4394,14 +4395,17 @@ void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& base
     if (level > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         level = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
 
-    GtBaseMPEntry const* mp = sBaseMPGameTable.GetRow(level);
-    if (!mp)
+    GtOCTBaseHPByClassEntry const* hp = sOctBaseHpByClassStore.EvaluateTable(level - 1, class_ - 1);
+    GtOCTBaseMPByClassEntry const* mp = sOctBaseMpByClassStore.EvaluateTable(level - 1, class_ - 1);
+
+    if (!hp || !mp)
     {
-        TC_LOG_ERROR("misc", "Tried to get non-existant Class-Level combination data for base hp/mp. Class {} Level {}", class_, level);
+        TC_LOG_ERROR("misc", "Tried to get non-existent Class-Level combination data for base hp/mp. Class {} Level {}", class_, level);
         return;
     }
 
-    baseMana = uint32(GetGameTableColumnForClass(mp, class_));
+    baseHp = uint32(hp->ratio);
+    baseMana = uint32(mp->ratio);
 }
 
 void ObjectMgr::GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const
@@ -10487,13 +10491,17 @@ void ObjectMgr::LoadAreaPhases()
         uint32 phaseId = fields[1].GetUInt32();
         if (!sAreaTableStore.LookupEntry(area))
         {
-            TC_LOG_ERROR("sql.sql", "Area {} defined in `phase_area` does not exist, skipped.", area);
+            // Shaohao: temp disable spam
+            if (area < MAX_AREAS_MOP)
+                TC_LOG_ERROR("sql.sql", "Area {} defined in `phase_area` does not exist, skipped.", area);
             continue;
         }
 
         if (!sPhaseStore.LookupEntry(phaseId))
         {
-            TC_LOG_ERROR("sql.sql", "Phase {} defined in `phase_area` does not exist, skipped.", phaseId);
+            // Shaohao: temp disable spam
+            if (area < MAX_PHASES_MOP)
+                TC_LOG_ERROR("sql.sql", "Phase {} defined in `phase_area` does not exist, skipped.", phaseId);
             continue;
         }
 

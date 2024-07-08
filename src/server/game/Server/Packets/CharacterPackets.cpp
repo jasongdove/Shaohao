@@ -352,23 +352,23 @@ WorldPacket const* CheckCharacterNameAvailabilityResult::Write()
 void CreateCharacter::Read()
 {
     CreateInfo = std::make_shared<CharacterCreateInfo>();
+
+    _worldPacket >> CreateInfo->OutfitID;
+    _worldPacket >> CreateInfo->HairStyle;
+    _worldPacket >> CreateInfo->Class;
+    _worldPacket >> CreateInfo->Skin;
+    _worldPacket >> CreateInfo->Face;
+    _worldPacket >> CreateInfo->Race;
+    _worldPacket >> CreateInfo->FacialHairStyle;
+    _worldPacket >> CreateInfo->Sex;
+    _worldPacket >> CreateInfo->HairColor;
+
     uint32 nameLength = _worldPacket.ReadBits(6);
     bool const hasTemplateSet = _worldPacket.ReadBit();
-    CreateInfo->IsTrialBoost = _worldPacket.ReadBit();
-    CreateInfo->UseNPE = _worldPacket.ReadBit();
-    CreateInfo->Unused1026 = _worldPacket.ReadBit();
-
-    _worldPacket >> CreateInfo->Race;
-    _worldPacket >> CreateInfo->Class;
-    _worldPacket >> CreateInfo->Sex;
-    CreateInfo->Customizations.resize(_worldPacket.read<uint32>());
-    _worldPacket >> CreateInfo->TimerunningSeasonID;
     CreateInfo->Name = _worldPacket.ReadString(nameLength);
-    if (hasTemplateSet)
-        CreateInfo->TemplateSet = _worldPacket.read<int32>();
 
-    for (ChrCustomizationChoice& customization : CreateInfo->Customizations)
-        _worldPacket >> customization;
+    if (hasTemplateSet)
+        CreateInfo->TemplateSet = _worldPacket.read<uint32>();
 
     SortCustomizations(CreateInfo->Customizations);
 }
@@ -470,8 +470,8 @@ WorldPacket const* CharFactionChangeResult::Write()
 
 void GenerateRandomCharacterName::Read()
 {
-    _worldPacket >> Race;
     _worldPacket >> Sex;
+    _worldPacket >> Race;
 }
 
 WorldPacket const* GenerateRandomCharacterNameResult::Write()

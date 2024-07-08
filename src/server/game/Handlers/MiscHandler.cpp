@@ -743,6 +743,13 @@ void WorldSession::HandleRequestAccountData(WorldPackets::ClientConfig::RequestA
     SendPacket(data.Write());
 }
 
+void WorldSession::HandleReadyForAccountDataTimes(WorldPackets::ClientConfig::ReadyForAccountDataTimes& /*packet*/)
+{
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_READY_FOR_ACCOUNT_DATA_TIMES");
+
+    SendAccountDataTimes(ObjectGuid::Empty, GLOBAL_CACHE_MASK);
+}
+
 void WorldSession::HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionButton& packet)
 {
     uint64 action = ACTION_BUTTON_ACTION(packet.Action);

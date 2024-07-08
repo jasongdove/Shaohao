@@ -74,6 +74,11 @@ void WorldPackets::ClientConfig::UserClientUpdateAccountData::Read()
     }
 }
 
+void WorldPackets::ClientConfig::ReadyForAccountDataTimes::Read()
+{
+    // empty opcode
+}
+
 void WorldPackets::ClientConfig::SetAdvancedCombatLogging::Read()
 {
     Enable = _worldPacket.ReadBit();
