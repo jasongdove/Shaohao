@@ -23,19 +23,31 @@
 
 #pragma pack(push, 1)
 
-union ServerPktHeader
+struct ServerPktHeader
 {
-    struct
+    ServerPktHeader(uint32 size, uint32 cmd, bool encrypt) : size(size)
     {
-        uint16 Size;
-        uint16 Command;
-    } Setup;
+        if (encrypt)
+        {
+            uint32 data = (size << 13) | (cmd & MAX_SMSG_OPCODE_NUMBER);
+            memcpy(&header[0], &data, 4);
+            //_authCrypt->EncryptSend(reinterpret_cast<uint8*>(&header[0]), getHeaderLength());
+        }
+        else
+        {
+            // Dynamic header size is not needed anymore, we are using not encrypted part for only the first few packets
+            memcpy(&header[0], &size, 2);
+            memcpy(&header[2], &cmd, 2);
+        }
+    }
 
-    struct
+    uint8 getHeaderLength()
     {
-        uint32 Size;
-        uint16 Command;
-    } Normal;
+        return 4;
+    }
+
+    const uint32 size;
+    uint8 header[4];
 };
 
 #pragma pack(pop)

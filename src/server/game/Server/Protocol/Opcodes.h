@@ -37,11 +37,11 @@ enum ConnectionType : int8
 };
 
 constexpr std::size_t MIN_CMSG_OPCODE_NUMBER = 0x0002;
-constexpr std::size_t MAX_CMSG_OPCODE_NUMBER = 0x9999;
+constexpr std::size_t MAX_CMSG_OPCODE_NUMBER = 0x1FFF;
 constexpr std::size_t NUM_CMSG_OPCODES = MAX_CMSG_OPCODE_NUMBER - MIN_CMSG_OPCODE_NUMBER + 1;
 
 constexpr std::size_t MIN_SMSG_OPCODE_NUMBER = 0x0002;
-constexpr std::size_t MAX_SMSG_OPCODE_NUMBER = 0x9999;
+constexpr std::size_t MAX_SMSG_OPCODE_NUMBER = 0x1FFF;
 constexpr std::size_t NUM_SMSG_OPCODES = MAX_SMSG_OPCODE_NUMBER - MIN_SMSG_OPCODE_NUMBER + 1;
 
 constexpr uint16 UNKNOWN_OPCODE = 0xBADD;   // special marker value for uninitialized WorldPackets

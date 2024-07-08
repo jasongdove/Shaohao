@@ -300,35 +300,37 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RaceLimitDisableI
 
 WorldPacket const* EnumCharactersResult::Write()
 {
-    _worldPacket.reserve(9 + Characters.size() * sizeof(CharacterInfo) + RaceUnlockData.size() * sizeof(RaceUnlock));
+    _worldPacket.WriteBits(0, 21); // factionChangeRestrictions - raceId / mask loop
+    _worldPacket.WriteBits(Characters.size(), 16);
+
+//    for (CharacterInfo const& charInfo : Characters)
+//        _worldPacket << charInfo;
 
     _worldPacket.WriteBit(Success);
-    _worldPacket.WriteBit(IsDeletedCharacters);
-    _worldPacket.WriteBit(IsNewPlayerRestrictionSkipped);
-    _worldPacket.WriteBit(IsNewPlayerRestricted);
-    _worldPacket.WriteBit(IsNewPlayer);
-    _worldPacket.WriteBit(IsTrialAccountRestricted);
-    _worldPacket.WriteBit(DisabledClassesMask.has_value());
-    _worldPacket << uint32(Characters.size());
-    _worldPacket << int32(MaxCharacterLevel);
-    _worldPacket << uint32(RaceUnlockData.size());
-    _worldPacket << uint32(UnlockedConditionalAppearances.size());
-    _worldPacket << uint32(RaceLimitDisables.size());
+    _worldPacket.FlushBits();
 
-    if (DisabledClassesMask)
-        _worldPacket << uint32(*DisabledClassesMask);
-
-    for (UnlockedConditionalAppearance const& unlockedConditionalAppearance : UnlockedConditionalAppearances)
-        _worldPacket << unlockedConditionalAppearance;
-
-    for (RaceLimitDisableInfo const& raceLimitDisableInfo : RaceLimitDisables)
-        _worldPacket << raceLimitDisableInfo;
-
-    for (CharacterInfo const& charInfo : Characters)
-        _worldPacket << charInfo;
-
-    for (RaceUnlock const& raceUnlock : RaceUnlockData)
-        _worldPacket << raceUnlock;
+//    _worldPacket.WriteBit(IsDeletedCharacters);
+//    _worldPacket.WriteBit(IsNewPlayerRestrictionSkipped);
+//    _worldPacket.WriteBit(IsNewPlayerRestricted);
+//    _worldPacket.WriteBit(IsNewPlayer);
+//    _worldPacket.WriteBit(IsTrialAccountRestricted);
+//    _worldPacket.WriteBit(DisabledClassesMask.has_value());
+//    _worldPacket << int32(MaxCharacterLevel);
+//    _worldPacket << uint32(RaceUnlockData.size());
+//    _worldPacket << uint32(UnlockedConditionalAppearances.size());
+//    _worldPacket << uint32(RaceLimitDisables.size());
+//
+//    if (DisabledClassesMask)
+//        _worldPacket << uint32(*DisabledClassesMask);
+//
+//    for (UnlockedConditionalAppearance const& unlockedConditionalAppearance : UnlockedConditionalAppearances)
+//        _worldPacket << unlockedConditionalAppearance;
+//
+//    for (RaceLimitDisableInfo const& raceLimitDisableInfo : RaceLimitDisables)
+//        _worldPacket << raceLimitDisableInfo;
+//
+//    for (RaceUnlock const& raceUnlock : RaceUnlockData)
+//        _worldPacket << raceUnlock;
 
     return &_worldPacket;
 }

@@ -117,9 +117,8 @@ void WorldSocket::CheckIpCallback(PreparedQueryResult result)
     AsyncReadWithCallback(&WorldSocket::InitializeHandler);
 
     MessageBuffer initializer;
-    ServerPktHeader header;
-    header.Setup.Size = ServerConnectionInitialize.size();
-    initializer.Write(&header, sizeof(header.Setup.Size));
+    ServerPktHeader header(ServerConnectionInitialize.size(), 0, false);
+    initializer.Write(&header.header, header.getHeaderLength() - 2);
     initializer.Write(ServerConnectionInitialize.c_str(), ServerConnectionInitialize.length());
 
     // - IoContext.run thread, safe.
@@ -265,11 +264,8 @@ void WorldSocket::ReadHandler()
     MessageBuffer& packet = GetReadBuffer();
     while (packet.GetActiveSize() > 0)
     {
-        TC_LOG_INFO("network", "incoming packet stuff...");
         if (_headerBuffer.GetRemainingSpace() > 0)
         {
-            TC_LOG_INFO("network", "have remaining header space...");
-
             // need to receive the header
             std::size_t readHeaderSize = std::min(packet.GetActiveSize(), _headerBuffer.GetRemainingSpace());
             _headerBuffer.Write(packet.GetReadPointer(), readHeaderSize);
@@ -277,13 +273,11 @@ void WorldSocket::ReadHandler()
 
             if (_headerBuffer.GetRemainingSpace() > 0)
             {
-                TC_LOG_INFO("network", "STILL have remaining header space...");
                 // Couldn't receive the whole header this time.
                 ASSERT(packet.GetActiveSize() == 0);
                 break;
             }
 
-            TC_LOG_INFO("network", "should have the whole header now...");
             // We just received nice new header
             if (!ReadHeaderHandler())
             {
@@ -295,8 +289,6 @@ void WorldSocket::ReadHandler()
         // We have full read header, now check the data payload
         if (_packetBuffer.GetRemainingSpace() > 0)
         {
-            TC_LOG_INFO("network", "still packet buffer to fill...");
-
             // need more data in the payload
             std::size_t readDataSize = std::min(packet.GetActiveSize(), _packetBuffer.GetRemainingSpace());
             _packetBuffer.Write(packet.GetReadPointer(), readDataSize);
@@ -304,15 +296,11 @@ void WorldSocket::ReadHandler()
 
             if (_packetBuffer.GetRemainingSpace() > 0)
             {
-                TC_LOG_INFO("network", "STILL still packet buffer to fill...");
-
                 // Couldn't receive the whole data this time.
                 ASSERT(packet.GetActiveSize() == 0);
                 break;
             }
         }
-
-        TC_LOG_INFO("network", "should have a full payload now...");
 
         // just received fresh new payload
         ReadDataHandlerResult result = ReadDataHandler();
@@ -324,8 +312,6 @@ void WorldSocket::ReadHandler()
 
             return;
         }
-
-        TC_LOG_INFO("network", "done with this loop...");
     }
 
     AsyncRead();
@@ -564,7 +550,6 @@ void WorldSocket::SendPacket(WorldPacket const& packet)
 
 void WorldSocket::WritePacketToBuffer(EncryptablePacket const& packet, MessageBuffer& buffer)
 {
-    ServerPktHeader header;
     uint32 sizeOfHeader = SizeOfServerHeader[packet.NeedsEncryption()];
     uint16 opcode = packet.GetOpcode();
     uint32 packetSize = packet.size();
@@ -577,7 +562,7 @@ void WorldSocket::WritePacketToBuffer(EncryptablePacket const& packet, MessageBu
     {
         CompressedWorldPacket cmp;
         cmp.UncompressedSize = packetSize + 2;
-        cmp.UncompressedAdler = adler32(adler32(0x9827D8F1, (Bytef*)&opcode, 2), packet.contents(), packetSize);
+        cmp.UncompressedAdler = adler32(adler32(0x9827D8F1, (Bytef*)&opcode, 4), packet.contents(), packetSize);
 
         // Reserve space for compression info - uncompressed size and checksums
         uint8* compressionInfo = buffer.GetWritePointer();
@@ -596,21 +581,13 @@ void WorldSocket::WritePacketToBuffer(EncryptablePacket const& packet, MessageBu
     else if (!packet.empty())
         buffer.Write(packet.contents(), packet.size());
 
-    packetSize += 2 /*opcode*/;
+//    packetSize += 2 /*opcode*/;
 
+    ServerPktHeader header(!packet.NeedsEncryption() ? packetSize + 2 : packetSize, opcode, packet.NeedsEncryption());
     if (packet.NeedsEncryption())
-    {
-        header.Normal.Size = packetSize;
-        header.Normal.Command = opcode;
-        _authCrypt.EncryptSend((uint8*)&header, 4);
-    }
-    else
-    {
-        header.Setup.Size = packetSize;
-        header.Setup.Command = opcode;
-    }
+        _authCrypt.EncryptSend(reinterpret_cast<uint8*>(&header.header), 4);
 
-    memcpy(headerPos, &header, sizeOfHeader);
+    memcpy(headerPos, &header.header, sizeOfHeader);
 }
 
 uint32 WorldSocket::CompressPacket(uint8* buffer, WorldPacket const& packet)
