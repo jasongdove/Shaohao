@@ -2521,21 +2521,21 @@ bool World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Deleting expired bans...");
     LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");      // One-time query
 
-//    TC_LOG_INFO("server.loading", "Initializing quest reset times...");
-//    InitQuestResetTimes();
-//    CheckScheduledResetTimes();
+    TC_LOG_INFO("server.loading", "Initializing quest reset times...");
+    InitQuestResetTimes();
+    CheckScheduledResetTimes();
 
-//    TC_LOG_INFO("server.loading", "Calculate random battleground reset time...");
-//    InitRandomBGResetTime();
-//
-//    TC_LOG_INFO("server.loading", "Calculate deletion of old calendar events time...");
-//    InitCalendarOldEventsDeletionTime();
-//
-//    TC_LOG_INFO("server.loading", "Calculate guild limitation(s) reset time...");
-//    InitGuildResetTime();
-//
-//    TC_LOG_INFO("server.loading", "Calculate next currency reset time...");
-//    InitCurrencyResetTime();
+    TC_LOG_INFO("server.loading", "Calculate random battleground reset time...");
+    InitRandomBGResetTime();
+
+    TC_LOG_INFO("server.loading", "Calculate deletion of old calendar events time...");
+    InitCalendarOldEventsDeletionTime();
+
+    TC_LOG_INFO("server.loading", "Calculate guild limitation(s) reset time...");
+    InitGuildResetTime();
+
+    TC_LOG_INFO("server.loading", "Calculate next currency reset time...");
+    InitCurrencyResetTime();
 
     TC_LOG_INFO("server.loading", "Loading race and class expansion requirements...");
     sObjectMgr->LoadRaceAndClassExpansionRequirements();
