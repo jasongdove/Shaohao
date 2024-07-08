@@ -773,27 +773,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
         return;
     }
 
-    Trinity::Crypto::SHA256 keyData;
-    keyData.UpdateData(account.Game.KeyData.data(), account.Game.KeyData.size());
-    keyData.Finalize();
-
-    Trinity::Crypto::HMAC_SHA256 sessionKeyHmac(keyData.GetDigest());
-    sessionKeyHmac.UpdateData(_serverChallenge);
-    sessionKeyHmac.UpdateData(authSession->Digest);
-    sessionKeyHmac.UpdateData(SessionKeySeed, 16);
-    sessionKeyHmac.Finalize();
-
-    SessionKeyGenerator<Trinity::Crypto::SHA256> sessionKeyGenerator(sessionKeyHmac.GetDigest());
-    sessionKeyGenerator.Generate(_sessionKey.data(), 40);
-
-    Trinity::Crypto::HMAC_SHA256 encryptKeyGen(_sessionKey);
-    encryptKeyGen.UpdateData(authSession->Digest);
-    encryptKeyGen.UpdateData(_serverChallenge);
-    encryptKeyGen.UpdateData(EncryptionKeySeed, 16);
-    encryptKeyGen.Finalize();
-
-    // only first 16 bytes of the hmac are used
-    memcpy(_encryptKey.data(), encryptKeyGen.GetDigest().data(), 16);
+    _sessionKey = account.Game.KeyData;
 
     LoginDatabasePreparedStatement* stmt = nullptr;
 

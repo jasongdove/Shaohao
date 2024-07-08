@@ -1203,8 +1203,8 @@ void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder const& hol
 
 //    SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
 //    SendAvailableHotfixes();
-    SendAccountDataTimes(ObjectGuid::Empty, GLOBAL_CACHE_MASK);
-    SendTutorialsData();
+//    SendAccountDataTimes(ObjectGuid::Empty, GLOBAL_CACHE_MASK);
+//    SendTutorialsData();
 
     if (PreparedQueryResult characterCountsResult = holder.GetPreparedResult(AccountInfoQueryHolder::GLOBAL_REALM_CHARACTER_COUNTS))
     {
