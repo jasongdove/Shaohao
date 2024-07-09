@@ -27,7 +27,7 @@
 #include "Timer.h"
 
 #include <map>
-
+#include <sstream>
 
 struct WMOAreaTableTripple
 {
