@@ -1874,10 +1874,10 @@ bool World::SetInitialWorldSettings()
 //
 //    TC_LOG_INFO("server.loading", "Loading SpellInfo corrections...");
 //    sSpellMgr->LoadSpellInfoCorrections();
-//
-//    TC_LOG_INFO("server.loading", "Loading SkillLineAbilityMultiMap Data...");
-//    sSpellMgr->LoadSkillLineAbilityMap();
-//
+
+    TC_LOG_INFO("server.loading", "Loading SkillLineAbilityMultiMap Data...");
+    sSpellMgr->LoadSkillLineAbilityMap();
+
 //    TC_LOG_INFO("server.loading", "Loading SpellInfo custom attributes...");
 //    sSpellMgr->LoadSpellInfoCustomAttributes();
 //
@@ -1982,22 +1982,22 @@ bool World::SetInitialWorldSettings()
 //
 //    TC_LOG_INFO("server.loading", "Loading Enchant Spells Proc datas...");
 //    sSpellMgr->LoadSpellEnchantProcData();
-//
-//    TC_LOG_INFO("server.loading", "Loading item bonus data...");
-//    ItemBonusMgr::Load();
-//
-//    TC_LOG_INFO("server.loading", "Loading Random item bonus list definitions...");
-//    LoadItemRandomBonusListTemplates();
-//
-//    TC_LOG_INFO("server.loading", "Loading Disables");                         // must be before loading quests and items
-//    DisableMgr::LoadDisables();
-//
-//    TC_LOG_INFO("server.loading", "Loading Items...");                         // must be after LoadRandomEnchantmentsTable and LoadPageTexts
-//    sObjectMgr->LoadItemTemplates();
-//
-//    TC_LOG_INFO("server.loading", "Loading Item set names...");                // must be after LoadItemPrototypes
-//    sObjectMgr->LoadItemTemplateAddon();
-//
+
+    TC_LOG_INFO("server.loading", "Loading item bonus data...");
+    ItemBonusMgr::Load();
+
+    TC_LOG_INFO("server.loading", "Loading Random item bonus list definitions...");
+    LoadItemRandomBonusListTemplates();
+
+    TC_LOG_INFO("server.loading", "Loading Disables");                         // must be before loading quests and items
+    DisableMgr::LoadDisables();
+
+    TC_LOG_INFO("server.loading", "Loading Items...");                         // must be after LoadRandomEnchantmentsTable and LoadPageTexts
+    sObjectMgr->LoadItemTemplates();
+
+    TC_LOG_INFO("server.loading", "Loading Item set names...");                // must be after LoadItemPrototypes
+    sObjectMgr->LoadItemTemplateAddon();
+
 //    TC_LOG_INFO("misc", "Loading Item Scripts...");                 // must be after LoadItemPrototypes
 //    sObjectMgr->LoadItemScriptNames();
 //
@@ -2216,22 +2216,22 @@ bool World::SetInitialWorldSettings()
 //
 //    // Loot tables
 //    LoadLootTables();
-//
-//    TC_LOG_INFO("server.loading", "Loading Skill Discovery Table...");
-//    LoadSkillDiscoveryTable();
-//
-//    TC_LOG_INFO("server.loading", "Loading Skill Extra Item Table...");
-//    LoadSkillExtraItemTable();
-//
-//    TC_LOG_INFO("server.loading", "Loading Skill Perfection Data Table...");
-//    LoadSkillPerfectItemTable();
-//
-//    TC_LOG_INFO("server.loading", "Loading Skill Fishing base level requirements...");
-//    sObjectMgr->LoadFishingBaseSkillLevel();
-//
-//    TC_LOG_INFO("server.loading", "Loading skill tier info...");
-//    sObjectMgr->LoadSkillTiers();
-//
+
+    TC_LOG_INFO("server.loading", "Loading Skill Discovery Table...");
+    LoadSkillDiscoveryTable();
+
+    TC_LOG_INFO("server.loading", "Loading Skill Extra Item Table...");
+    LoadSkillExtraItemTable();
+
+    TC_LOG_INFO("server.loading", "Loading Skill Perfection Data Table...");
+    LoadSkillPerfectItemTable();
+
+    TC_LOG_INFO("server.loading", "Loading Skill Fishing base level requirements...");
+    sObjectMgr->LoadFishingBaseSkillLevel();
+
+    TC_LOG_INFO("server.loading", "Loading skill tier info...");
+    sObjectMgr->LoadSkillTiers();
+
 //    TC_LOG_INFO("server.loading", "Loading Criteria Modifier trees...");
 //    sCriteriaMgr->LoadCriteriaModifiersTree();
 //    TC_LOG_INFO("server.loading", "Loading Criteria Lists...");

@@ -535,10 +535,9 @@ struct CharBaseInfoEntry
 struct CharacterLoadoutEntry
 {
     uint32 ID;
-    Trinity::RaceMask<int64> RaceMask;
-    int8 ChrClassID;
-    int32 Purpose;
-    int8 ItemContext;
+    uint32 ChrClassID;
+    uint32 Purpose;
+    Trinity::RaceMask<int32> RaceMask;
 
     bool IsForNewCharacter() const { return Purpose == 9; }
 };
@@ -546,8 +545,10 @@ struct CharacterLoadoutEntry
 struct CharacterLoadoutItemEntry
 {
     uint32 ID;
-    uint16 CharacterLoadoutID;
+    uint32 CharacterLoadoutID;
     uint32 ItemID;
+    //uint32 ItemDisplayInfoID;
+    //uint32 ItemInventoryType;
 };
 
 //struct ChatChannelsEntry
@@ -1999,7 +2000,7 @@ struct ItemEntry
     uint32 SheatheType;
 
     // Shaohao: MOP doesn't have Item.ContentTuningID
-    static const int32 ContentTuningID = 0;
+    static const int32 ContentTuningID = -1;
 };
 
 struct ItemAppearanceEntry

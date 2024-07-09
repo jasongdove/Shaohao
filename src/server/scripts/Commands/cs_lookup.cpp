@@ -865,7 +865,7 @@ public:
             if (skillInfo)
             {
                 LocaleConstant locale = handler->GetSessionDbcLocale();
-                std::string name = skillInfo->DisplayName[locale];
+                std::string name = skillInfo->DisplayName(locale);
                 if (name.empty())
                     continue;
 
@@ -877,7 +877,7 @@ public:
                         if (locale == handler->GetSessionDbcLocale())
                             continue;
 
-                        name = skillInfo->DisplayName[locale];
+                        name = skillInfo->DisplayName(locale);
                         if (name.empty())
                             continue;
 

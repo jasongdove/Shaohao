@@ -3790,17 +3790,17 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-//                if (!sDB2Manager.GetChrModel(current_race, GENDER_MALE))
-//                {
-//                    TC_LOG_ERROR("sql.sql", "Missing male model for race {}, ignoring.", current_race);
-//                    continue;
-//                }
-//
-//                if (!sDB2Manager.GetChrModel(current_race, GENDER_FEMALE))
-//                {
-//                    TC_LOG_ERROR("sql.sql", "Missing female model for race {}, ignoring.", current_race);
-//                    continue;
-//                }
+                if (!sDB2Manager.GetChrModel(current_race, GENDER_MALE))
+                {
+                    TC_LOG_ERROR("sql.sql", "Missing male model for race {}, ignoring.", current_race);
+                    continue;
+                }
+
+                if (!sDB2Manager.GetChrModel(current_race, GENDER_FEMALE))
+                {
+                    TC_LOG_ERROR("sql.sql", "Missing female model for race {}, ignoring.", current_race);
+                    continue;
+                }
 
                 std::unique_ptr<PlayerInfo> info = std::make_unique<PlayerInfo>();
                 info->createPosition.Loc.WorldRelocate(mapId, positionX, positionY, positionZ, orientation);
@@ -3873,55 +3873,49 @@ void ObjectMgr::LoadPlayerInfo()
     // Load playercreate items
     TC_LOG_INFO("server.loading", "Loading Player Create Items Data...");
     {
-        std::unordered_map<uint32, std::vector<ItemTemplate const*>> itemsByCharacterLoadout;
-        for (CharacterLoadoutItemEntry const* characterLoadoutItem : sCharacterLoadoutItemStore)
-            if (ItemTemplate const* itemTemplate = GetItemTemplate(characterLoadoutItem->ItemID))
-                itemsByCharacterLoadout[characterLoadoutItem->CharacterLoadoutID].push_back(itemTemplate);
+        // TODO: DATA support gender
 
-        for (CharacterLoadoutEntry const* characterLoadout : sCharacterLoadoutStore)
+        std::unordered_map<std::pair<uint32, uint32>, std::vector<ItemTemplate const*>> itemsByRaceAndClass;
+        for (CharStartOutfitEntry const* charStartOutfit : sCharStartOutfitStore)
+            for (auto itemId : charStartOutfit->ItemId)
+                if (ItemTemplate const* itemTemplate = GetItemTemplate(itemId))
+                    itemsByRaceAndClass[{ charStartOutfit->Race, charStartOutfit->Class }].push_back(itemTemplate);
+
+        // Shaohao: CharacterLoadout doesn't have any records for new characters; use CharStartOutfit instead
+        for (uint32 classIndex = CLASS_WARRIOR; classIndex < MAX_CLASSES; ++classIndex)
+        for (uint32 raceIndex = RACE_HUMAN; raceIndex < MAX_RACES; ++raceIndex)
         {
-            if (!characterLoadout->IsForNewCharacter())
-                continue;
-
-            std::vector<ItemTemplate const*> const* items = Trinity::Containers::MapGetValuePtr(itemsByCharacterLoadout, characterLoadout->ID);
-            if (!items)
-                continue;
-
-            for (uint32 raceIndex = RACE_HUMAN; raceIndex < MAX_RACES; ++raceIndex)
+            if (auto items = Trinity::Containers::MapGetValuePtr(itemsByRaceAndClass, { raceIndex, classIndex }))
+            if (auto const& playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(raceIndex), Classes(classIndex) }))
             {
-                if (!characterLoadout->RaceMask.HasRace(raceIndex))
-                    continue;
+                // Shaohao: CharacterLoadoutItem doesn't contain ItemContext
+                playerInfo->get()->itemContext = ItemContext::NONE;
 
-                if (auto const& playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(raceIndex), Classes(characterLoadout->ChrClassID) }))
+                for (ItemTemplate const* itemTemplate : *items)
                 {
-                    playerInfo->get()->itemContext = ItemContext(characterLoadout->ItemContext);
+                    // BuyCount by default
+                    uint32 count = itemTemplate->GetBuyCount();
 
-                    for (ItemTemplate const* itemTemplate : *items)
+                    // special amount for food/drink
+                    if (itemTemplate->GetClass() == ITEM_CLASS_CONSUMABLE && itemTemplate->GetSubClass() == ITEM_SUBCLASS_FOOD_DRINK)
                     {
-                        // BuyCount by default
-                        uint32 count = itemTemplate->GetBuyCount();
-
-                        // special amount for food/drink
-                        if (itemTemplate->GetClass() == ITEM_CLASS_CONSUMABLE && itemTemplate->GetSubClass() == ITEM_SUBCLASS_FOOD_DRINK)
+                        if (!itemTemplate->Effects.empty())
                         {
-                            if (!itemTemplate->Effects.empty())
+                            switch (itemTemplate->Effects[0]->SpellCategoryID)
                             {
-                                switch (itemTemplate->Effects[0]->SpellCategoryID)
-                                {
-                                    case SPELL_CATEGORY_FOOD:                                // food
-                                        count = characterLoadout->ChrClassID == CLASS_DEATH_KNIGHT ? 10 : 4;
-                                        break;
-                                    case SPELL_CATEGORY_DRINK:                                // drink
-                                        count = 2;
-                                        break;
-                                }
+                                case SPELL_CATEGORY_FOOD:                                // food
+                                    count = classIndex == CLASS_DEATH_KNIGHT ? 10 : 4;
+                                    break;
+                                case SPELL_CATEGORY_DRINK:                                // drink
+                                    count = 2;
+                                    break;
                             }
-                            if (itemTemplate->GetMaxStackSize() < count)
-                                count = itemTemplate->GetMaxStackSize();
                         }
-
-                        playerInfo->get()->item.emplace_back(itemTemplate->GetId(), count);
+                        if (itemTemplate->GetMaxStackSize() < count)
+                            count = itemTemplate->GetMaxStackSize();
                     }
+
+                    playerInfo->get()->item.emplace_back(itemTemplate->GetId(), count);
                 }
             }
         }

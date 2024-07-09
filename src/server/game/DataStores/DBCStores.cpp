@@ -67,8 +67,8 @@ DBCStorage<BarberShopStyleEntry>               sBarberShopStyleStore(BarberShopS
 DBCStorage<BattlemasterListEntry>              sBattlemasterListStore(BattlemasterListfmt);
 DBCStorage<Cfg_CategoriesEntry>                sCfgCategoriesStore("");
 DBCStorage<Cfg_RegionsEntry>                   sCfgRegionsStore("");
-DBCStorage<CharacterLoadoutEntry>              sCharacterLoadoutStore("");
-DBCStorage<CharacterLoadoutItemEntry>          sCharacterLoadoutItemStore("");
+DBCStorage<CharacterLoadoutEntry>              sCharacterLoadoutStore(CharacterLoadoutfmt);
+DBCStorage<CharacterLoadoutItemEntry>          sCharacterLoadoutItemStore(CharacterLoadoutItemfmt);
 DBCStorage<CharBaseInfoEntry>                  sCharBaseInfoStore("");
 DBCStorage<CharSectionsEntry>                  sCharSectionsStore(CharSectionsfmt);
 CharSectionsMap                                sCharSectionMap;
@@ -438,12 +438,12 @@ LOAD_DBC(sAuctionHouseStore, "AuctionHouse.dbc");
 //    LOAD_DBC(sBattlemasterListStore, "BattlemasterList.dbc");//20444
 //    // TODO: DATA LOAD_DBC(sCfgCategoriesStore, "Cfg_Categories.dbc");
 //    // TODO: DATA LOAD_DBC(sCfgRegionsStore, "Cfg_Regions.dbc");
-//    // TODO: DATA LOAD_DBC(sCharacterLoadoutStore, "CharacterLoadout.dbc");
-//    // TODO: DATA LOAD_DBC(sCharacterLoadoutItemStore, "CharacterLoadoutItem.dbc");
+LOAD_DBC(sCharacterLoadoutStore, "CharacterLoadout.dbc");
+LOAD_DBC(sCharacterLoadoutItemStore, "CharacterLoadoutItem.dbc");
 //    // TODO: DATA LOAD_DBC(sCharBaseInfoStore, "CharBaseInfo.dbc");
 //    LOAD_DBC(sCharSectionsStore, "CharSections.dbc");//20444
 //    // sCharSectionMap
-//    LOAD_DBC(sCharStartOutfitStore, "CharStartOutfit.dbc");
+LOAD_DBC(sCharStartOutfitStore, "CharStartOutfit.dbc");
 //    // sCharStartOutfitMap
 //    LOAD_DBC(sCharTitlesStore, "CharTitles.dbc");//20444
 //    LOAD_DBC(sChatChannelsStore, "ChatChannels.dbc");//20444
@@ -559,9 +559,9 @@ LOAD_DBC(sPhaseStore, "Phase.dbc"); // 20444
 //    LOAD_DBC(sScenarioStore, "Scenario.dbc");
 //    LOAD_DBC(sScenarioStepStore, "ScenarioStep.dbc");
 //    // TODO: DATA LOAD_DBC(sServerMessagesStore, "ServerMessages.dbc");
-//    LOAD_DBC(sSkillLineStore, "SkillLine.dbc");//20444
-//    LOAD_DBC(sSkillLineAbilityStore, "SkillLineAbility.dbc");//20444
-//    LOAD_DBC(sSkillRaceClassInfoStore, "SkillRaceClassInfo.dbc");//20444
+LOAD_DBC(sSkillLineStore, "SkillLine.dbc");//20444
+LOAD_DBC(sSkillLineAbilityStore, "SkillLineAbility.dbc");//20444
+LOAD_DBC(sSkillRaceClassInfoStore, "SkillRaceClassInfo.dbc");//20444
 //    //
 //    //
 //    LOAD_DBC(sSoundEntriesStore, "SoundEntries.dbc");
@@ -682,6 +682,10 @@ LOAD_DBC(sTaxiPathNodeStore, "TaxiPathNode.dbc");
             const_cast<BattlemasterListEntry*>(battlemaster)->MaxPlayers = minPlayers;
         }
     }
+
+    for (uint32 i = 0; i < sCharStartOutfitStore.GetNumRows(); ++i)
+        if (CharStartOutfitEntry const* outfit = sCharStartOutfitStore.LookupEntry(i))
+            sCharStartOutfitMap[outfit->Race | (outfit->Class << 8) | (outfit->Gender << 16)] = outfit;
 
     std::unordered_map<uint32, uint32> parentRaces;
     for (ChrRacesEntry const* chrRace : sChrRacesStore)
@@ -1564,6 +1568,15 @@ char const* DBCManager::GetCreatureFamilyPetName(uint32 petfamily, LocaleConstan
         return nullptr;
 
     return petFamily->Name(locale)[0] != '\0' ? petFamily->Name(locale) : nullptr;
+}
+
+CharStartOutfitEntry const* DBCManager::GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender) const
+{
+    std::map<uint32, CharStartOutfitEntry const*>::const_iterator itr = sCharStartOutfitMap.find(race | (class_ << 8) | (gender << 16));
+    if (itr == sCharStartOutfitMap.end())
+        return nullptr;
+
+    return itr->second;
 }
 
 ChrSpecializationEntry const* DBCManager::GetChrSpecializationByIndex(uint32 class_, uint32 index) const

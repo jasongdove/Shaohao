@@ -290,7 +290,7 @@ struct LinkValidator<LinkTags::enchant>
 
             for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
             {
-                std::string_view skillName = skill->DisplayName[i];
+                std::string_view skillName = skill->DisplayName(i);
                 std::string_view spellName = (*info->SpellName)[i];
                 if ((text.length() == (skillName.length() + 2 + spellName.length())) &&
                     (text.substr(0, skillName.length()) == skillName) &&

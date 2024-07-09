@@ -1097,8 +1097,8 @@ struct ResearchSiteEntry
 struct SkillLineEntry
 {
     uint32      ID;                                         // 0        m_ID
-    int32       CategoryID;                                 // 1        m_categoryID
-    LocalizedString     DisplayName;                        // 2        m_displayName_lang
+    uint32      CategoryID;                                 // 1        m_categoryID
+    char*       DisplayName_lang;                           // 2        m_displayName_lang
     //char*     Description_lang;                           // 3        m_description_lang
     uint32      SpellIconID;                                // 4        m_spellIconID
     //char*     AlternateVerb_lang;                         // 5        m_alternateVerb_lang
@@ -1107,7 +1107,9 @@ struct SkillLineEntry
     uint32      Flags;                                      // 8
 
     // Shaohao: MOP doesn't have ParentTierIndex
-    int32 ParentTierIndex = 0;
+    static const int32 ParentTierIndex = 0;
+
+    const char* DisplayName(LocaleConstant /*locale*/) const { return DisplayName_lang; }
 
     EnumFlag<SkillLineFlags> GetFlags() const { return static_cast<SkillLineFlags>(Flags); }
 };
@@ -1117,10 +1119,7 @@ struct SkillLineAbilityEntry
     uint32      ID;                                         // 0
     uint32      SkillLine;                                  // 1
     uint32      Spell;                                      // 2
-
-    // TODO: DATA probably need to fix loading this
-    Trinity::RaceMask<uint32> RaceMask;                                   // 3
-
+    Trinity::RaceMask<uint32> RaceMask;                     // 3
     uint32      ClassMask;                                  // 4
     uint32      MinSkillLineRank;                           // 7
     uint32      SupercedesSpell;                            // 8
@@ -1140,7 +1139,7 @@ struct SkillRaceClassInfoEntry
     //uint32    ID;                                         // 0
     uint32      SkillID;                                    // 1
     Trinity::RaceMask<uint32> RaceMask;                     // 2
-    int32       ClassMask;                                  // 3
+    uint32      ClassMask;                                  // 3
     uint32      Flags;                                      // 4
     uint32      Availability;                               // 5
     uint32      MinLevel;                                   // 6
