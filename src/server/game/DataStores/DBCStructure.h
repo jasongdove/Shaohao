@@ -711,6 +711,42 @@ struct ItemDamageEntry
     uint32      ItemLevel;                                  // 8 item level
 };
 
+
+struct ItemDamageAmmoEntry
+{
+    uint32 ID;
+    std::array<float, 7> Quality;
+    uint32 ItemLevel;
+};
+
+struct ItemDamageOneHandEntry
+{
+    uint32 ID;
+    std::array<float, 7> Quality;
+    uint32 ItemLevel;
+};
+
+struct ItemDamageOneHandCasterEntry
+{
+    uint32 ID;
+    std::array<float, 7> Quality;
+    uint32 ItemLevel;
+};
+
+struct ItemDamageTwoHandEntry
+{
+    uint32 ID;
+    std::array<float, 7> Quality;
+    uint32 ItemLevel;
+};
+
+struct ItemDamageTwoHandCasterEntry
+{
+    uint32 ID;
+    std::array<float, 7> Quality;
+    uint32 ItemLevel;
+};
+
 struct ItemArmorQualityEntry
 {
     uint32      ID;                                         // 0 item level

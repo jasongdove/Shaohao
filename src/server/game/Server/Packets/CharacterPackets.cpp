@@ -353,14 +353,6 @@ WorldPacket const* EnumCharactersResult::Write()
 
         _worldPacket.WriteByteSeq(charInfo.GuildGUID[5]);
 
-        // TODO: fix this
-        for (uint8 i=0; i<4; i++)
-        {
-            _worldPacket << uint32(0);
-            _worldPacket << uint8(0);
-            _worldPacket << uint32(0);
-        }
-
         for (auto visualItem : charInfo.VisualItems)
         {
             _worldPacket << visualItem.DisplayEnchantID;

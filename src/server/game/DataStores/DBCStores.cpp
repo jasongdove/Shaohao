@@ -125,7 +125,7 @@ DBCStorage<ItemArmorShieldEntry>               sItemArmorShieldStore(ItemArmorSh
 DBCStorage<ItemArmorTotalEntry>                sItemArmorTotalStore(ItemArmorTotalfmt);
 DBCStorage<ItemBagFamilyEntry>                 sItemBagFamilyStore(ItemBagFamilyfmt);
 DBCStorage<ItemClassEntry>                     sItemClassStore(ItemClassfmt);
-DBCStorage<ItemDamageAmmoEntry>                sItemDamageAmmoStore("");
+DBCStorage<ItemDamageAmmoEntry>                sItemDamageAmmoStore(ItemDamagefmt);
 DBCStorage<ItemDamageOneHandEntry>             sItemDamageOneHandStore(ItemDamagefmt);
 DBCStorage<ItemDamageOneHandCasterEntry>       sItemDamageOneHandCasterStore(ItemDamagefmt);
 // TODO: DATA ItemDamageRanged, ItemDamageThrown, ItemDamageWand
@@ -497,14 +497,16 @@ LOAD_DBC(sGameTablesStore, "GameTables.dbc");
 //    LOAD_DBC(sItemArmorTotalStore, "ItemArmorTotal.dbc");//20444
 //    LOAD_DBC(sItemBagFamilyStore, "ItemBagFamily.dbc");//20444
 //    LOAD_DBC(sItemClassStore, "ItemClass.dbc");
-//    // TODO: DATA LOAD_DBC(sItemDamageAmmoStore, "ItemDamageAmmo.dbc");//20444
-//    LOAD_DBC(sItemDamageOneHandStore, "ItemDamageOneHand.dbc");//20444
-//    LOAD_DBC(sItemDamageOneHandCasterStore, "ItemDamageOneHandCaster.dbc");//20444
-//    // TODO: DATA LOAD_DBC(sItemDamageRangedStore, "ItemDamageRanged.dbc");//20444
-//    // TODO: DATA LOAD_DBC(sItemDamageThrownStore, "ItemDamageThrown.dbc");//20444
-//    LOAD_DBC(sItemDamageTwoHandStore, "ItemDamageTwoHand.dbc");//20444
-//    LOAD_DBC(sItemDamageTwoHandCasterStore, "ItemDamageTwoHandCaster.dbc");//20444
-//    // TODO: DATA LOAD_DBC(sItemDamageWandStore, "ItemDamageWand.dbc");//20444
+
+LOAD_DBC(sItemDamageAmmoStore, "ItemDamageAmmo.dbc");//20444
+LOAD_DBC(sItemDamageOneHandStore, "ItemDamageOneHand.dbc");//20444
+LOAD_DBC(sItemDamageOneHandCasterStore, "ItemDamageOneHandCaster.dbc");//20444
+//LOAD_DBC(sItemDamageRangedStore, "ItemDamageRanged.dbc");//20444
+//LOAD_DBC(sItemDamageThrownStore, "ItemDamageThrown.dbc");//20444
+LOAD_DBC(sItemDamageTwoHandStore, "ItemDamageTwoHand.dbc");//20444
+LOAD_DBC(sItemDamageTwoHandCasterStore, "ItemDamageTwoHandCaster.dbc");//20444
+//LOAD_DBC(sItemDamageWandStore, "ItemDamageWand.dbc");//20444
+
 //    LOAD_DBC(sItemDisenchantLootStore, "ItemDisenchantLoot.dbc");
 //    LOAD_DBC(sItemDisplayInfoStore, "ItemDisplayInfo.dbc");//20444
 //    LOAD_DBC(sItemLimitCategoryStore, "ItemLimitCategory.dbc");

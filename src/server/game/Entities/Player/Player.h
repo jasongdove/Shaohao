@@ -694,8 +694,8 @@ enum ProfessionSlots : uint8
 
 enum InventorySlots : uint8                                 // 4 slots
 {
-    INVENTORY_SLOT_BAG_START    = 30,
-    INVENTORY_SLOT_BAG_END      = 34
+    INVENTORY_SLOT_BAG_START    = 19,
+    INVENTORY_SLOT_BAG_END      = 23
 };
 
 enum ReagentBagSlots : uint8                                // 1 slot
@@ -706,8 +706,8 @@ enum ReagentBagSlots : uint8                                // 1 slot
 
 enum InventoryPackSlots : uint8                             // 28 slots
 {
-    INVENTORY_SLOT_ITEM_START   = 35,
-    INVENTORY_SLOT_ITEM_END     = 63
+    INVENTORY_SLOT_ITEM_START   = 23,
+    INVENTORY_SLOT_ITEM_END     = 39
 };
 
 enum BankItemSlots                                          // 28 slots

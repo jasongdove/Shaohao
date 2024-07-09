@@ -1568,6 +1568,9 @@ uint32 DB2Manager::GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const
         if (ItemAppearanceEntry const* itemAppearance = sItemAppearanceStore.LookupEntry(modifiedAppearance->ItemAppearanceID))
             return itemAppearance->ItemDisplayInfoID;
 
+    if (auto item = sItemStore.LookupEntry(itemId))
+        return item->DisplayInfoID;
+
     return 0;
 }
 

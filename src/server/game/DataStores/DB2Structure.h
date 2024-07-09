@@ -2134,41 +2134,6 @@ struct ItemCurrencyCostEntry
     int32 ItemID;
 };
 
-struct ItemDamageAmmoEntry
-{
-    uint32 ID;
-    uint16 ItemLevel;
-    std::array<float, 7> Quality;
-};
-
-struct ItemDamageOneHandEntry
-{
-    uint32 ID;
-    uint16 ItemLevel;
-    std::array<float, 7> Quality;
-};
-
-struct ItemDamageOneHandCasterEntry
-{
-    uint32 ID;
-    uint16 ItemLevel;
-    std::array<float, 7> Quality;
-};
-
-struct ItemDamageTwoHandEntry
-{
-    uint32 ID;
-    uint16 ItemLevel;
-    std::array<float, 7> Quality;
-};
-
-struct ItemDamageTwoHandCasterEntry
-{
-    uint32 ID;
-    uint16 ItemLevel;
-    std::array<float, 7> Quality;
-};
-
 struct ItemDisenchantLootEntry
 {
     uint32 ID;
