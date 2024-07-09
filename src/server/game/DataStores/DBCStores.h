@@ -28,6 +28,7 @@
 class TC_GAME_API DBCManager
 {
 public:
+    DEFINE_DB2_SET_COMPARATOR(ChrClassesXPowerTypesEntry);
     DEFINE_DB2_SET_COMPARATOR(FriendshipRepReactionEntry)
 
     using FriendshipRepReactionSet = std::set<FriendshipRepReactionEntry const*, FriendshipRepReactionEntryComparator>;
@@ -54,6 +55,7 @@ public:
     ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale) const;
     uint32 GetQuestUniqueBitFlag(uint32 questId);
     std::vector<uint32> const* GetPhasesForGroup(uint32 group) const;
+    uint32 GetPowerIndexByClass(Powers power, uint32 classId) const;
     std::vector<SkillLineEntry const*> const* GetSkillLinesForParentSkill(uint32 parentSkillId) const;
     std::vector<SpecializationSpellsEntry const*> const* GetSpecializationSpells(uint32 specId) const;
     static bool IsValidSpellFamilyName(SpellFamilyNames family);

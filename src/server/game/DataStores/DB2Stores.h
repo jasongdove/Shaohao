@@ -306,7 +306,6 @@ public:
     int32 const* GetBroadcastTextDuration(int32 broadcastTextId, LocaleConstant locale = DEFAULT_LOCALE) const;
     static CharBaseInfoEntry const* GetCharBaseInfo(Races race, Classes class_);
     ChrClassUIDisplayEntry const* GetUiDisplayForClass(Classes unitClass) const;
-    uint32 GetPowerIndexByClass(Powers power, uint32 classId) const;
     std::vector<ChrCustomizationChoiceEntry const*> const* GetCustomiztionChoices(uint32 chrCustomizationOptionId) const;
     std::vector<ChrCustomizationOptionEntry const*> const* GetCustomiztionOptions(uint8 race, uint8 gender) const;
     std::vector<std::pair<uint32, std::vector<uint32>>> const* GetRequiredCustomizationChoices(uint32 chrCustomizationReqId) const;

@@ -324,7 +324,7 @@ void Player::UpdateMaxHealth()
 
 uint32 Player::GetPowerIndex(Powers power) const
 {
-    return sDB2Manager.GetPowerIndexByClass(power, GetClass());
+    return sDBCManager.GetPowerIndexByClass(power, GetClass());
 }
 
 void Player::UpdateMaxPower(Powers power)

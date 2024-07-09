@@ -287,6 +287,7 @@ namespace
     NameGenContainer _nameGenData;
     NameValidationRegexContainer _nameValidators;
     PhaseGroupContainer _phasesByGroup;
+    std::array<std::array<uint32, MAX_POWERS>, MAX_CLASSES> _powersByClass;
     std::unordered_map<uint32, std::vector<SkillLineEntry const*>> _skillLinesByParentSkillLine;
     SkillRaceClassInfoContainer _skillRaceClassInfoBySkill;
     SpecializationSpellsContainer _specializationSpellsBySpec;
@@ -745,27 +746,26 @@ LOAD_DBC(sTaxiPathNodeStore, "TaxiPathNode.dbc");
         _chrSpecializationsByIndex[storageIndex][chrSpec->OrderIndex] = chrSpec;
     }
 
-    // TODO: DATA fix this
-//    {
-//        std::set<ChrClassesXPowerTypesEntry const*, ChrClassesXPowerTypesEntryComparator> powers;
-//        for (ChrClassesXPowerTypesEntry const* power : sChrClassesXPowerTypesStore)
-//            powers.insert(power);
-//
-//        for (std::size_t i = 0; i < _powersByClass.size(); ++i)
-//            _powersByClass[i].fill(MAX_POWERS);
-//
-//        for (ChrClassesXPowerTypesEntry const* power : powers)
-//        {
-//            uint32 index = 0;
-//            for (uint32 j = 0; j < MAX_POWERS; ++j)
-//                if (_powersByClass[power->ClassID][j] != MAX_POWERS)
-//                    ++index;
-//
-//                    ASSERT(power->ClassID < MAX_CLASSES);
-//                    ASSERT(power->PowerType < MAX_POWERS);
-//            _powersByClass[power->ClassID][power->PowerType] = index;
-//        }
-//    }
+    {
+        std::set<ChrClassesXPowerTypesEntry const*, ChrClassesXPowerTypesEntryComparator> powers;
+        for (ChrClassesXPowerTypesEntry const* power : sChrClassesXPowerTypesStore)
+            powers.insert(power);
+
+        for (std::size_t i = 0; i < _powersByClass.size(); ++i)
+            _powersByClass[i].fill(MAX_POWERS);
+
+        for (ChrClassesXPowerTypesEntry const* power : powers)
+        {
+            uint32 index = 0;
+            for (uint32 j = 0; j < MAX_POWERS; ++j)
+                if (_powersByClass[power->ClassID][j] != MAX_POWERS)
+                    ++index;
+
+                    ASSERT(power->ClassID < MAX_CLASSES);
+                    ASSERT(power->PowerType < MAX_POWERS);
+            _powersByClass[power->ClassID][power->PowerType] = index;
+        }
+    }
 
     for (uint32 i = 0; i < sGameObjectDisplayInfoStore.GetNumRows(); ++i)
     {
@@ -1677,6 +1677,11 @@ std::vector<uint32> const* DBCManager::GetPhasesForGroup(uint32 group) const
     return Trinity::Containers::MapGetValuePtr(_phasesByGroup, group);
 }
 
+uint32 DBCManager::GetPowerIndexByClass(Powers power, uint32 classId) const
+{
+    return _powersByClass[classId][power];
+}
+
 std::vector<SkillLineEntry const*> const* DBCManager::GetSkillLinesForParentSkill(uint32 parentSkillId) const
 {
     return Trinity::Containers::MapGetValuePtr(_skillLinesByParentSkillLine, parentSkillId);
@@ -1905,4 +1910,11 @@ void DeterminaAlternateMapPosition(uint32 mapId, float x, float y, float z, uint
 bool DBCManager::FriendshipRepReactionEntryComparator::Compare(FriendshipRepReactionEntry const* left, FriendshipRepReactionEntry const* right)
 {
     return left->ReactionThreshold < right->ReactionThreshold;
+}
+
+bool DBCManager::ChrClassesXPowerTypesEntryComparator::Compare(ChrClassesXPowerTypesEntry const* left, ChrClassesXPowerTypesEntry const* right)
+{
+    if (left->ClassID != right->ClassID)
+        return left->ClassID < right->ClassID;
+    return left->PowerType < right->PowerType;
 }

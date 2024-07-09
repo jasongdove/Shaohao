@@ -264,7 +264,6 @@ namespace
     std::unordered_map<std::pair<int32 /*broadcastTextId*/, CascLocaleBit /*cascLocaleBit*/>, int32> _broadcastTextDurations;
     std::unordered_map<std::pair<uint8, uint8>, CharBaseInfoEntry const*> _charBaseInfoByRaceAndClass;
     std::array<ChrClassUIDisplayEntry const*, MAX_CLASSES> _uiDisplayByClass;
-    std::array<std::array<uint32, MAX_POWERS>, MAX_CLASSES> _powersByClass;
     std::unordered_map<uint32 /*chrCustomizationOptionId*/, std::vector<ChrCustomizationChoiceEntry const*>> _chrCustomizationChoicesByOption;
     std::unordered_map<std::pair<uint8 /*race*/, uint8/*gender*/>, uint32> _chrDisplayIdByRaceAndGender;
     std::map<std::tuple<uint8 /*race*/, uint8/*gender*/, uint8/*shapeshift*/>, ShapeshiftFormModelData> _chrCustomizationChoicesForShapeshifts;
@@ -1104,11 +1103,6 @@ ChrClassUIDisplayEntry const* DB2Manager::GetUiDisplayForClass(Classes unitClass
 {
     ASSERT(unitClass < MAX_CLASSES);
     return _uiDisplayByClass[unitClass];
-}
-
-uint32 DB2Manager::GetPowerIndexByClass(Powers power, uint32 classId) const
-{
-    return _powersByClass[classId][power];
 }
 
 std::vector<ChrCustomizationChoiceEntry const*> const* DB2Manager::GetCustomiztionChoices(uint32 chrCustomizationOptionId) const
