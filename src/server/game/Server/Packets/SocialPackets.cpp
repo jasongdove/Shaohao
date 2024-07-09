@@ -64,7 +64,24 @@ WorldPacket const* WorldPackets::Social::ContactList::Write()
     _worldPacket.FlushBits();
 
     for (ContactInfo const& contact : Contacts)
-        _worldPacket << contact;
+    {
+        _worldPacket << uint64(contact.Guid.GetCounter());
+        _worldPacket << uint32(0);
+        _worldPacket << uint32(0);
+        _worldPacket << uint32(contact.TypeFlags);
+        _worldPacket << contact.Notes;
+
+        if (contact.TypeFlags & SOCIAL_FLAG_FRIEND)
+        {
+            _worldPacket << uint8(contact.Status);
+            if (contact.Status)
+            {
+                _worldPacket << uint32(contact.AreaID);
+                _worldPacket << uint32(contact.Level);
+                _worldPacket << uint32(contact.ClassID);
+            }
+        }
+    }
 
     return &_worldPacket;
 }

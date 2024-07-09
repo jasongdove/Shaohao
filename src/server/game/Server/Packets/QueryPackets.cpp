@@ -76,15 +76,39 @@ WorldPacket const* QueryCreatureResponse::Write()
     if (Allow)
     {
         _worldPacket.WriteBits(Stats.Title.length() + 1, 11);
+        _worldPacket.WriteBits(uint32(Stats.QuestItems.size()), 22);
         _worldPacket.WriteBits(Stats.TitleAlt.length() + 1, 11);
-        _worldPacket.WriteBits(Stats.CursorName.length() + 1, 6);
-        _worldPacket.WriteBit(Stats.Leader);
 
         for (std::size_t i = 0; i < Stats.Name.size(); ++i)
         {
             _worldPacket.WriteBits(Stats.Name[i].length() + 1, 11);
             _worldPacket.WriteBits(Stats.NameAlt[i].length() + 1, 11);
         }
+
+        _worldPacket.WriteBit(Stats.Leader);
+        _worldPacket.WriteBits(Stats.CursorName.length() + 1, 6);
+        _worldPacket.FlushBits();
+
+        _worldPacket << uint32(0); // TODO: kill credit [0]
+
+        // model id 4
+        if (Stats.Display.CreatureDisplay.size() > 3)
+            _worldPacket << uint32(Stats.Display.CreatureDisplay[3].CreatureDisplayID);
+        else
+            _worldPacket << uint32(0);
+
+        // model id 2
+        if (Stats.Display.CreatureDisplay.size() > 1)
+            _worldPacket << uint32(Stats.Display.CreatureDisplay[1].CreatureDisplayID);
+        else
+            _worldPacket << uint32(0);
+
+        _worldPacket << uint32(Stats.RequiredExpansion);
+        _worldPacket << uint32(Stats.CreatureType);
+        _worldPacket << float(Stats.HpMulti);
+        _worldPacket.append(Stats.Flags.data(), Stats.Flags.size());
+        _worldPacket << uint32(Stats.CreatureDifficultyID);
+        _worldPacket << int32(Stats.CreatureMovementInfoID);
 
         for (std::size_t i = 0; i < Stats.Name.size(); ++i)
         {
@@ -95,39 +119,23 @@ WorldPacket const* QueryCreatureResponse::Write()
                 _worldPacket << Stats.NameAlt[i];
         }
 
-        _worldPacket.append(Stats.Flags.data(), Stats.Flags.size());
-        _worldPacket << int32(Stats.CreatureType);
-        _worldPacket << int32(Stats.CreatureFamily);
-        _worldPacket << int32(Stats.Classification);
-        _worldPacket.append(Stats.ProxyCreatureID.data(), Stats.ProxyCreatureID.size());
-        _worldPacket << uint32(Stats.Display.CreatureDisplay.size());
-        _worldPacket << float(Stats.Display.TotalProbability);
-
-        for (CreatureXDisplay const& display : Stats.Display.CreatureDisplay)
-        {
-            _worldPacket << uint32(display.CreatureDisplayID);
-            _worldPacket << float(display.Scale);
-            _worldPacket << float(display.Probability);
-        }
-
-        _worldPacket << float(Stats.HpMulti);
-        _worldPacket << float(Stats.EnergyMulti);
-        _worldPacket << uint32(Stats.QuestItems.size());
-        _worldPacket << uint32(Stats.QuestCurrencies.size());
-        _worldPacket << int32(Stats.CreatureMovementInfoID);
-        _worldPacket << int32(Stats.HealthScalingExpansion);
-        _worldPacket << int32(Stats.RequiredExpansion);
-        _worldPacket << int32(Stats.VignetteID);
-        _worldPacket << int32(Stats.Class);
-        _worldPacket << int32(Stats.CreatureDifficultyID);
-        _worldPacket << int32(Stats.WidgetSetID);
-        _worldPacket << int32(Stats.WidgetSetUnitConditionID);
-
         if (!Stats.Title.empty())
             _worldPacket << Stats.Title;
 
         if (!Stats.TitleAlt.empty())
             _worldPacket << Stats.TitleAlt;
+
+        // model id 1
+        if (!Stats.Display.CreatureDisplay.empty())
+            _worldPacket << uint32(Stats.Display.CreatureDisplay[1].CreatureDisplayID);
+        else
+            _worldPacket << uint32(0);
+
+        // model id 3
+        if (Stats.Display.CreatureDisplay.size() > 2)
+            _worldPacket << uint32(Stats.Display.CreatureDisplay[2].CreatureDisplayID);
+        else
+            _worldPacket << uint32(0);
 
         if (!Stats.CursorName.empty())
             _worldPacket << Stats.CursorName;
@@ -135,8 +143,32 @@ WorldPacket const* QueryCreatureResponse::Write()
         if (!Stats.QuestItems.empty())
             _worldPacket.append(Stats.QuestItems.data(), Stats.QuestItems.size());
 
-        if (!Stats.QuestCurrencies.empty())
-            _worldPacket.append(Stats.QuestCurrencies.data(), Stats.QuestCurrencies.size());
+        _worldPacket << uint32(0); // TODO: kill credit [1]
+        _worldPacket << float(Stats.EnergyMulti);
+        _worldPacket << int32(Stats.CreatureFamily);
+
+
+//        _worldPacket << int32(Stats.Classification);
+//        _worldPacket.append(Stats.ProxyCreatureID.data(), Stats.ProxyCreatureID.size());
+//        _worldPacket << uint32(Stats.Display.CreatureDisplay.size());
+//        _worldPacket << float(Stats.Display.TotalProbability);
+//
+//        for (CreatureXDisplay const& display : Stats.Display.CreatureDisplay)
+//        {
+//            _worldPacket << uint32(display.CreatureDisplayID);
+//            _worldPacket << float(display.Scale);
+//            _worldPacket << float(display.Probability);
+//        }
+//
+//        _worldPacket << uint32(Stats.QuestCurrencies.size());
+//        _worldPacket << int32(Stats.HealthScalingExpansion);
+//        _worldPacket << int32(Stats.VignetteID);
+//        _worldPacket << int32(Stats.Class);
+//        _worldPacket << int32(Stats.WidgetSetID);
+//        _worldPacket << int32(Stats.WidgetSetUnitConditionID);
+//
+//        if (!Stats.QuestCurrencies.empty())
+//            _worldPacket.append(Stats.QuestCurrencies.data(), Stats.QuestCurrencies.size());
     }
 
     return &_worldPacket;

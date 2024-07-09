@@ -710,7 +710,7 @@ struct ChrModelEntry
     std::array<float, 3> CustomizeOffset;
     uint32 ID;
     int8 Sex;
-    int32 DisplayID;
+    uint32 DisplayID;
     int32 CharComponentTextureLayoutID;
     int32 Flags;
     int32 SkeletonFileDataID;

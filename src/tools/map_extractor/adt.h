@@ -96,8 +96,15 @@ struct adt_MCNK
     uint32 iy;
     uint32 nLayers;
     uint32 nDoodadRefs;
-    uint32 offsMCVT;        // height map
-    uint32 offsMCNR;        // Normal vectors for each vertex
+    union
+    {
+        struct
+        {
+            uint32 offsMCVT;        // height map
+            uint32 offsMCNR;        // Normal vectors for each vertex
+        } offsets;
+        uint8 HighResHoles[8];
+    } union_5_3_0;
     uint32 offsMCLY;        // Texture layer definitions
     uint32 offsMCRF;        // A list of indices into the parent file's MDDF chunk
     uint32 offsMCAL;        // Alpha maps for additional texture layers

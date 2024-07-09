@@ -266,7 +266,7 @@ namespace
     std::array<ChrClassUIDisplayEntry const*, MAX_CLASSES> _uiDisplayByClass;
     std::array<std::array<uint32, MAX_POWERS>, MAX_CLASSES> _powersByClass;
     std::unordered_map<uint32 /*chrCustomizationOptionId*/, std::vector<ChrCustomizationChoiceEntry const*>> _chrCustomizationChoicesByOption;
-    std::unordered_map<std::pair<uint8, uint8>, ChrModelEntry const*> _chrModelsByRaceAndGender;
+    std::unordered_map<std::pair<uint8 /*race*/, uint8/*gender*/>, ChrModelEntry const*> _chrModelsByRaceAndGender;
     std::map<std::tuple<uint8 /*race*/, uint8/*gender*/, uint8/*shapeshift*/>, ShapeshiftFormModelData> _chrCustomizationChoicesForShapeshifts;
     std::unordered_map<std::pair<uint8 /*race*/, uint8/*gender*/>, std::vector<ChrCustomizationOptionEntry const*>> _chrCustomizationOptionsByRaceAndGender;
     std::unordered_map<uint32 /*chrCustomizationReqId*/, std::vector<std::pair<uint32 /*chrCustomizationOptionId*/, std::vector<uint32>>>> _chrCustomizationRequiredChoices;
@@ -577,17 +577,15 @@ LOAD_DB2(sItemStore);
 
     // Shaohao: fake having ChrModel store
     for (ChrRacesEntry const* chrRacesEntry : sChrRacesStore)
-        for (int c = 1; c < MAX_CLASSES_MOP; c++)
-        {
-            ChrModelEntry maleModel;
-            maleModel.DisplayID = chrRacesEntry->MaleDisplayID;
-            _chrModelsByRaceAndGender[{ uint8(chrRacesEntry->ID), GENDER_MALE }] = &maleModel;
+    {
+        ChrModelEntry maleModel { };
+        maleModel.DisplayID = chrRacesEntry->MaleDisplayID;
+        _chrModelsByRaceAndGender[{uint8(chrRacesEntry->ID), uint8(GENDER_MALE)}] = &maleModel;
 
-            ChrModelEntry femaleModel;
-            femaleModel.DisplayID = chrRacesEntry->FemaleDisplayID;
-            _chrModelsByRaceAndGender[{ uint8(chrRacesEntry->ID), GENDER_FEMALE }] = &femaleModel;
-        }
-
+        ChrModelEntry femaleModel { };
+        femaleModel.DisplayID = chrRacesEntry->FemaleDisplayID;
+        _chrModelsByRaceAndGender[{uint8(chrRacesEntry->ID), uint8(GENDER_FEMALE)}] = &femaleModel;
+    }
 
     for (ConditionalChrModelEntry const* conditionalChrModel : sConditionalChrModelStore)
         _conditionalChrModelsByChrModelId[conditionalChrModel->ChrModelID] = conditionalChrModel;

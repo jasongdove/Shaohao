@@ -439,10 +439,25 @@ uint16 liquid_entry[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
 map_liquidHeaderTypeFlags liquid_flags[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
 bool  liquid_show[ADT_GRID_SIZE][ADT_GRID_SIZE];
 float liquid_height[ADT_GRID_SIZE+1][ADT_GRID_SIZE+1];
-uint16 holes[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
+uint8 holes[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID][8];
 
 int16 flight_box_max[3][3];
 int16 flight_box_min[3][3];
+
+bool TransformToHighRes(uint16 lowResHoles, uint8 hiResHoles[8])
+{
+    for (uint8 i = 0; i < 8; i++)
+    {
+        for (uint8 j = 0; j < 8; j++)
+        {
+            int32 holeIdxL = (i / 2) * 4 + (j / 2);
+            if (((lowResHoles >> holeIdxL) & 1) == 1)
+                hiResHoles[i] |= (1 << j);
+        }
+    }
+
+    return *((uint64*)hiResHoles) != 0;
+}
 
 LiquidVertexFormatType adt_MH2O::GetLiquidVertexFormat(adt_liquid_instance const* liquidInstance) const
 {
@@ -617,9 +632,18 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
         }
 
         // Hole data
-        holes[mcnk->iy][mcnk->ix] = mcnk->holes;
-        if (!hasHoles && mcnk->holes != 0)
-            hasHoles = true;
+        if (!(mcnk->flags & 0x10000))
+        {
+            if (uint16 hole = mcnk->holes)
+                if (TransformToHighRes(hole, holes[mcnk->iy][mcnk->ix]))
+                    hasHoles = true;
+        }
+        else
+        {
+            memcpy(holes[mcnk->iy][mcnk->ix], mcnk->union_5_3_0.HighResHoles, sizeof(uint64));
+            if (*((uint64*)holes[mcnk->iy][mcnk->ix]) != 0)
+                hasHoles = true;
+        }
     }
 
     // Get liquid map for grid (in WOTLK used MH2O chunk)
@@ -922,20 +946,15 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
             map.liquidMapSize += sizeof(float)*liquidHeader.width*liquidHeader.height;
     }
 
-    if (hasHoles)
-    {
-        if (map.liquidMapOffset)
-            map.holesOffset = map.liquidMapOffset + map.liquidMapSize;
-        else
-            map.holesOffset = map.heightMapOffset + map.heightMapSize;
-
-        map.holesSize = sizeof(holes);
-    }
+    if (map.liquidMapOffset)
+        map.holesOffset = map.liquidMapOffset + map.liquidMapSize;
     else
-    {
-        map.holesOffset = 0;
+        map.holesOffset = map.heightMapOffset + map.heightMapSize;
+
+    if (hasHoles)
+        map.holesSize = sizeof(holes);
+    else
         map.holesSize = 0;
-    }
 
     // Ok all data prepared - store it
     std::ofstream outFile(outputPath, std::ofstream::out | std::ofstream::binary);

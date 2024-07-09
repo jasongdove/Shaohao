@@ -1091,7 +1091,19 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin&
         return;
     }
 
-    SendConnectToInstance(WorldPackets::Auth::ConnectToSerial::WorldAttempt1);
+    //SendConnectToInstance(WorldPackets::Auth::ConnectToSerial::WorldAttempt1);
+
+    std::shared_ptr<LoginQueryHolder> holder = std::make_shared<LoginQueryHolder>(GetAccountId(), m_playerLoading);
+    if (!holder->Initialize())
+    {
+        m_playerLoading.Clear();
+        return;
+    }
+
+    AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(holder)).AfterComplete([this](SQLQueryHolderBase const& holder)
+    {
+        HandlePlayerLogin(static_cast<LoginQueryHolder const&>(holder));
+    });
 }
 
 void WorldSession::HandleContinuePlayerLogin()
