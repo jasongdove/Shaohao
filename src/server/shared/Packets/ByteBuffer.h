@@ -182,6 +182,13 @@ class TC_SHARED_API ByteBuffer
             return bit;
         }
 
+        // Reads a byte (if needed) in-place
+        void ReadByteSeq(uint8& b)
+        {
+            if (b != 0)
+                b ^= read<uint8>();
+        }
+
         void WriteByteSeq(uint8 b)
         {
             if (b != 0)

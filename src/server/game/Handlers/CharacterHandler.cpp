@@ -1036,6 +1036,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPackets::Character::CharDelete& c
     if (!characterInfo)
     {
         sScriptMgr->OnPlayerFailedDelete(charDelete.Guid, initAccountId);
+        SendCharDelete(CHAR_DELETE_FAILED);
         return;
     }
 
@@ -1047,6 +1048,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPackets::Character::CharDelete& c
     if (accountId != initAccountId)
     {
         sScriptMgr->OnPlayerFailedDelete(charDelete.Guid, initAccountId);
+        SendCharDelete(CHAR_DELETE_FAILED);
         return;
     }
 
