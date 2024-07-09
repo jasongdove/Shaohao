@@ -267,8 +267,8 @@ struct ChrRacesEntry
     uint32 Flags;
     uint32 FactionID;
     //uint32 ExplorationSoundID;
-    //uint32 MaleDisplayID;
-    //uint32 FemaleDisplayID;
+    uint32 MaleDisplayID;
+    uint32 FemaleDisplayID;
     //char* ClientPrefix;
     //uint32 BaseLanuage;
     uint32 CreatureType;
@@ -314,9 +314,11 @@ struct ChrSpecializationEntry
     uint32      SpellIconID;                                // 7
     uint32      RaidBuffs;                                  // 8
     uint32      Flags;                                      // 9
-    LocalizedString Name;                                   // 10
+    char*       Name_lang;                                  // 10
     //char*     Description_lang;                           // 11
     uint32      MaxBuffs;                                   // 12
+
+    const char* Name(LocaleConstant /*locale*/) const { return Name_lang; }
 
     EnumFlag<ChrSpecializationFlag> GetFlags() const { return static_cast<ChrSpecializationFlag>(Flags); }
     ChrSpecializationRole GetRole() const { return static_cast<ChrSpecializationRole>(Role); }
@@ -709,6 +711,42 @@ struct ItemDamageEntry
     uint32      ItemLevel;                                  // 8 item level
 };
 
+
+struct ItemDamageAmmoEntry
+{
+    uint32 ID;
+    std::array<float, 7> Quality;
+    uint32 ItemLevel;
+};
+
+struct ItemDamageOneHandEntry
+{
+    uint32 ID;
+    std::array<float, 7> Quality;
+    uint32 ItemLevel;
+};
+
+struct ItemDamageOneHandCasterEntry
+{
+    uint32 ID;
+    std::array<float, 7> Quality;
+    uint32 ItemLevel;
+};
+
+struct ItemDamageTwoHandEntry
+{
+    uint32 ID;
+    std::array<float, 7> Quality;
+    uint32 ItemLevel;
+};
+
+struct ItemDamageTwoHandCasterEntry
+{
+    uint32 ID;
+    std::array<float, 7> Quality;
+    uint32 ItemLevel;
+};
+
 struct ItemArmorQualityEntry
 {
     uint32      ID;                                         // 0 item level
@@ -919,10 +957,8 @@ struct MapEntry
     uint32          MaxPlayers;                             // 18
     int32           ParentMapID;                            // 19 related to phasing
 
-    static const uint32 ExtraData = sizeof(int32);
-
     // Shaohao: MOP doesn't have Map.CosmeticParentMapID
-    int32 CosmeticParentMapID = -1;
+    static const int32 CosmeticParentMapID = -1;
 
     const char* MapName(LocaleConstant /*locale*/) const { return MapName_lang; }
 
@@ -1097,8 +1133,8 @@ struct ResearchSiteEntry
 struct SkillLineEntry
 {
     uint32      ID;                                         // 0        m_ID
-    int32       CategoryID;                                 // 1        m_categoryID
-    LocalizedString     DisplayName;                        // 2        m_displayName_lang
+    uint32      CategoryID;                                 // 1        m_categoryID
+    char*       DisplayName_lang;                           // 2        m_displayName_lang
     //char*     Description_lang;                           // 3        m_description_lang
     uint32      SpellIconID;                                // 4        m_spellIconID
     //char*     AlternateVerb_lang;                         // 5        m_alternateVerb_lang
@@ -1107,7 +1143,9 @@ struct SkillLineEntry
     uint32      Flags;                                      // 8
 
     // Shaohao: MOP doesn't have ParentTierIndex
-    int32 ParentTierIndex = 0;
+    static const int32 ParentTierIndex = 0;
+
+    const char* DisplayName(LocaleConstant /*locale*/) const { return DisplayName_lang; }
 
     EnumFlag<SkillLineFlags> GetFlags() const { return static_cast<SkillLineFlags>(Flags); }
 };
@@ -1117,10 +1155,7 @@ struct SkillLineAbilityEntry
     uint32      ID;                                         // 0
     uint32      SkillLine;                                  // 1
     uint32      Spell;                                      // 2
-
-    // TODO: DATA probably need to fix loading this
-    Trinity::RaceMask<uint32> RaceMask;                                   // 3
-
+    Trinity::RaceMask<uint32> RaceMask;                     // 3
     uint32      ClassMask;                                  // 4
     uint32      MinSkillLineRank;                           // 7
     uint32      SupercedesSpell;                            // 8
@@ -1140,7 +1175,7 @@ struct SkillRaceClassInfoEntry
     //uint32    ID;                                         // 0
     uint32      SkillID;                                    // 1
     Trinity::RaceMask<uint32> RaceMask;                     // 2
-    int32       ClassMask;                                  // 3
+    uint32      ClassMask;                                  // 3
     uint32      Flags;                                      // 4
     uint32      Availability;                               // 5
     uint32      MinLevel;                                   // 6
@@ -1487,6 +1522,63 @@ struct TalentEntry
     uint32      ClassID;                                        // 7
     uint32      OverridesSpellID;                               // 8 spellid that is replaced by talent
     //char*     Description_lang
+};
+
+struct TaxiNodesEntry
+{
+    uint32 ID;
+    uint32 ContinentID;
+    DBCPosition3D Pos;
+    char * Name_lang;
+    std::array<int32, 2> MountCreatureID;
+    int32 ConditionID;
+    int32 Flags;
+    DBCPosition2D MapOffset;
+
+//    int32 UiTextureKitID;
+//    float Facing;
+
+    // Shaohao: DBC doesn't have localized strings
+    // TODO: DATA figure out better localization pattern?
+    const char* Name(LocaleConstant /*locale*/) const { return Name_lang; }
+
+    EnumFlag<TaxiNodeFlags> GetFlags() const { return static_cast<TaxiNodeFlags>(Flags); }
+
+    bool IsPartOfTaxiNetwork() const
+    {
+        return GetFlags().HasFlag(TaxiNodeFlags::ShowOnAllianceMap | TaxiNodeFlags::ShowOnHordeMap)
+               // manually whitelisted nodes
+               || ID == 1985   // [Hidden] Argus Ground Points Hub (Ground TP out to here, TP to Vindicaar from here)
+               || ID == 1986   // [Hidden] Argus Vindicaar Ground Hub (Vindicaar TP out to here, TP to ground from here)
+               || ID == 1987   // [Hidden] Argus Vindicaar No Load Hub (Vindicaar No Load transition goes through here)
+               || ID == 2627   // [Hidden] 9.0 Bastion Ground Points Hub (Ground TP out to here, TP to Sanctum from here)
+               || ID == 2628   // [Hidden] 9.0 Bastion Ground Hub (Sanctum TP out to here, TP to ground from here)
+               || ID == 2732   // [HIDDEN] 9.2 Resonant Peaks - Teleport Network - Hidden Hub (Connects all Nodes to each other without unique paths)
+               || ID == 2835   // [Hidden] 10.0 Travel Network - Destination Input
+               || ID == 2843   // [Hidden] 10.0 Travel Network - Destination Output
+                ;
+    }
+};
+
+struct TaxiPathEntry
+{
+    uint32 ID;
+    uint32 FromTaxiNode;
+    uint32 ToTaxiNode;
+    uint32 Cost;
+};
+
+struct TaxiPathNodeEntry
+{
+    uint32 ID;
+    uint32 PathID;
+    uint32 NodeIndex;
+    uint32 ContinentID;
+    DBCPosition3D Loc;
+    int32 Flags;
+    uint32 Delay;
+    int32 ArrivalEventID;
+    int32 DepartureEventID;
 };
 
 #define MAX_VEHICLE_SEATS 8

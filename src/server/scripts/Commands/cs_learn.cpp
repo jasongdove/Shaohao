@@ -393,7 +393,7 @@ public:
             LocaleConstant locale = LOCALE_enUS;
             for (; locale < TOTAL_LOCALES; locale = LocaleConstant(locale + 1))
             {
-                name = skillInfo->DisplayName[locale];
+                name = skillInfo->DisplayName(locale);
                 if (!name || !*name)
                     continue;
 

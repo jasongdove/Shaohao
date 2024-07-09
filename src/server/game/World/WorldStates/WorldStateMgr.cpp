@@ -67,8 +67,10 @@ void WorldStateMgr::LoadFromDB()
 
             if (!sMapStore.LookupEntry(*mapId) && mapId != WORLDSTATE_ANY_MAP)
             {
-                TC_LOG_ERROR("sql.sql", "Table `world_state` contains a world state {} with invalid MapID ({}), map ignored",
-                    id, *mapId);
+                // Shaohao: temp disable spam
+                if (mapId < MAX_MAPS_MOP)
+                    TC_LOG_ERROR("sql.sql", "Table `world_state` contains a world state {} with invalid MapID ({}), map ignored",
+                        id, *mapId);
                 continue;
             }
 
@@ -98,8 +100,10 @@ void WorldStateMgr::LoadFromDB()
                 AreaTableEntry const* areaTableEntry = sAreaTableStore.LookupEntry(*areaId);
                 if (!areaTableEntry)
                 {
-                    TC_LOG_ERROR("sql.sql", "Table `world_state` contains a world state {} with invalid AreaID ({}), area ignored",
-                        id, *areaId);
+                    // Shaohao: temp disable spam
+                    if (areaId < MAX_AREAS_MOP)
+                        TC_LOG_ERROR("sql.sql", "Table `world_state` contains a world state {} with invalid AreaID ({}), area ignored",
+                            id, *areaId);
                     continue;
                 }
 

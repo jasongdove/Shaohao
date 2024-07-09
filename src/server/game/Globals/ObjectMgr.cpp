@@ -28,6 +28,7 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "DBCStores.h"
+#include "GameTables.h"
 #include "DisableMgr.h"
 #include "GameObject.h"
 #include "GameObjectAIFactory.h"
@@ -3762,13 +3763,17 @@ void ObjectMgr::LoadPlayerInfo()
 
                 if (!sChrRacesStore.LookupEntry(current_race))
                 {
-                    TC_LOG_ERROR("sql.sql", "Wrong race {} in `playercreateinfo` table, ignoring.", current_race);
+                    // TODO: Shaohao temp reduce spam
+                    if (current_race < MAX_RACES_MOP)
+                        TC_LOG_ERROR("sql.sql", "Wrong race {} in `playercreateinfo` table, ignoring.", current_race);
                     continue;
                 }
 
                 if (!sChrClassesStore.LookupEntry(current_class))
                 {
-                    TC_LOG_ERROR("sql.sql", "Wrong class {} in `playercreateinfo` table, ignoring.", current_class);
+                    // TODO: Shaohao temp reduce spam
+                    if (current_class < MAX_CLASSES_MOP)
+                        TC_LOG_ERROR("sql.sql", "Wrong class {} in `playercreateinfo` table, ignoring.", current_class);
                     continue;
                 }
 
@@ -3810,8 +3815,10 @@ void ObjectMgr::LoadPlayerInfo()
 
                     if (!sMapStore.LookupEntry(info->createPositionNPE->Loc.GetMapId()))
                     {
-                        TC_LOG_ERROR("sql.sql", "Invalid NPE map id {} for class {} race {} pair in `playercreateinfo` table, ignoring.",
-                            info->createPositionNPE->Loc.GetMapId(), current_class, current_race);
+                        // TODO: Shaohao temp disable spam
+                        if (info->createPositionNPE->Loc.GetMapId() < MAX_MAPS_MOP)
+                            TC_LOG_ERROR("sql.sql", "Invalid NPE map id {} for class {} race {} pair in `playercreateinfo` table, ignoring.",
+                                info->createPositionNPE->Loc.GetMapId(), current_class, current_race);
                         info->createPositionNPE.reset();
                     }
 
@@ -3866,55 +3873,49 @@ void ObjectMgr::LoadPlayerInfo()
     // Load playercreate items
     TC_LOG_INFO("server.loading", "Loading Player Create Items Data...");
     {
-        std::unordered_map<uint32, std::vector<ItemTemplate const*>> itemsByCharacterLoadout;
-        for (CharacterLoadoutItemEntry const* characterLoadoutItem : sCharacterLoadoutItemStore)
-            if (ItemTemplate const* itemTemplate = GetItemTemplate(characterLoadoutItem->ItemID))
-                itemsByCharacterLoadout[characterLoadoutItem->CharacterLoadoutID].push_back(itemTemplate);
+        // TODO: DATA support gender
 
-        for (CharacterLoadoutEntry const* characterLoadout : sCharacterLoadoutStore)
+        std::unordered_map<std::pair<uint32, uint32>, std::vector<ItemTemplate const*>> itemsByRaceAndClass;
+        for (CharStartOutfitEntry const* charStartOutfit : sCharStartOutfitStore)
+            for (auto itemId : charStartOutfit->ItemId)
+                if (ItemTemplate const* itemTemplate = GetItemTemplate(itemId))
+                    itemsByRaceAndClass[{ charStartOutfit->Race, charStartOutfit->Class }].push_back(itemTemplate);
+
+        // Shaohao: CharacterLoadout doesn't have any records for new characters; use CharStartOutfit instead
+        for (uint32 classIndex = CLASS_WARRIOR; classIndex < MAX_CLASSES; ++classIndex)
+        for (uint32 raceIndex = RACE_HUMAN; raceIndex < MAX_RACES; ++raceIndex)
         {
-            if (!characterLoadout->IsForNewCharacter())
-                continue;
-
-            std::vector<ItemTemplate const*> const* items = Trinity::Containers::MapGetValuePtr(itemsByCharacterLoadout, characterLoadout->ID);
-            if (!items)
-                continue;
-
-            for (uint32 raceIndex = RACE_HUMAN; raceIndex < MAX_RACES; ++raceIndex)
+            if (auto items = Trinity::Containers::MapGetValuePtr(itemsByRaceAndClass, { raceIndex, classIndex }))
+            if (auto const& playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(raceIndex), Classes(classIndex) }))
             {
-                if (!characterLoadout->RaceMask.HasRace(raceIndex))
-                    continue;
+                // Shaohao: CharacterLoadoutItem doesn't contain ItemContext
+                playerInfo->get()->itemContext = ItemContext::NONE;
 
-                if (auto const& playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(raceIndex), Classes(characterLoadout->ChrClassID) }))
+                for (ItemTemplate const* itemTemplate : *items)
                 {
-                    playerInfo->get()->itemContext = ItemContext(characterLoadout->ItemContext);
+                    // BuyCount by default
+                    uint32 count = itemTemplate->GetBuyCount();
 
-                    for (ItemTemplate const* itemTemplate : *items)
+                    // special amount for food/drink
+                    if (itemTemplate->GetClass() == ITEM_CLASS_CONSUMABLE && itemTemplate->GetSubClass() == ITEM_SUBCLASS_FOOD_DRINK)
                     {
-                        // BuyCount by default
-                        uint32 count = itemTemplate->GetBuyCount();
-
-                        // special amount for food/drink
-                        if (itemTemplate->GetClass() == ITEM_CLASS_CONSUMABLE && itemTemplate->GetSubClass() == ITEM_SUBCLASS_FOOD_DRINK)
+                        if (!itemTemplate->Effects.empty())
                         {
-                            if (!itemTemplate->Effects.empty())
+                            switch (itemTemplate->Effects[0]->SpellCategoryID)
                             {
-                                switch (itemTemplate->Effects[0]->SpellCategoryID)
-                                {
-                                    case SPELL_CATEGORY_FOOD:                                // food
-                                        count = characterLoadout->ChrClassID == CLASS_DEATH_KNIGHT ? 10 : 4;
-                                        break;
-                                    case SPELL_CATEGORY_DRINK:                                // drink
-                                        count = 2;
-                                        break;
-                                }
+                                case SPELL_CATEGORY_FOOD:                                // food
+                                    count = classIndex == CLASS_DEATH_KNIGHT ? 10 : 4;
+                                    break;
+                                case SPELL_CATEGORY_DRINK:                                // drink
+                                    count = 2;
+                                    break;
                             }
-                            if (itemTemplate->GetMaxStackSize() < count)
-                                count = itemTemplate->GetMaxStackSize();
                         }
-
-                        playerInfo->get()->item.emplace_back(itemTemplate->GetId(), count);
+                        if (itemTemplate->GetMaxStackSize() < count)
+                            count = itemTemplate->GetMaxStackSize();
                     }
+
+                    playerInfo->get()->item.emplace_back(itemTemplate->GetId(), count);
                 }
             }
         }
@@ -4380,7 +4381,7 @@ void ObjectMgr::LoadPlayerInfo()
     }
 }
 
-void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& baseMana) const
+void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& baseHp, uint32& baseMana) const
 {
     if (level < 1 || class_ >= MAX_CLASSES)
         return;
@@ -4388,14 +4389,17 @@ void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& base
     if (level > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         level = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
 
-    GtBaseMPEntry const* mp = sBaseMPGameTable.GetRow(level);
-    if (!mp)
+    GtOCTBaseHPByClassEntry const* hp = sOctBaseHpByClassStore.EvaluateTable(level - 1, class_ - 1);
+    GtOCTBaseMPByClassEntry const* mp = sOctBaseMpByClassStore.EvaluateTable(level - 1, class_ - 1);
+
+    if (!hp || !mp)
     {
-        TC_LOG_ERROR("misc", "Tried to get non-existant Class-Level combination data for base hp/mp. Class {} Level {}", class_, level);
+        TC_LOG_ERROR("misc", "Tried to get non-existent Class-Level combination data for base hp/mp. Class {} Level {}", class_, level);
         return;
     }
 
-    baseMana = uint32(GetGameTableColumnForClass(mp, class_));
+    baseHp = uint32(hp->ratio);
+    baseMana = uint32(mp->ratio);
 }
 
 void ObjectMgr::GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const
@@ -10481,13 +10485,17 @@ void ObjectMgr::LoadAreaPhases()
         uint32 phaseId = fields[1].GetUInt32();
         if (!sAreaTableStore.LookupEntry(area))
         {
-            TC_LOG_ERROR("sql.sql", "Area {} defined in `phase_area` does not exist, skipped.", area);
+            // Shaohao: temp disable spam
+            if (area < MAX_AREAS_MOP)
+                TC_LOG_ERROR("sql.sql", "Area {} defined in `phase_area` does not exist, skipped.", area);
             continue;
         }
 
         if (!sPhaseStore.LookupEntry(phaseId))
         {
-            TC_LOG_ERROR("sql.sql", "Phase {} defined in `phase_area` does not exist, skipped.", phaseId);
+            // Shaohao: temp disable spam
+            if (area < MAX_PHASES_MOP)
+                TC_LOG_ERROR("sql.sql", "Phase {} defined in `phase_area` does not exist, skipped.", phaseId);
             continue;
         }
 
@@ -10637,7 +10645,9 @@ void ObjectMgr::LoadRaceAndClassExpansionRequirements()
             ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(raceID);
             if (!raceEntry)
             {
-                TC_LOG_ERROR("sql.sql", "Race {} defined in `race_unlock_requirement` does not exists, skipped.", raceID);
+                // Shaohao: Max ChrRaces.dbc ID is 26; disable spam for invalid races
+                if (raceID < MAX_RACES_MOP)
+                    TC_LOG_ERROR("sql.sql", "Race {} defined in `race_unlock_requirement` does not exists, skipped.", raceID);
                 continue;
             }
 
@@ -10687,16 +10697,20 @@ void ObjectMgr::LoadRaceAndClassExpansionRequirements()
             ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(classID);
             if (!classEntry)
             {
-                TC_LOG_ERROR("sql.sql", "Class {} (race {}) defined in `class_expansion_requirement` does not exists, skipped.",
-                    uint32(classID), uint32(raceID));
+                // Shaohao: Max ChrClasses.dbc ID is 11; disable spam for invalid races
+                if (classID < MAX_CLASSES_MOP)
+                    TC_LOG_ERROR("sql.sql", "Class {} (race {}) defined in `class_expansion_requirement` does not exists, skipped.",
+                        uint32(classID), uint32(raceID));
                 continue;
             }
 
             ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(raceID);
             if (!raceEntry)
             {
-                TC_LOG_ERROR("sql.sql", "Race {} (class {}) defined in `class_expansion_requirement` does not exists, skipped.",
-                    uint32(raceID), uint32(classID));
+                // Shaohao: Max ChrRaces.dbc ID is 26; disable spam for invalid races
+                if (raceID < MAX_RACES_MOP)
+                    TC_LOG_ERROR("sql.sql", "Race {} (class {}) defined in `class_expansion_requirement` does not exists, skipped.",
+                        uint32(raceID), uint32(classID));
                 continue;
             }
 

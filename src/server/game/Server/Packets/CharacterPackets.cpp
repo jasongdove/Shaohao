@@ -303,34 +303,105 @@ WorldPacket const* EnumCharactersResult::Write()
     _worldPacket.WriteBits(0, 21); // factionChangeRestrictions - raceId / mask loop
     _worldPacket.WriteBits(Characters.size(), 16);
 
-//    for (CharacterInfo const& charInfo : Characters)
-//        _worldPacket << charInfo;
+    for (CharacterInfo const& charInfo : Characters)
+    {
+        _worldPacket.WriteBit(charInfo.GuildGUID[4]);
+        _worldPacket.WriteBit(charInfo.Guid[0]);
+        _worldPacket.WriteBit(charInfo.GuildGUID[3]);
+        _worldPacket.WriteBit(charInfo.Guid[3]);
+        _worldPacket.WriteBit(charInfo.Guid[7]);
+        _worldPacket.WriteBit(charInfo.BoostInProgress);
+        _worldPacket.WriteBit(charInfo.FirstLogin);
+        _worldPacket.WriteBit(charInfo.Guid[6]);
+        _worldPacket.WriteBit(charInfo.GuildGUID[6]);
+        _worldPacket.WriteBits(uint32(charInfo.Name.length()), 6);
+        _worldPacket.WriteBit(charInfo.Guid[1]);
+        _worldPacket.WriteBit(charInfo.GuildGUID[1]);
+        _worldPacket.WriteBit(charInfo.GuildGUID[0]);
+        _worldPacket.WriteBit(charInfo.Guid[4]);
+        _worldPacket.WriteBit(charInfo.GuildGUID[7]);
+        _worldPacket.WriteBit(charInfo.Guid[2]);
+        _worldPacket.WriteBit(charInfo.Guid[5]);
+        _worldPacket.WriteBit(charInfo.GuildGUID[2]);
+        _worldPacket.WriteBit(charInfo.GuildGUID[5]);
+    }
 
     _worldPacket.WriteBit(Success);
     _worldPacket.FlushBits();
 
-//    _worldPacket.WriteBit(IsDeletedCharacters);
-//    _worldPacket.WriteBit(IsNewPlayerRestrictionSkipped);
-//    _worldPacket.WriteBit(IsNewPlayerRestricted);
-//    _worldPacket.WriteBit(IsNewPlayer);
-//    _worldPacket.WriteBit(IsTrialAccountRestricted);
-//    _worldPacket.WriteBit(DisabledClassesMask.has_value());
-//    _worldPacket << int32(MaxCharacterLevel);
-//    _worldPacket << uint32(RaceUnlockData.size());
-//    _worldPacket << uint32(UnlockedConditionalAppearances.size());
-//    _worldPacket << uint32(RaceLimitDisables.size());
-//
-//    if (DisabledClassesMask)
-//        _worldPacket << uint32(*DisabledClassesMask);
-//
-//    for (UnlockedConditionalAppearance const& unlockedConditionalAppearance : UnlockedConditionalAppearances)
-//        _worldPacket << unlockedConditionalAppearance;
-//
-//    for (RaceLimitDisableInfo const& raceLimitDisableInfo : RaceLimitDisables)
-//        _worldPacket << raceLimitDisableInfo;
-//
-//    for (RaceUnlock const& raceUnlock : RaceUnlockData)
-//        _worldPacket << raceUnlock;
+    for (CharacterInfo const& charInfo : Characters)
+    {
+        _worldPacket << uint32(0); // UNK02
+
+        _worldPacket.WriteByteSeq(charInfo.Guid[1]);
+
+        _worldPacket << uint8(charInfo.ListPosition);
+        _worldPacket << uint8(1); // TODO: hairstyle
+
+        _worldPacket.WriteByteSeq(charInfo.GuildGUID[2]);
+        _worldPacket.WriteByteSeq(charInfo.GuildGUID[0]);
+        _worldPacket.WriteByteSeq(charInfo.GuildGUID[6]);
+
+        _worldPacket.WriteString(charInfo.Name);
+
+        _worldPacket.WriteByteSeq(charInfo.GuildGUID[3]);
+
+        _worldPacket << float(charInfo.PreloadPos.Pos.GetPositionX());
+        _worldPacket << uint32(0); // UNK00
+        _worldPacket << uint8(1); // TODO: face
+        _worldPacket << uint8(charInfo.ClassID);
+
+        _worldPacket.WriteByteSeq(charInfo.GuildGUID[5]);
+
+        for (auto visualItem : charInfo.VisualItems)
+        {
+            _worldPacket << visualItem.DisplayEnchantID;
+            _worldPacket << visualItem.InvType;
+            _worldPacket << visualItem.DisplayID;
+        }
+
+        _worldPacket << charInfo.Flags2; // customization flags
+
+        _worldPacket.WriteByteSeq(charInfo.Guid[3]);
+        _worldPacket.WriteByteSeq(charInfo.Guid[5]);
+
+        _worldPacket << uint32(charInfo.PetCreatureFamilyID);
+
+        _worldPacket.WriteByteSeq(charInfo.GuildGUID[4]);
+
+        _worldPacket << uint32(charInfo.MapID);
+        _worldPacket << uint8(charInfo.RaceID);
+        _worldPacket << uint8(1); // TODO: skin
+
+        _worldPacket.WriteByteSeq(charInfo.GuildGUID[1]);
+
+        _worldPacket << uint8(charInfo.ExperienceLevel);
+
+        _worldPacket.WriteByteSeq(charInfo.Guid[0]);
+        _worldPacket.WriteByteSeq(charInfo.Guid[2]);
+
+        _worldPacket << uint8(1); // TODO: hair color
+        _worldPacket << uint8(charInfo.SexID);
+        _worldPacket << uint8(1); // TODO: facial hair
+
+        _worldPacket << uint32(charInfo.PetExperienceLevel);
+
+        _worldPacket.WriteByteSeq(charInfo.Guid[4]);
+        _worldPacket.WriteByteSeq(charInfo.Guid[7]);
+
+        _worldPacket << float(charInfo.PreloadPos.Pos.GetPositionY());
+        _worldPacket << uint32(charInfo.PetCreatureDisplayID);
+        _worldPacket << uint32(0); // UNK03
+
+        _worldPacket.WriteByteSeq(charInfo.Guid[6]);
+
+        _worldPacket << uint32(charInfo.Flags);
+        _worldPacket << uint32(charInfo.ZoneID);
+
+        _worldPacket.WriteByteSeq(charInfo.GuildGUID[7]);
+
+        _worldPacket << float(charInfo.PreloadPos.Pos.GetPositionZ());
+    }
 
     return &_worldPacket;
 }
@@ -352,23 +423,23 @@ WorldPacket const* CheckCharacterNameAvailabilityResult::Write()
 void CreateCharacter::Read()
 {
     CreateInfo = std::make_shared<CharacterCreateInfo>();
+
+    _worldPacket >> CreateInfo->OutfitID;
+    _worldPacket >> CreateInfo->HairStyle;
+    _worldPacket >> CreateInfo->Class;
+    _worldPacket >> CreateInfo->Skin;
+    _worldPacket >> CreateInfo->Face;
+    _worldPacket >> CreateInfo->Race;
+    _worldPacket >> CreateInfo->FacialHairStyle;
+    _worldPacket >> CreateInfo->Sex;
+    _worldPacket >> CreateInfo->HairColor;
+
     uint32 nameLength = _worldPacket.ReadBits(6);
     bool const hasTemplateSet = _worldPacket.ReadBit();
-    CreateInfo->IsTrialBoost = _worldPacket.ReadBit();
-    CreateInfo->UseNPE = _worldPacket.ReadBit();
-    CreateInfo->Unused1026 = _worldPacket.ReadBit();
-
-    _worldPacket >> CreateInfo->Race;
-    _worldPacket >> CreateInfo->Class;
-    _worldPacket >> CreateInfo->Sex;
-    CreateInfo->Customizations.resize(_worldPacket.read<uint32>());
-    _worldPacket >> CreateInfo->TimerunningSeasonID;
     CreateInfo->Name = _worldPacket.ReadString(nameLength);
-    if (hasTemplateSet)
-        CreateInfo->TemplateSet = _worldPacket.read<int32>();
 
-    for (ChrCustomizationChoice& customization : CreateInfo->Customizations)
-        _worldPacket >> customization;
+    if (hasTemplateSet)
+        CreateInfo->TemplateSet = _worldPacket.read<uint32>();
 
     SortCustomizations(CreateInfo->Customizations);
 }
@@ -376,13 +447,30 @@ void CreateCharacter::Read()
 WorldPacket const* CreateChar::Write()
 {
     _worldPacket << uint8(Code);
-    _worldPacket << Guid;
     return &_worldPacket;
 }
 
 void CharDelete::Read()
 {
-    _worldPacket >> Guid;
+    Guid[1] = _worldPacket.ReadBit();
+    Guid[3] = _worldPacket.ReadBit();
+    Guid[2] = _worldPacket.ReadBit();
+    Guid[7] = _worldPacket.ReadBit();
+    Guid[4] = _worldPacket.ReadBit();
+    Guid[6] = _worldPacket.ReadBit();
+    Guid[0] = _worldPacket.ReadBit();
+    Guid[5] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(Guid[7]);
+    _worldPacket.ReadByteSeq(Guid[1]);
+    _worldPacket.ReadByteSeq(Guid[6]);
+    _worldPacket.ReadByteSeq(Guid[0]);
+    _worldPacket.ReadByteSeq(Guid[3]);
+    _worldPacket.ReadByteSeq(Guid[4]);
+    _worldPacket.ReadByteSeq(Guid[2]);
+    _worldPacket.ReadByteSeq(Guid[5]);
+
+    Guid = ObjectGuid::Create<HighGuid::Player>(Guid.GetCounter());
 }
 
 WorldPacket const* DeleteChar::Write()
@@ -470,8 +558,8 @@ WorldPacket const* CharFactionChangeResult::Write()
 
 void GenerateRandomCharacterName::Read()
 {
-    _worldPacket >> Race;
     _worldPacket >> Sex;
+    _worldPacket >> Race;
 }
 
 WorldPacket const* GenerateRandomCharacterNameResult::Write()

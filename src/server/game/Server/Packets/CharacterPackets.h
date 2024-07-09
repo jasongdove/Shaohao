@@ -60,6 +60,12 @@ namespace WorldPackets
             uint8 Race            = RACE_NONE;
             uint8 Class           = CLASS_NONE;
             uint8 Sex             = GENDER_NONE;
+            uint8 Skin            = 0;
+            uint8 Face            = 0;
+            uint8 HairStyle       = 0;
+            uint8 HairColor       = 0;
+            uint8 FacialHairStyle = 0;
+            uint8 OutfitID        = 0;
             Array<ChrCustomizationChoice, 250> Customizations;
             Optional<int32> TemplateSet;
             int32 TimerunningSeasonID = 0;
@@ -172,7 +178,7 @@ namespace WorldPackets
                     uint8 Subclass          = 0;
                 };
 
-                std::array<VisualItemInfo, 19> VisualItems = { };
+                std::array<VisualItemInfo, 23> VisualItems = { };
                 std::vector<std::string> MailSenders;
                 std::vector<uint32> MailSenderTypes;
                 bool RpeResetAvailable = false;

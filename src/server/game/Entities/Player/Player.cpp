@@ -477,7 +477,9 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
 
     SetWatchedFactionIndex(-1);
 
-    SetCustomizations(Trinity::Containers::MakeIteratorPair(createInfo->Customizations.begin(), createInfo->Customizations.end()));
+    // Shaohao: MOP doesn't have character customization
+    //SetCustomizations(Trinity::Containers::MakeIteratorPair(createInfo->Customizations.begin(), createInfo->Customizations.end()));
+
     SetRestState(REST_TYPE_XP, (GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NORMAL);
     SetRestState(REST_TYPE_HONOR, REST_STATE_NORMAL);
     SetNativeGender(Gender(createInfo->Sex));
@@ -2289,12 +2291,13 @@ void Player::GiveLevel(uint8 level)
     PlayerLevelInfo info;
     sObjectMgr->GetPlayerLevelInfo(GetRace(), GetClass(), level, &info);
 
+    uint32 basehealth = 0;
     uint32 basemana = 0;
-    sObjectMgr->GetPlayerClassLevelInfo(GetClass(), level, basemana);
+    sObjectMgr->GetPlayerClassLevelInfo(GetClass(), level, basehealth, basemana);
 
     WorldPackets::Misc::LevelUpInfo packet;
     packet.Level = level;
-    packet.HealthDelta = 0;
+    packet.HealthDelta = int32(basehealth) - int32(GetCreateHealth());
 
     /// @todo find some better solution
     // for (int i = 0; i < MAX_STORED_POWERS; ++i)
@@ -2418,8 +2421,9 @@ void Player::InitStatsForLevel(bool reapplyMods)
     if (reapplyMods)                                        //reapply stats values only on .reset stats (level) command
         _RemoveAllStatBonuses();
 
+    uint32 basehealth = 0;
     uint32 basemana = 0;
-    sObjectMgr->GetPlayerClassLevelInfo(GetClass(), GetLevel(), basemana);
+    sObjectMgr->GetPlayerClassLevelInfo(GetClass(), GetLevel(), basehealth, basemana);
 
     PlayerLevelInfo info;
     sObjectMgr->GetPlayerLevelInfo(GetRace(), GetClass(), GetLevel(), &info);
@@ -2458,7 +2462,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
         SetStat(Stats(i), info.stats[i]);
 
-    SetCreateHealth(0);
+    SetCreateHealth(basehealth);
 
     //set create powers
     SetCreateMana(basemana);
@@ -27000,7 +27004,7 @@ void Player::ResetTalentSpecialization()
 
     RemoveSpecializationSpells();
 
-    ChrSpecializationEntry const* defaultSpec = ASSERT_NOTNULL(sDBCManager.GetDefaultChrSpecializationForClass(GetClass()));
+    ChrSpecializationEntry const* defaultSpec = ASSERT_NOTNULL(sDBCManager.GetDefaultChrSpecializationForClass(class_));
     SetPrimarySpecialization(defaultSpec->ID);
     SetActiveTalentGroup(defaultSpec->OrderIndex);
 
@@ -27853,7 +27857,7 @@ void Player::_LoadTraits(PreparedQueryResult configsResult, PreparedQueryResult 
             traitConfig.ChrSpecializationID = spec->ID;
             traitConfig.CombatConfigFlags = TraitCombatConfigFlags::ActiveForSpec;
             traitConfig.LocalIdentifier = findFreeLocalIdentifier(spec->ID);
-            traitConfig.Name = spec->Name[GetSession()->GetSessionDbcLocale()];
+            traitConfig.Name = spec->Name(GetSession()->GetSessionDbcLocale());
 
             CreateTraitConfig(traitConfig);
         }

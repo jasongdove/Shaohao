@@ -821,8 +821,9 @@ void Player::UpdateManaRegen()
         return;
 
     // Get base of Mana Pool in sBaseMPGameTable
+    uint32 basehealth = 0;
     uint32 basemana = 0;
-    sObjectMgr->GetPlayerClassLevelInfo(GetClass(), GetLevel(), basemana);
+    sObjectMgr->GetPlayerClassLevelInfo(GetClass(), GetLevel(), basehealth, basemana);
     float base_regen = basemana / 100.f;
 
     base_regen += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA);

@@ -102,32 +102,32 @@ enum Expansions
     MAX_ACCOUNT_EXPANSIONS
 };
 
-#define CURRENT_EXPANSION EXPANSION_DRAGONFLIGHT
+#define CURRENT_EXPANSION EXPANSION_MISTS_OF_PANDARIA
 
 constexpr uint32 GetMaxLevelForExpansion(uint32 expansion)
 {
     switch (expansion)
     {
         case EXPANSION_CLASSIC:
-            return 30;
-        case EXPANSION_THE_BURNING_CRUSADE:
-            return 30;
-        case EXPANSION_WRATH_OF_THE_LICH_KING:
-            return 30;
-        case EXPANSION_CATACLYSM:
-            return 35;
-        case EXPANSION_MISTS_OF_PANDARIA:
-            return 35;
-        case EXPANSION_WARLORDS_OF_DRAENOR:
-            return 40;
-        case EXPANSION_LEGION:
-            return 45;
-        case EXPANSION_BATTLE_FOR_AZEROTH:
-            return 50;
-        case EXPANSION_SHADOWLANDS:
             return 60;
-        case EXPANSION_DRAGONFLIGHT:
+        case EXPANSION_THE_BURNING_CRUSADE:
             return 70;
+        case EXPANSION_WRATH_OF_THE_LICH_KING:
+            return 80;
+        case EXPANSION_CATACLYSM:
+            return 85;
+        case EXPANSION_MISTS_OF_PANDARIA:
+            return 90;
+//        case EXPANSION_WARLORDS_OF_DRAENOR:
+//            return 40;
+//        case EXPANSION_LEGION:
+//            return 45;
+//        case EXPANSION_BATTLE_FOR_AZEROTH:
+//            return 50;
+//        case EXPANSION_SHADOWLANDS:
+//            return 60;
+//        case EXPANSION_DRAGONFLIGHT:
+//            return 70;
         default:
             break;
     }
@@ -165,6 +165,12 @@ enum Classes : uint8
 
 // max+1 for player class
 #define MAX_CLASSES       15
+
+#define MAX_CLASSES_MOP   12
+#define MAX_RACES_MOP     27
+#define MAX_MAPS_MOP      1174
+#define MAX_AREAS_MOP     6864
+#define MAX_PHASES_MOP    3402
 
 #define CLASSMASK_ALL_PLAYABLE     \
     ((1<<(CLASS_WARRIOR-1))      | \
@@ -981,7 +987,10 @@ enum SpellAttr14 : uint32
 #define MIN_SPECIALIZATION_LEVEL    10
 #define MAX_SPECIALIZATIONS         5
 #define PET_SPEC_OVERRIDE_CLASS_INDEX MAX_CLASSES
-#define INITIAL_SPECIALIZATION_INDEX 4
+
+// TODO: Shaohao, don't know if this is correct,
+// but classes don't have more than 3 specs, so 4 is definitely wrong
+#define INITIAL_SPECIALIZATION_INDEX 0
 
 // Custom values
 enum SpellClickUserTypes
@@ -6216,95 +6225,92 @@ enum ResponseCodes
     CSTATUS_NEGOTIATION_FAILED                             = 10,
     CSTATUS_AUTHENTICATING                                 = 11,
 
-    // TODO: PacketIO probably need a lot more of these
     AUTH_OK                                                = 12,
     AUTH_FAILED                                            = 13,
+    AUTH_REJECT                                            = 14,
+    AUTH_BAD_SERVER_PROOF                                  = 15,
+    AUTH_UNAVAILABLE                                       = 16,
+    AUTH_SYSTEM_ERROR                                      = 17,
+    AUTH_BILLING_ERROR                                     = 18,
+    AUTH_BILLING_EXPIRED                                   = 19,
+    AUTH_VERSION_MISMATCH                                  = 20,
+    AUTH_UNKNOWN_ACCOUNT                                   = 21,
+    AUTH_INCORRECT_PASSWORD                                = 22,
+    AUTH_SESSION_EXPIRED                                   = 23,
+    AUTH_SERVER_SHUTTING_DOWN                              = 24,
+    AUTH_ALREADY_LOGGING_IN                                = 25,
+    AUTH_LOGIN_SERVER_NOT_FOUND                            = 26,
+    AUTH_WAIT_QUEUE                                        = 27,
+    AUTH_BANNED                                            = 28,
+    AUTH_ALREADY_ONLINE                                    = 29,
+    AUTH_NO_TIME                                           = 30,
+    AUTH_DB_BUSY                                           = 31,
+    AUTH_SUSPENDED                                         = 32,
+    AUTH_PARENTAL_CONTROL                                  = 33,
+    AUTH_LOCKED_ENFORCED                                   = 34,
 
-//    REALM_LIST_IN_PROGRESS                                 = 12,
-//    REALM_LIST_SUCCESS                                     = 13,
-    REALM_LIST_FAILED                                      = 14,
-    REALM_LIST_INVALID                                     = 15,
-    REALM_LIST_REALM_NOT_FOUND                             = 16,
+    REALM_LIST_IN_PROGRESS                                 = 35,
+    REALM_LIST_SUCCESS                                     = 36,
+    REALM_LIST_FAILED                                      = 37,
+    REALM_LIST_INVALID                                     = 38,
+    REALM_LIST_REALM_NOT_FOUND                             = 39,
 
-    ACCOUNT_CREATE_IN_PROGRESS                             = 17,
-    ACCOUNT_CREATE_SUCCESS                                 = 18,
-    ACCOUNT_CREATE_FAILED                                  = 19,
+    ACCOUNT_CREATE_IN_PROGRESS                             = 40,
+    ACCOUNT_CREATE_SUCCESS                                 = 41,
+    ACCOUNT_CREATE_FAILED                                  = 42,
 
-    CHAR_LIST_RETRIEVING                                   = 20,
-    CHAR_LIST_RETRIEVED                                    = 21,
-    CHAR_LIST_FAILED                                       = 22,
+    CHAR_LIST_RETRIEVING                                   = 43,
+    CHAR_LIST_RETRIEVED                                    = 44,
+    CHAR_LIST_FAILED                                       = 45,
 
-    CHAR_CREATE_IN_PROGRESS                                = 23,
-    CHAR_CREATE_SUCCESS                                    = 24,
-    CHAR_CREATE_ERROR                                      = 25,
-    CHAR_CREATE_FAILED                                     = 26,
-    CHAR_CREATE_NAME_IN_USE                                = 27,
-    CHAR_CREATE_DISABLED                                   = 28,
-    CHAR_CREATE_PVP_TEAMS_VIOLATION                        = 29,
-    CHAR_CREATE_SERVER_LIMIT                               = 30,
-    CHAR_CREATE_ACCOUNT_LIMIT                              = 31,
-    CHAR_CREATE_SERVER_QUEUE                               = 32,
-    CHAR_CREATE_ONLY_EXISTING                              = 33,
-    CHAR_CREATE_EXPANSION                                  = 34,
-    CHAR_CREATE_EXPANSION_CLASS                            = 35,
-    CHAR_CREATE_CHARACTER_IN_GUILD                         = 36,
-    CHAR_CREATE_RESTRICTED_RACECLASS                       = 37,
-    CHAR_CREATE_CHARACTER_CHOOSE_RACE                      = 38,
-    CHAR_CREATE_CHARACTER_ARENA_LEADER                     = 39,
-    CHAR_CREATE_CHARACTER_ARENA_TEAM                       = 40,
-    CHAR_CREATE_CHARACTER_DELETE_MAIL                      = 41,
-    CHAR_CREATE_CHARACTER_SWAP_FACTION                     = 42,
-    CHAR_CREATE_CHARACTER_RACE_ONLY                        = 43,
-    CHAR_CREATE_CHARACTER_GOLD_LIMIT                       = 44,
-    CHAR_CREATE_FORCE_LOGIN                                = 45,
-    CHAR_CREATE_TRIAL                                      = 46,
-    CHAR_CREATE_TIMEOUT                                    = 47,
-    CHAR_CREATE_THROTTLE                                   = 48,
-    CHAR_CREATE_ALLIED_RACE_ACHIEVEMENT                    = 49,
-    CHAR_CREATE_CHARACTER_IN_COMMUNITY                     = 50,
-    CHAR_CREATE_NEW_PLAYER                                 = 51,
-    CHAR_CREATE_NAME_RESERVATION_FULL                      = 52,
-    CHAR_CREATE_DRACTHYR_DUPLICATE                         = 53,
-    CHAR_CREATE_DRACTHYR_LEVEL_REQUIREMENT                 = 54,
-    CHAR_CREATE_DEATHKNIGHT_DUPLICATE                      = 55,
-    CHAR_CREATE_DEATHKNIGHT_LEVEL_REQUIREMENT              = 56,
-    CHAR_CREATE_CLASS_TRIAL_NEWCOMER                       = 57,
-    CHAR_CREATE_CLASS_TRIAL_THROTTLE_HOUR                  = 58,
-    CHAR_CREATE_CLASS_TRIAL_THROTTLE_DAY                   = 59,
-    CHAR_CREATE_CLASS_TRIAL_THROTTLE_WEEK                  = 60,
-    CHAR_CREATE_CLASS_TRIAL_THROTTLE_ACCOUNT               = 61,
-    CHAR_CREATE_FACTION_BALANCE                            = 62,
-    CHAR_CREATE_TIMERUNNING                                = 63,
+    CHAR_CREATE_IN_PROGRESS                                = 46,
+    CHAR_CREATE_SUCCESS                                    = 47,
+    CHAR_CREATE_ERROR                                      = 48,
+    CHAR_CREATE_FAILED                                     = 49,
+    CHAR_CREATE_NAME_IN_USE                                = 50,
+    CHAR_CREATE_DISABLED                                   = 51,
+    CHAR_CREATE_PVP_TEAMS_VIOLATION                        = 52,
+    CHAR_CREATE_SERVER_LIMIT                               = 53,
+    CHAR_CREATE_ACCOUNT_LIMIT                              = 54,
+    CHAR_CREATE_SERVER_QUEUE                               = 55,
+    CHAR_CREATE_ONLY_EXISTING                              = 56,
+    CHAR_CREATE_EXPANSION                                  = 57,
+    CHAR_CREATE_EXPANSION_CLASS                            = 58,
+    CHAR_CREATE_LEVEL_REQUIREMENT                          = 59,
+    CHAR_CREATE_UNIQUE_CLASS_LIMIT                         = 60,
+    CHAR_CREATE_CHARACTER_IN_GUILD                         = 61,
+    CHAR_CREATE_RESTRICTED_RACECLASS                       = 62,
+    CHAR_CREATE_CHARACTER_CHOOSE_RACE                      = 63,
+    CHAR_CREATE_CHARACTER_ARENA_LEADER                     = 64,
+    CHAR_CREATE_CHARACTER_DELETE_MAIL                      = 65,
+    CHAR_CREATE_CHARACTER_SWAP_FACTION                     = 66,
+    CHAR_CREATE_CHARACTER_RACE_ONLY                        = 67,
+    CHAR_CREATE_CHARACTER_GOLD_LIMIT                       = 68,
+    CHAR_CREATE_FORCE_LOGIN                                = 69,
+    CHAR_CREATE_TRIAL                                      = 70,
 
-    CHAR_DELETE_IN_PROGRESS                                = 64,
-    CHAR_DELETE_SUCCESS                                    = 65,
-    CHAR_DELETE_FAILED                                     = 66,
-    CHAR_DELETE_FAILED_CHARACTER_SERVICE_PENDING           = 67,
-    CHAR_DELETE_FAILED_GUILD_LEADER                        = 68,
-    CHAR_DELETE_FAILED_ARENA_CAPTAIN                       = 69,
-    CHAR_DELETE_FAILED_HAS_HEIRLOOM_OR_MAIL                = 70,
-    CHAR_DELETE_FAILED_DEPRECATED1                         = 71,
-    CHAR_DELETE_FAILED_HAS_WOW_TOKEN                       = 72,
-    CHAR_DELETE_FAILED_DEPRECATED2                         = 73,
-    CHAR_DELETE_FAILED_COMMUNITY_OWNER                     = 74,
+    CHAR_DELETE_IN_PROGRESS                                = 71,
+    CHAR_DELETE_SUCCESS                                    = 72,
+    CHAR_DELETE_FAILED                                     = 73,
+    CHAR_DELETE_FAILED_LOCKED_FOR_TRANSFER                 = 74,
+    CHAR_DELETE_FAILED_GUILD_LEADER                        = 75,
+    CHAR_DELETE_FAILED_ARENA_CAPTAIN                       = 76,
+    CHAR_DELETE_FAILED_HAS_HEIRLOOM_OR_MAIL                = 77,
 
-    CHAR_LOGIN_IN_PROGRESS                                 = 75,
-    CHAR_LOGIN_SUCCESS                                     = 76,
-    CHAR_LOGIN_NO_WORLD                                    = 77,
-    CHAR_LOGIN_DUPLICATE_CHARACTER                         = 78,
-    CHAR_LOGIN_NO_INSTANCES                                = 79,
-    CHAR_LOGIN_FAILED                                      = 80,
-    CHAR_LOGIN_DISABLED                                    = 81,
-    CHAR_LOGIN_NO_CHARACTER                                = 82,
-    CHAR_LOGIN_LOCKED_FOR_TRANSFER                         = 83,
-    CHAR_LOGIN_LOCKED_BY_BILLING                           = 84,
-    CHAR_LOGIN_LOCKED_BY_MOBILE_AH                         = 85,
-    CHAR_LOGIN_TEMPORARY_GM_LOCK                           = 86,
-    CHAR_LOGIN_LOCKED_BY_CHARACTER_UPGRADE                 = 87,
-    CHAR_LOGIN_LOCKED_BY_REVOKED_CHARACTER_UPGRADE         = 88,
-    CHAR_LOGIN_LOCKED_BY_REVOKED_VAS_TRANSACTION           = 89,
-    CHAR_LOGIN_LOCKED_BY_RESTRICTION                       = 90,
-    CHAR_LOGIN_LOCKED_FOR_REALM_PLAYTYPE                   = 91,
+    CHAR_LOGIN_IN_PROGRESS                                 = 78,
+    CHAR_LOGIN_SUCCESS                                     = 79,
+    CHAR_LOGIN_NO_WORLD                                    = 80,
+    CHAR_LOGIN_DUPLICATE_CHARACTER                         = 81,
+    CHAR_LOGIN_NO_INSTANCES                                = 82,
+    CHAR_LOGIN_FAILED                                      = 83,
+    CHAR_LOGIN_DISABLED                                    = 84,
+    CHAR_LOGIN_NO_CHARACTER                                = 85,
+    CHAR_LOGIN_LOCKED_FOR_TRANSFER                         = 86,
+    CHAR_LOGIN_LOCKED_BY_BILLING                           = 87,
+    CHAR_LOGIN_LOCKED_BY_MOBILE_AH                         = 88,
+    CHAR_LOGIN_TEMPORARY_GM_LOCK                           = 89,
+    CHAR_LOGIN_LOCKED_BY_CHARACTER_UPGRADE                 = 90,
+    CHAR_LOGIN_LOCKED_BY_REVOKED_CHARACTER_UPGRADE         = 91,
 
     CHAR_NAME_SUCCESS                                      = 92,
     CHAR_NAME_FAILURE                                      = 93,
@@ -6323,7 +6329,6 @@ enum ResponseCodes
     CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 106,
     CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 107,
     CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 108,
-    CHAR_NAME_SPACES_DISALLOWED                            = 109,
 };
 
 enum CharacterUndeleteResult

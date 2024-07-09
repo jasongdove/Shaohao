@@ -318,6 +318,9 @@ class TC_GAME_API ObjectGuid
 
         LowType GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
 
+        uint8& operator[](uint32 index);
+        uint8 const& operator[](uint32 index) const;
+
         bool IsEmpty()             const { return _data[0] == 0 && _data[1] == 0; }
         bool IsCreature()          const { return GetHigh() == HighGuid::Creature; }
         bool IsPet()               const { return GetHigh() == HighGuid::Pet; }

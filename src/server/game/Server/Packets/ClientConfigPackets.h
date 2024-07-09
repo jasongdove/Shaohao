@@ -88,6 +88,14 @@ namespace WorldPackets
             ByteBuffer CompressedData;
         };
 
+        class ReadyForAccountDataTimes final : public ClientPacket
+        {
+        public:
+            ReadyForAccountDataTimes(WorldPacket&& packet) : ClientPacket(CMSG_READY_FOR_ACCOUNT_DATA_TIMES, std::move(packet)) { }
+
+            void Read() override;
+        };
+
         class SetAdvancedCombatLogging final : public ClientPacket
         {
         public:

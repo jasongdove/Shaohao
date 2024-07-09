@@ -280,6 +280,7 @@ namespace WorldPackets
     {
         class RequestAccountData;
         class UserClientUpdateAccountData;
+        class ReadyForAccountDataTimes;
         class SetAdvancedCombatLogging;
     }
 
@@ -1311,6 +1312,7 @@ class TC_GAME_API WorldSession
 
         void HandleUpdateAccountData(WorldPackets::ClientConfig::UserClientUpdateAccountData& packet);
         void HandleRequestAccountData(WorldPackets::ClientConfig::RequestAccountData& request);
+        void HandleReadyForAccountDataTimes(WorldPackets::ClientConfig::ReadyForAccountDataTimes& request);
         void HandleSetAdvancedCombatLogging(WorldPackets::ClientConfig::SetAdvancedCombatLogging& setAdvancedCombatLogging);
         void HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionButton& packet);
 

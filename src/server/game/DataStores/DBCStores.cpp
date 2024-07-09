@@ -67,8 +67,8 @@ DBCStorage<BarberShopStyleEntry>               sBarberShopStyleStore(BarberShopS
 DBCStorage<BattlemasterListEntry>              sBattlemasterListStore(BattlemasterListfmt);
 DBCStorage<Cfg_CategoriesEntry>                sCfgCategoriesStore("");
 DBCStorage<Cfg_RegionsEntry>                   sCfgRegionsStore("");
-DBCStorage<CharacterLoadoutEntry>              sCharacterLoadoutStore("");
-DBCStorage<CharacterLoadoutItemEntry>          sCharacterLoadoutItemStore("");
+DBCStorage<CharacterLoadoutEntry>              sCharacterLoadoutStore(CharacterLoadoutfmt);
+DBCStorage<CharacterLoadoutItemEntry>          sCharacterLoadoutItemStore(CharacterLoadoutItemfmt);
 DBCStorage<CharBaseInfoEntry>                  sCharBaseInfoStore("");
 DBCStorage<CharSectionsEntry>                  sCharSectionsStore(CharSectionsfmt);
 CharSectionsMap                                sCharSectionMap;
@@ -125,7 +125,7 @@ DBCStorage<ItemArmorShieldEntry>               sItemArmorShieldStore(ItemArmorSh
 DBCStorage<ItemArmorTotalEntry>                sItemArmorTotalStore(ItemArmorTotalfmt);
 DBCStorage<ItemBagFamilyEntry>                 sItemBagFamilyStore(ItemBagFamilyfmt);
 DBCStorage<ItemClassEntry>                     sItemClassStore(ItemClassfmt);
-DBCStorage<ItemDamageAmmoEntry>                sItemDamageAmmoStore("");
+DBCStorage<ItemDamageAmmoEntry>                sItemDamageAmmoStore(ItemDamagefmt);
 DBCStorage<ItemDamageOneHandEntry>             sItemDamageOneHandStore(ItemDamagefmt);
 DBCStorage<ItemDamageOneHandCasterEntry>       sItemDamageOneHandCasterStore(ItemDamagefmt);
 // TODO: DATA ItemDamageRanged, ItemDamageThrown, ItemDamageWand
@@ -438,19 +438,19 @@ LOAD_DBC(sAuctionHouseStore, "AuctionHouse.dbc");
 //    LOAD_DBC(sBattlemasterListStore, "BattlemasterList.dbc");//20444
 //    // TODO: DATA LOAD_DBC(sCfgCategoriesStore, "Cfg_Categories.dbc");
 //    // TODO: DATA LOAD_DBC(sCfgRegionsStore, "Cfg_Regions.dbc");
-//    // TODO: DATA LOAD_DBC(sCharacterLoadoutStore, "CharacterLoadout.dbc");
-//    // TODO: DATA LOAD_DBC(sCharacterLoadoutItemStore, "CharacterLoadoutItem.dbc");
+LOAD_DBC(sCharacterLoadoutStore, "CharacterLoadout.dbc");
+LOAD_DBC(sCharacterLoadoutItemStore, "CharacterLoadoutItem.dbc");
 //    // TODO: DATA LOAD_DBC(sCharBaseInfoStore, "CharBaseInfo.dbc");
 //    LOAD_DBC(sCharSectionsStore, "CharSections.dbc");//20444
 //    // sCharSectionMap
-//    LOAD_DBC(sCharStartOutfitStore, "CharStartOutfit.dbc");
+LOAD_DBC(sCharStartOutfitStore, "CharStartOutfit.dbc");
 //    // sCharStartOutfitMap
 //    LOAD_DBC(sCharTitlesStore, "CharTitles.dbc");//20444
 //    LOAD_DBC(sChatChannelsStore, "ChatChannels.dbc");//20444
 LOAD_DBC(sChrClassesStore, "ChrClasses.dbc");//20444
 //    // TODO: DATA LOAD_DBC(sChrClassesXPowerTypesStore, "ChrClassesXPowerTypes.dbc");
 LOAD_DBC(sChrRacesStore, "ChrRaces.dbc");//20444
-//    LOAD_DBC(sChrSpecializationStore, "ChrSpecialization.dbc");//20444
+LOAD_DBC(sChrSpecializationStore, "ChrSpecialization.dbc");
 //    // sChrSpecializationByIndexStore
 //    LOAD_DBC(sCinematicCameraStore, "CinematicCamera.dbc");
 //    LOAD_DBC(sCinematicSequencesStore, "CinematicSequences.dbc");
@@ -497,14 +497,16 @@ LOAD_DBC(sGameTablesStore, "GameTables.dbc");
 //    LOAD_DBC(sItemArmorTotalStore, "ItemArmorTotal.dbc");//20444
 //    LOAD_DBC(sItemBagFamilyStore, "ItemBagFamily.dbc");//20444
 //    LOAD_DBC(sItemClassStore, "ItemClass.dbc");
-//    // TODO: DATA LOAD_DBC(sItemDamageAmmoStore, "ItemDamageAmmo.dbc");//20444
-//    LOAD_DBC(sItemDamageOneHandStore, "ItemDamageOneHand.dbc");//20444
-//    LOAD_DBC(sItemDamageOneHandCasterStore, "ItemDamageOneHandCaster.dbc");//20444
-//    // TODO: DATA LOAD_DBC(sItemDamageRangedStore, "ItemDamageRanged.dbc");//20444
-//    // TODO: DATA LOAD_DBC(sItemDamageThrownStore, "ItemDamageThrown.dbc");//20444
-//    LOAD_DBC(sItemDamageTwoHandStore, "ItemDamageTwoHand.dbc");//20444
-//    LOAD_DBC(sItemDamageTwoHandCasterStore, "ItemDamageTwoHandCaster.dbc");//20444
-//    // TODO: DATA LOAD_DBC(sItemDamageWandStore, "ItemDamageWand.dbc");//20444
+
+LOAD_DBC(sItemDamageAmmoStore, "ItemDamageAmmo.dbc");//20444
+LOAD_DBC(sItemDamageOneHandStore, "ItemDamageOneHand.dbc");//20444
+LOAD_DBC(sItemDamageOneHandCasterStore, "ItemDamageOneHandCaster.dbc");//20444
+//LOAD_DBC(sItemDamageRangedStore, "ItemDamageRanged.dbc");//20444
+//LOAD_DBC(sItemDamageThrownStore, "ItemDamageThrown.dbc");//20444
+LOAD_DBC(sItemDamageTwoHandStore, "ItemDamageTwoHand.dbc");//20444
+LOAD_DBC(sItemDamageTwoHandCasterStore, "ItemDamageTwoHandCaster.dbc");//20444
+//LOAD_DBC(sItemDamageWandStore, "ItemDamageWand.dbc");//20444
+
 //    LOAD_DBC(sItemDisenchantLootStore, "ItemDisenchantLoot.dbc");
 //    LOAD_DBC(sItemDisplayInfoStore, "ItemDisplayInfo.dbc");//20444
 //    LOAD_DBC(sItemLimitCategoryStore, "ItemLimitCategory.dbc");
@@ -527,19 +529,19 @@ LOAD_DBC(sGameTablesStore, "GameTables.dbc");
 //    LOAD_DBC(sLiquidTypeStore, "LiquidType.dbc");//20444
 //    LOAD_DBC(sLockStore, "Lock.dbc");//20444
 //    LOAD_DBC(sMailTemplateStore, "MailTemplate.dbc");
-LOAD_DBC_EXTRA(sMapStore, "Map.dbc", MapEntry::ExtraData);//20444
+LOAD_DBC(sMapStore, "Map.dbc");//20444
 //    LOAD_DBC(sMapDifficultyStore, "MapDifficulty.dbc");//20444
 //    // sMapDifficultyMap
 //    LOAD_DBC(sModifierTreeStore, "ModifierTree.dbc");
 //    LOAD_DBC(sMountCapabilityStore, "MountCapability.dbc");
 //    LOAD_DBC(sMountTypeStore, "MountType.dbc");
 //    LOAD_DBC(sMovieStore, "Movie.dbc");//20444
-//    LOAD_DBC(sNameGenStore, "NameGen.dbc");
+LOAD_DBC(sNameGenStore, "NameGen.dbc");
 //    // TODO: DATA LOAD_DBC(sNamesProfanityStore, "NamesProfanity.dbc");
 //    // TODO: DATA LOAD_DBC(sNamesReservedStore, "NamesReserved.dbc");
 //    // TODO: DATA LOAD_DBC(sNamesReservedLocaleStore, "NamesReservedLocaleStore.dbc");
 //    LOAD_DBC(sOverrideSpellDataStore, "OverrideSpellData.dbc");
-//    LOAD_DBC(sPhaseStore, "Phase.dbc"); // 20444
+LOAD_DBC(sPhaseStore, "Phase.dbc"); // 20444
 //    // TODO: DATA LOAD_DBC(sPhaseXPhaseGroupStore, "PhaseXPhaseGroup.dbc");
 //    LOAD_DBC(sPlayerConditionStore, "PlayerCondition.dbc");
 //    LOAD_DBC(sPowerDisplayStore, "PowerDisplay.dbc");//20444
@@ -559,9 +561,9 @@ LOAD_DBC_EXTRA(sMapStore, "Map.dbc", MapEntry::ExtraData);//20444
 //    LOAD_DBC(sScenarioStore, "Scenario.dbc");
 //    LOAD_DBC(sScenarioStepStore, "ScenarioStep.dbc");
 //    // TODO: DATA LOAD_DBC(sServerMessagesStore, "ServerMessages.dbc");
-//    LOAD_DBC(sSkillLineStore, "SkillLine.dbc");//20444
-//    LOAD_DBC(sSkillLineAbilityStore, "SkillLineAbility.dbc");//20444
-//    LOAD_DBC(sSkillRaceClassInfoStore, "SkillRaceClassInfo.dbc");//20444
+LOAD_DBC(sSkillLineStore, "SkillLine.dbc");//20444
+LOAD_DBC(sSkillLineAbilityStore, "SkillLineAbility.dbc");//20444
+LOAD_DBC(sSkillRaceClassInfoStore, "SkillRaceClassInfo.dbc");//20444
 //    //
 //    //
 //    LOAD_DBC(sSoundEntriesStore, "SoundEntries.dbc");
@@ -605,10 +607,9 @@ LOAD_DBC(sSpellRadiusStore, "SpellRadius.dbc");
 //    // TODO: DATA LOAD_DBC(sSpellVisualKitStore, "SpellVisualKit.dbc");
 //    LOAD_DBC(sSummonPropertiesStore, "SummonProperties.dbc");//20444
 //    LOAD_DBC(sTalentStore, "Talent.dbc");//20444
-//    //
-//    LOAD_DBC(sTaxiNodesStore, "TaxiNodes.dbc");
-//    LOAD_DBC(sTaxiPathStore, "TaxiPath.dbc");
-//    LOAD_DBC(sTaxiPathNodeStore, "TaxiPathNode.dbc");
+LOAD_DBC(sTaxiNodesStore, "TaxiNodes.dbc");
+LOAD_DBC(sTaxiPathStore, "TaxiPath.dbc");
+LOAD_DBC(sTaxiPathNodeStore, "TaxiPathNode.dbc");
 //    LOAD_DBC(sTotemCategoryStore, "TotemCategory.dbc");
 //    LOAD_DBC(sTransportAnimationStore, "TransportAnimation.dbc");
 //    LOAD_DBC(sTransportRotationStore, "TransportRotation.dbc");
@@ -683,6 +684,10 @@ LOAD_DBC(sSpellRadiusStore, "SpellRadius.dbc");
             const_cast<BattlemasterListEntry*>(battlemaster)->MaxPlayers = minPlayers;
         }
     }
+
+    for (uint32 i = 0; i < sCharStartOutfitStore.GetNumRows(); ++i)
+        if (CharStartOutfitEntry const* outfit = sCharStartOutfitStore.LookupEntry(i))
+            sCharStartOutfitMap[outfit->Race | (outfit->Class << 8) | (outfit->Gender << 16)] = outfit;
 
     std::unordered_map<uint32, uint32> parentRaces;
     for (ChrRacesEntry const* chrRace : sChrRacesStore)
@@ -1565,6 +1570,15 @@ char const* DBCManager::GetCreatureFamilyPetName(uint32 petfamily, LocaleConstan
         return nullptr;
 
     return petFamily->Name(locale)[0] != '\0' ? petFamily->Name(locale) : nullptr;
+}
+
+CharStartOutfitEntry const* DBCManager::GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender) const
+{
+    std::map<uint32, CharStartOutfitEntry const*>::const_iterator itr = sCharStartOutfitMap.find(race | (class_ << 8) | (gender << 16));
+    if (itr == sCharStartOutfitMap.end())
+        return nullptr;
+
+    return itr->second;
 }
 
 ChrSpecializationEntry const* DBCManager::GetChrSpecializationByIndex(uint32 class_, uint32 index) const
