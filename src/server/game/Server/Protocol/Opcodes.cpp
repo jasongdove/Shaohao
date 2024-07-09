@@ -107,11 +107,12 @@ bool OpcodeTable::ValidateServerOpcode(OpcodeServer opcode, char const* name, Co
         return false;
     }
 
-    if (IsInstanceOnlyOpcode(opcode) && conIdx != CONNECTION_TYPE_INSTANCE)
-    {
-        TC_LOG_ERROR("network", "Tried to set invalid connection type {} for instance only opcode {}", conIdx, name);
-        return false;
-    }
+    // Shaohao: this won't work until SMSG_CONNECT_TO works, so allow all messages on CONNECTION_TYPE_REALM
+//    if (IsInstanceOnlyOpcode(opcode) && conIdx != CONNECTION_TYPE_INSTANCE)
+//    {
+//        TC_LOG_ERROR("network", "Tried to set invalid connection type {} for instance only opcode {}", conIdx, name);
+//        return false;
+//    }
 
     if ((*this)[opcode] != nullptr)
     {

@@ -225,7 +225,8 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
     }
 
     // Default connection index defined in Opcodes.cpp table
-    ConnectionType conIdx = handler->ConnectionIndex;
+    // Shaohao: this won't work until SMSG_CONNECT_TO works, so allow all messages on CONNECTION_TYPE_REALM
+    ConnectionType conIdx = ConnectionType::CONNECTION_TYPE_REALM; // handler->ConnectionIndex;
 
     // Override connection index
     if (packet->GetConnection() != CONNECTION_TYPE_DEFAULT)
