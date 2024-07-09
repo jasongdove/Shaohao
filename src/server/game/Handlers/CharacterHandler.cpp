@@ -563,6 +563,10 @@ bool WorldSession::MeetsChrCustomizationReq(ChrCustomizationReqEntry const* req,
 
 bool WorldSession::ValidateAppearance(Races race, Classes playerClass, Gender gender, Trinity::IteratorPair<UF::ChrCustomizationChoice const*> customizations)
 {
+    // TODO: DATA mock up some character customization entries to support missing PLAYER_BYTES?
+    // e.g. skin, face, hair style, hair color, facial hair
+    return true;
+
     std::vector<ChrCustomizationOptionEntry const*> const* options = sDB2Manager.GetCustomiztionOptions(race, gender);
     if (!options)
         return false;
@@ -762,11 +766,11 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
         return;
     }
 
-    if (charCreate.CreateInfo->TimerunningSeasonID)
-    {
-        SendCharCreate(CHAR_CREATE_TIMERUNNING);
-        return;
-    }
+//    if (charCreate.CreateInfo->TimerunningSeasonID)
+//    {
+//        SendCharCreate(CHAR_CREATE_TIMERUNNING);
+//        return;
+//    }
 
     std::shared_ptr<WorldPackets::Character::CharacterCreateInfo> createInfo = charCreate.CreateInfo;
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
@@ -912,25 +916,25 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
                 }
             }
 
-            if (checkClassLevelReqs)
-            {
-                if (!hasDemonHunterReqLevel)
-                {
-                    SendCharCreate(CHAR_CREATE_NEW_PLAYER);
-                    return;
-                }
-                if (!hasEvokerReqLevel)
-                {
-                    SendCharCreate(CHAR_CREATE_DRACTHYR_LEVEL_REQUIREMENT);
-                    return;
-                }
-            }
-
-            if (createInfo->Class == CLASS_EVOKER && hasEvokerLimit && evokerLimit < 1)
-            {
-                SendCharCreate(CHAR_CREATE_DRACTHYR_DUPLICATE);
-                return;
-            }
+//            if (checkClassLevelReqs)
+//            {
+//                if (!hasDemonHunterReqLevel)
+//                {
+//                    SendCharCreate(CHAR_CREATE_NEW_PLAYER);
+//                    return;
+//                }
+//                if (!hasEvokerReqLevel)
+//                {
+//                    SendCharCreate(CHAR_CREATE_DRACTHYR_LEVEL_REQUIREMENT);
+//                    return;
+//                }
+//            }
+//
+//            if (createInfo->Class == CLASS_EVOKER && hasEvokerLimit && evokerLimit < 1)
+//            {
+//                SendCharCreate(CHAR_CREATE_DRACTHYR_DUPLICATE);
+//                return;
+//            }
 
             // Check name uniqueness in the same step as saving to database
             if (sCharacterCache->GetCharacterCacheByName(createInfo->Name))

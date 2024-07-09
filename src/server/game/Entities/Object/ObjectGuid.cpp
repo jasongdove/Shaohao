@@ -763,6 +763,24 @@ auto fmt::formatter<ObjectGuid>::format(ObjectGuid const& guid, FormatContext& c
 
 template TC_GAME_API fmt::appender fmt::formatter<ObjectGuid>::format<fmt::format_context>(ObjectGuid const&, format_context&) const;
 
+uint8& ObjectGuid::operator[](uint32 index)
+{
+    ASSERT(index < sizeof(uint64));
+#if TRINITY_ENDIAN == TRINITY_BIGENDIAN
+    index = 7 - index;
+#endif
+    return reinterpret_cast<uint8*>(&_data[0])[index];
+}
+
+uint8 const& ObjectGuid::operator[](uint32 index) const
+{
+    ASSERT(index < sizeof(uint64));
+#if TRINITY_ENDIAN == TRINITY_BIGENDIAN
+    index = 7 - index;
+#endif
+    return reinterpret_cast<uint8 const*>(&_data[0])[index];
+}
+
 std::string_view ObjectGuid::GetTypeName(HighGuid high)
 {
     if (high >= HighGuid::Count)

@@ -182,6 +182,12 @@ class TC_SHARED_API ByteBuffer
             return bit;
         }
 
+        void WriteByteSeq(uint8 b)
+        {
+            if (b != 0)
+                append<uint8>(b ^ 1);
+        }
+
         bool ReadBit()
         {
             ++_bitpos;
