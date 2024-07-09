@@ -458,7 +458,7 @@ LOAD_DBC(sCreatureDisplayInfoStore, "CreatureDisplayInfo.dbc");
 //    LOAD_DBC(sCreatureDisplayInfoExtraStore, "CreatureDisplayInfoExtra.dbc");//20444
 LOAD_DBC(sCreatureFamilyStore, "CreatureFamily.dbc");//20444
 //    LOAD_DBC(sCreatureImmunitiesStore, "CreatureImmunities.dbc");
-//    LOAD_DBC(sCreatureModelDataStore, "CreatureModelData.dbc");//20444
+LOAD_DBC(sCreatureModelDataStore, "CreatureModelData.dbc");//20444
 //    LOAD_DBC(sCreatureSpellDataStore, "CreatureSpellData.dbc");
 LOAD_DBC(sCreatureTypeStore, "CreatureType.dbc");
 //    LOAD_DBC(sCriteriaStore, "Criteria.dbc");

@@ -388,7 +388,7 @@ struct CreatureModelDataEntry
 {
     uint32      ID;                                         // 0
     uint32      Flags;                                      // 1
-    LocalizedString ModelName;                              // 2
+    char*       ModelName;                                  // 2
     //uint32    SizeClass;                                  // 3
     float       ModelScale;                                 // 4
     //uint32    BloodID;                                    // 5
@@ -418,7 +418,7 @@ struct CreatureModelDataEntry
     float       HoverHeight;                                // 33
 
     // Shaohao: MOP doesn't have CreatureModelData.FileDataID
-    uint32 FileDataID = 0;
+    static const uint32 FileDataID = 0;
 
     EnumFlag<CreatureModelDataFlags> GetFlags() const { return static_cast<CreatureModelDataFlags>(Flags); }
 };

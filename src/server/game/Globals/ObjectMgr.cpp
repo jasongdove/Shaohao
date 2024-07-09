@@ -3790,13 +3790,13 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                if (!sDB2Manager.GetChrModel(current_race, GENDER_MALE))
+                if (!sDB2Manager.GetChrModelDisplayID(current_race, GENDER_MALE))
                 {
                     TC_LOG_ERROR("sql.sql", "Missing male model for race {}, ignoring.", current_race);
                     continue;
                 }
 
-                if (!sDB2Manager.GetChrModel(current_race, GENDER_FEMALE))
+                if (!sDB2Manager.GetChrModelDisplayID(current_race, GENDER_FEMALE))
                 {
                     TC_LOG_ERROR("sql.sql", "Missing female model for race {}, ignoring.", current_race);
                     continue;

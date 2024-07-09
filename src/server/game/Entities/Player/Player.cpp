@@ -22906,14 +22906,14 @@ void Player::InitDataForForm(bool reapplyMods)
 
 void Player::InitDisplayIds()
 {
-    ChrModelEntry const* model = sDB2Manager.GetChrModel(GetRace(), GetNativeGender());
-    if (!model)
+    auto displayId = sDB2Manager.GetChrModelDisplayID(GetRace(), GetNativeGender());
+    if (!displayId)
     {
         TC_LOG_ERROR("entities.player", "Player::InitDisplayIds: Player '{}' ({}) has incorrect race/gender pair. Can't init display ids.", GetName(), GetGUID().ToString());
         return;
     }
 
-    SetDisplayId(model->DisplayID, true);
+    SetDisplayId(*displayId, true);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateAnimID), sDBCManager.GetEmptyAnimStateID());
 }
 

@@ -266,7 +266,7 @@ namespace
     std::array<ChrClassUIDisplayEntry const*, MAX_CLASSES> _uiDisplayByClass;
     std::array<std::array<uint32, MAX_POWERS>, MAX_CLASSES> _powersByClass;
     std::unordered_map<uint32 /*chrCustomizationOptionId*/, std::vector<ChrCustomizationChoiceEntry const*>> _chrCustomizationChoicesByOption;
-    std::unordered_map<std::pair<uint8 /*race*/, uint8/*gender*/>, ChrModelEntry const*> _chrModelsByRaceAndGender;
+    std::unordered_map<std::pair<uint8 /*race*/, uint8/*gender*/>, uint32> _chrDisplayIdByRaceAndGender;
     std::map<std::tuple<uint8 /*race*/, uint8/*gender*/, uint8/*shapeshift*/>, ShapeshiftFormModelData> _chrCustomizationChoicesForShapeshifts;
     std::unordered_map<std::pair<uint8 /*race*/, uint8/*gender*/>, std::vector<ChrCustomizationOptionEntry const*>> _chrCustomizationOptionsByRaceAndGender;
     std::unordered_map<uint32 /*chrCustomizationReqId*/, std::vector<std::pair<uint32 /*chrCustomizationOptionId*/, std::vector<uint32>>>> _chrCustomizationRequiredChoices;
@@ -578,13 +578,8 @@ LOAD_DB2(sItemStore);
     // Shaohao: fake having ChrModel store
     for (ChrRacesEntry const* chrRacesEntry : sChrRacesStore)
     {
-        ChrModelEntry maleModel { };
-        maleModel.DisplayID = chrRacesEntry->MaleDisplayID;
-        _chrModelsByRaceAndGender[{uint8(chrRacesEntry->ID), uint8(GENDER_MALE)}] = &maleModel;
-
-        ChrModelEntry femaleModel { };
-        femaleModel.DisplayID = chrRacesEntry->FemaleDisplayID;
-        _chrModelsByRaceAndGender[{uint8(chrRacesEntry->ID), uint8(GENDER_FEMALE)}] = &femaleModel;
+        _chrDisplayIdByRaceAndGender[{uint8(chrRacesEntry->ID), uint8(GENDER_MALE)}] = chrRacesEntry->MaleDisplayID;
+        _chrDisplayIdByRaceAndGender[{uint8(chrRacesEntry->ID), uint8(GENDER_FEMALE)}] = chrRacesEntry->FemaleDisplayID;
     }
 
     for (ConditionalChrModelEntry const* conditionalChrModel : sConditionalChrModelStore)
@@ -1131,9 +1126,9 @@ std::vector<std::pair<uint32, std::vector<uint32>>> const* DB2Manager::GetRequir
     return Trinity::Containers::MapGetValuePtr(_chrCustomizationRequiredChoices, chrCustomizationReqId);
 }
 
-ChrModelEntry const* DB2Manager::GetChrModel(uint8 race, uint8 gender) const
+uint32 const* DB2Manager::GetChrModelDisplayID(uint8 race, uint8 gender) const
 {
-    return Trinity::Containers::MapGetValuePtr(_chrModelsByRaceAndGender, { race, gender });
+    return Trinity::Containers::MapGetValuePtr(_chrDisplayIdByRaceAndGender, { race, gender });
 }
 
 ConditionalChrModelEntry const* DB2Manager::GetConditionalChrModel(int32 chrModelId)

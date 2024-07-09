@@ -21,8 +21,8 @@
 WorldPacket const* WorldPackets::Misc::BindPointUpdate::Write()
 {
     _worldPacket << BindPosition;
-    _worldPacket << uint32(BindMapID);
     _worldPacket << uint32(BindAreaID);
+    _worldPacket << uint32(BindMapID);
 
     return &_worldPacket;
 }

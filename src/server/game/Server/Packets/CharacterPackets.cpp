@@ -638,9 +638,11 @@ void PlayerLogin::Read()
 
 WorldPacket const* LoginVerifyWorld::Write()
 {
-    _worldPacket << int32(MapID);
-    _worldPacket << Pos;
-    _worldPacket << uint32(Reason);
+    _worldPacket << Pos.Pos.GetPositionX();
+    _worldPacket << Pos.Pos.GetOrientation();
+    _worldPacket << Pos.Pos.GetPositionY();
+    _worldPacket << uint32(MapID);
+    _worldPacket << Pos.Pos.GetPositionZ();
     return &_worldPacket;
 }
 
