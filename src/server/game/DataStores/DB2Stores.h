@@ -24,6 +24,7 @@
 #include "SharedDefines.h"
 #include <boost/regex.hpp>
 #include <array>
+#include <span>
 
 // TODO: DATA THESE ARE EMPTY STORES; DELETE EVENTUALLY
 TC_GAME_API extern DB2Storage<AdventureJournalEntry>                sAdventureJournalStore;
